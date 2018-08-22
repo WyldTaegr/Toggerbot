@@ -12,12 +12,12 @@ module.exports = {
             .setDescription("Below is information about your server:")
             .setThumbnail(`${message.guild.iconURL}`)
             .setTimestamp()
-            .addField(`Member Count:` ,`${message.guild.memberCount}`)
-            .addField(`Server:`, `${message.guild.region}`)
-            .addField(`AFK Timeout:`, `${message.guild.afkTimeout}`)
-            .addField(`AFK Channel:`, `${message.guild.afkChannel}`)
-            .addField(`Default Channel:`, `${message.guild.defaultChannel}`)
-            .addField(`Date of Formation:`, `${message.guild.createdAt}`);
+            .addField('Member Count:' ,message.guild.memberCount)
+            .addField('Server:', message.guild.region)
+            .addField('AFK Timeout:', message.guild.afkTimeout)
+            .addField('AFK Channel:', message.guild.afkChannel)
+            .addField('Default Channel:', message.guild.defaultChannel)
+            .addField('Date of Formation:', message.guild.createdAt);
 
         message.channel.send({embed});
     }

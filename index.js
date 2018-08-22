@@ -1,3 +1,4 @@
+const Game = require("./commands/tos/src/game.js");
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
@@ -20,6 +21,7 @@ const cooldowns = new Discord.Collection();
 
 client.on('ready', () => {
 	console.log('Ready!');
+	client.guilds.get("480906166541484033").me.setNickname("Sex Bot");
 });
 
 client.on('message', message => {
@@ -81,3 +83,6 @@ client.on('message', message => {
 });
 
 client.login(token);
+const game = new Game();
+console.log(game.running);
+module.exports = game;
