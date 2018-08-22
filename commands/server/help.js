@@ -5,7 +5,7 @@ module.exports = {
     name: 'help',
     description: 'Lists all commands, or specific info for a command',
     aliases: ['commands'],
-    usage: 's!help [command name]',
+    usage: `${prefix}help [command name]`,
     cooldown: 0,
     execute(message, args) {
         const data = [];
@@ -28,7 +28,7 @@ module.exports = {
             return message.author.send(embedInitial)
                 .then(() => {
                     if (message.channel.type === 'dm') return;
-                    message.reply(`Help is in your DM's!`);
+                    message.reply(`You need help.`);
                 })
                 .catch(error => {
                     console.error(`Could not send help DM to ${message.author.tag}.\n`, error);

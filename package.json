@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/WyldTaegr/Toggerbot#readme",
   "dependencies": {
-    "discord.js": "^11.4.2"
+    "discord.js": "^11.4.2",
+    "leaguejs": "^1.10.1"
   }
 }
