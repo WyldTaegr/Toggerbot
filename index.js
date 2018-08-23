@@ -1,4 +1,3 @@
-const Game = require("./commands/tos/src/game.js");
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
@@ -83,6 +82,3 @@ client.on('message', message => {
 });
 
 client.login(token);
-const game = new Game();
-console.log(game.running);
-module.exports = game;
