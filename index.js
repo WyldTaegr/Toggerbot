@@ -1,10 +1,14 @@
+"use strict"
+
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
+const Game = require("./commands/tos/src/game.js");
 
-const client = new Discord.Client();
+const client = new Discord.Client({sync: true});
+
+const games = new Discord.Collection();
 client.commands = new Discord.Collection();
-
 const commandFolders = fs.readdirSync('./commands');
 for (const folder of commandFolders) {
     const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
@@ -21,6 +25,11 @@ const cooldowns = new Discord.Collection();
 client.on('ready', () => {
 	console.log('Ready!');
 	client.guilds.get("480906166541484033").me.setNickname("Sex Bot");
+	for (const guild of client.guilds) {
+		const game = new Game();
+		games.set(guild[0], game);
+	}
+	module.exports.games = games;
 });
 
 client.on('message', message => {
