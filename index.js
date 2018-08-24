@@ -2,12 +2,13 @@
 
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token } = require('./config.json');
+const { id, token } = require('./config.json');
 const Game = require("./commands/tos/src/game.js");
 
 const client = new Discord.Client({sync: true});
 
 const games = new Discord.Collection();
+
 client.commands = new Discord.Collection();
 const commandFolders = fs.readdirSync('./commands');
 for (const folder of commandFolders) {
@@ -18,6 +19,17 @@ for (const folder of commandFolders) {
     }
 }
 
+client.prefixes = new Discord.Collection();
+for (const folder of commandFolders) {
+	const commands = new Discord.Collection(); 
+	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+	commands.set('name', folder);
+	for (const file of commandFiles) {
+		const command = require(`./commands/${folder}/${file}`);
+		commands.set(command.name, command);
+	}
+	client.prefixes.set(folder, commands);
+}
 
 
 const cooldowns = new Discord.Collection();
@@ -33,13 +45,22 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
+	if (message.author.bot) return;
 
-	const args = message.content.slice(prefix.length).split(/ +/);
+	let commandType;
+	for (const prefix of client.prefixes) {
+		if (message.content.startsWith(prefix[1].get('name') + id)) {
+			commandType = prefix[1].get('name');
+		}
+	}
+
+	if (!commandType) return;
+
+	const args = message.content.slice(commandType.length + id.length).split(/ +/);
 	const commandName = args.shift().toLowerCase();
 
-	const command = client.commands.get(commandName)
-		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+	const command = client.prefixes.get(commandType).get(commandName)
+		|| client.prefixes.get(commandType).find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
 	if (!command) return;
 
