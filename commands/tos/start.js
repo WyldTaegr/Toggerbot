@@ -1,5 +1,3 @@
-const Game = require("./src/game.js");
-
 const initializeGame = async function (message, game) {
     game.category = await message.guild.createChannel('Town Of Salem', 'category');
     game.botChannel = await message.guild.createChannel('gods-hand', 'text');
@@ -10,8 +8,8 @@ module.exports = {
     name: "start",
     description: `Start a game of Town Of Salem, with you as the moderator.`,
     execute(message) {
-        const games = require("../../index.js").games;
-        const game = games.get(message.guild.id);
+        const client = require("../../index.js");
+        const game = client.games.get(message.guild.id);
         if (game.running) return message.reply("Stop being a sore-ass loser");
         game.running = true;
         game.moderator = message.author;

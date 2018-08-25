@@ -1,4 +1,4 @@
-module.exports = {
+module.exports.view = {
     id: 'sheriff',
     name: 'Sheriff',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Sheriff.png',

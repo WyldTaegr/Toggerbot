@@ -7,19 +7,10 @@ const Game = require("./commands/tos/src/game.js");
 
 const client = new Discord.Client({sync: true});
 
-const games = new Discord.Collection();
-
-client.commands = new Discord.Collection();
-const commandFolders = fs.readdirSync('./commands');
-for (const folder of commandFolders) {
-    const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-    for (const file of commandFiles) {
-        const command = require(`./commands/${folder}/${file}`);
-        client.commands.set(command.name, command);
-    }
-}
+client.games = new Discord.Collection();
 
 client.prefixes = new Discord.Collection();
+const commandFolders = fs.readdirSync('./commands');
 for (const folder of commandFolders) {
 	const commands = new Discord.Collection(); 
 	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
@@ -37,11 +28,11 @@ const cooldowns = new Discord.Collection();
 client.on('ready', () => {
 	console.log('Ready!');
 	client.guilds.get("480906166541484033").me.setNickname("Sex Bot");
-	for (const guild of client.guilds) {
+	for (const guild of client.guilds) { //When iterating through a collection, the const returns an Array[key, value]
 		const game = new Game();
-		games.set(guild[0], game);
+		client.games.set(guild[0], game);
 	}
-	module.exports.games = games;
+	module.exports = client;
 });
 
 client.on('message', message => {
