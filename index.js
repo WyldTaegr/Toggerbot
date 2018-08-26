@@ -28,6 +28,7 @@ const cooldowns = new Discord.Collection();
 client.on('ready', () => {
 	console.log('Ready!');
 	client.guilds.get("480906166541484033").me.setNickname("Sex Bot");
+	client.user.setActivity('Finding Jerry');
 	for (const guild of client.guilds) { //When iterating through a collection, the const returns an Array[key, value]
 		const game = new Game();
 		client.games.set(guild[0], game);
