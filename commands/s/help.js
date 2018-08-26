@@ -12,8 +12,9 @@ module.exports = {
         const client = require("../../index.js");
 
         const embedInitial = new Discord.RichEmbed()
-            .setTitle(`**List of Commands:**`)
-            .setDescription(`\nUse \`s${id}help [command name]\` to get info on a specific command`) //NOTE: prefix before id depends on folder name!
+            .setTitle('**ToggerBot**')
+            .setDescription('A bot made by Togger')
+            .addField(`List of Commands:`, `\nUse \`s${id}help [command name]\` to get info on a specific command`) //NOTE: prefix before id depends on folder name!
             .setColor(0x00AE86)
             .setThumbnail(client.user.avatarURL)
             .setTimestamp();
@@ -33,7 +34,7 @@ module.exports = {
                 for (let a = 0; a < commandList.get(prefixList[i]).length; a++) {
                     commands = commands.concat(commandList.get(prefixList[i])[a], ` `);
                 }
-                embedInitial.addField(`**${prefixList[i]}**:`, "`" + commands + "`", false);
+                embedInitial.addField(`${prefixList[i]}:`, "`" + commands + "`", false);
             }
 
             embedInitial.addField("___", "Note: although different commands require different prefixes, all commands can be looked up using `" + this.usage + "`", true);
