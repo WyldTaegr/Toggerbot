@@ -11,3 +11,8 @@ module.exports.view = {
                  You will know if your target is attacked.`,
     goal: 'Lynch every criminal and evildoer.'
 }
+module.exports.object = class extends require('../src/game.js').player {
+    constructor() {
+        super();
+        this.name = 'Doctor';
+    }

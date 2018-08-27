@@ -10,3 +10,8 @@ module.exports.view = {
     attributes: 'None',
     goal: "Lynch every criminal and evildoer."
 } 
+module.exports.object = class extends require('../src/game.js').player {
+    constructor() {
+        super();
+        this.name = 'Investigator';
+    }
