@@ -10,11 +10,4 @@ module.exports.view = {
     attributes: `You will know if your target is a member of the Mafia, except for the Godfather.
                  You will know if your target is a Serial Killer.`,
     goal: "Lynch every criminal and evildoer."
-}
-
-module.exports.object = class extends require('../src/game.js').player {
-    constructor() {
-        super();
-        this.name = 'sheriff';
-    }
-}
+} 
