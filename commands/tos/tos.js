@@ -22,12 +22,14 @@ module.exports = {
         const game = client.games.get(message.guild.id);
 
         if (game.running) return message.reply("Stop being a sore-ass loser");
+        if (message.author.partOfTos && message.author.partOfTos != message.guild.id) return message.reply("You're already part of a game on a different server!");
 
         game.origin = message.channel;
         game.running = true;
-        game.starting = true;
+        game.stage = 'setup';
         game.moderator = message.member;
         game.players.push(message.member);
+        message.author.partOfTos = message.guild.id;
         
         initializeGame(message, game);
         

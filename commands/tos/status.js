@@ -2,8 +2,8 @@ const Discord = require('discord.js');
 
 module.exports = {
     name: 'status',
-    aliases: ['now'],
-    cooldown: 10,
+    aliases: ['info'],
+    cooldown: 6,
     guildOnly: true,
     execute(message) {
         const client = require('../../index.js');
@@ -14,10 +14,10 @@ module.exports = {
 
         const playerNames = game.players.map(member => member.nickname || member.user.username)
             .toString()
-            .replace(',', '\n');
+            .replace(/,/g, '\n');
         const roleNames = game.roles.map(role => role.charAt(0).toUpperCase() + role.slice(1))
             .toString()
-            .replace(',', '\n');
+            .replace(/,/g, '\n');
 
         const status = new Discord.RichEmbed()
             .setTitle('**Town Of Salem**')

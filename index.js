@@ -3,7 +3,7 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const { id, token } = require('./config.json');
-const Game = require("./commands/tos/src/game.js");
+const Game = require("./commands/tos/src/game.js").game;
 
 const client = new Discord.Client({sync: true});
 

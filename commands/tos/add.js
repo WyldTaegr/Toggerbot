@@ -10,7 +10,7 @@ for (file of roleFiles) {
 
 module.exports = {
     name: 'add',
-    description: 'Add a role to the Town Of Salem game.',
+    description: 'Add a role to the Town Of Salem game. Only executeable by moderator.',
     guildOnly: true,
     usage: `tos${id}add [Role]`, //NOTE: prefix before id depends on folder name!
     execute(message, args) {
@@ -19,9 +19,9 @@ module.exports = {
 
         if (!game.running) return message.reply('Start a game first!');
         if (message.channel != game.botChannel) return message.channel.send('Wrong channel, my dood.');
-        if (!game.starting) return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`);
+        if (game.stage != 'setup') return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`);
         if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
-        if (game.players.length <= game.roles.length) return message.channel.send('There are not enough players for more roles! Either invite more people or remove some roles!');
+        if (game.players.length <= game.roles.length) message.channel.send('Note: there are more roles than there are players! Upon starting, roles will randomly be chosen from the role pool.');
         
         const role = args[0].toLowerCase();
 

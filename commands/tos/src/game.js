@@ -1,21 +1,45 @@
-module.exports = class {
+const Discord = require('discord.js');
+
+module.exports.game = class {
     constructor() {
         this.running = false; //checks if there is a game currently going
-        this.starting = false; //checks if the game is in the setup stage
         this.moderator = null; //person who starts the game --> will have empowered commands
         this.players = []; //Array of GuildMembers, assigned with message.member
-        this.roles = []; //list of roles in the game
+        this.roles = []; //Array of role names as strings
+        this.assignments = new Discord.Collection(); //Maps players (As GuildMembers) with their roles (As role.object), assigned after start
+        this.stage = null; //Either 'Setup', 'Night', 'Day', or 'Trial'
+        this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
         this.botChannel = null;
         this.origin = null; //Channel where the game was started, where the endcard will go upon game finish
     }
+
     reset() { //used to end a game
         this.running = false;
-        this.starting = false;
         this.moderator = null;
         this.players = []; 
         this.roles = []; 
+        this.assignments = new Discord.Collection();
+        this.stage = null;
         this.category = null;
         this.botChannel = null;
+    }
+
+    cycleNight() {
+        this.counter++;
+        this.stage = 'Night';
+        const night = new Discord.RichEmbed()
+            .setTitle(`${this.stage} ${this.counter}`)
+            .setDescription('You have 30 seconds to do something.')
+            .setColor('#ffff00')
+            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .setTimestamp();
+        this.botChannel.send(night);
+    }
+}
+module.exports.player = class {
+    constructor() {
+        this.alive = true;
+        this.will = '`Succ my ducc`';
     }
 }
