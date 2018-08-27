@@ -6,13 +6,13 @@ module.exports.view = {
     color: '#00ff00',
     abilities: `Distract someone each night.`, //Note: keep lines short to allow commands to be in-line
     commands: 'Not implemented yet!',
-    attributes: `Distraction blocks your target
-                from using their role's night ability.
+    attributes: `Distraction blocks your target from using their role's night ability.
                 You cannot be role blocked.`,
     goal: 'Lynch every criminal and evildoer.'
 }
 module.exports.object = class extends require('../src/game.js').player {
     constructor() {
         super();
-        this.name = 'Escort';
+        this.name = 'escort'; //Note: used as identifier in code --> keep lowercase
     }
+}

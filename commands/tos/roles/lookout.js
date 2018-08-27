@@ -13,5 +13,6 @@ module.exports.view = {
 module.exports.object = class extends require('../src/game.js').player {
     constructor() {
         super();
-        this.name = 'Lookout';
+        this.name = 'lookout'; //Note: used as identifier in code --> keep lowercase
     }
+}

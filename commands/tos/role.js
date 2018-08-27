@@ -30,7 +30,7 @@ module.exports = {
             .setTitle(role.name)
             .setThumbnail(role.pictureUrl)
             .setColor(role.color)
-            .setDescription(`Alignment/Category: ${role.alignment} (${role.category})`)
+            .setDescription(`Alignment: ${role.alignment} (${role.category})`)
             .addField('Abilities', role.abilities, true)
             .addField('Commands', role.commands, true)
             .addField('Attributes', role.attributes, false)
