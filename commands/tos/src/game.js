@@ -8,6 +8,7 @@ module.exports.game = class {
         this.roles = []; //Array of role names as strings
         this.assignments = new Discord.Collection(); //Maps players (As GuildMembers) with their roles (As role.object), assigned after start
         this.stage = null; //Either 'Setup', 'Night', 'Day', or 'Trial'
+        this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
         this.botChannel = null;
@@ -21,8 +22,11 @@ module.exports.game = class {
         this.roles = []; 
         this.assignments = new Discord.Collection();
         this.stage = null;
+        this.actions = [[], [], [], [], []];
+        this.counter = 0;
         this.category = null;
         this.botChannel = null;
+        this.origin = null;
     }
 
     cycleNight() {
@@ -41,5 +45,7 @@ module.exports.player = class {
     constructor() {
         this.alive = true;
         this.will = '`Succ my ducc`';
+        this.visited = []; //Array of players who visit that night
+        this.blocked = false; //Checks if role-blocked
     }
 }

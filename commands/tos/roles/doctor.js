@@ -15,5 +15,9 @@ module.exports.object = class extends require('../src/game.js').player {
     constructor() {
         super();
         this.name = 'doctor'; //Note: used as identifier in code --> keep lowercase
+        this.priority = 3; //Priority level of action
+        this.attack = 0; //None
+        this.defense = 0; //None, set to Powerful on self-heal
+        this.visits = true;
     }
 }
