@@ -14,7 +14,7 @@ Here's a list of useful definitions:
 `Roles: Array of Role Names`: The roles added to the game  
 `Assignments: Collection(GuildMember => role.object)`: Assigns players with roles from respective arrays  
 `Stage: String`: Current stage of game, either `Setup`, `Night`, `Day`, or `Trial`  
-`Actions: Array of Arrays of Actions`: Organizes all actions a single night by priority, resets every new day
+`Actions: Array of Arrays of Actions`: Organizes all actions a single night by priority, resets every new day  
 `Counter: Number`: Counts the number of Night/Day cycles that have gone by  
 `Category: CategoryChannel`: The Discord guild category within which the game resides  
 `BotChannel: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
@@ -43,4 +43,4 @@ Here's a list of useful definitions:
 ### Object Definitions  
 #### Toggerbot/index.js  
 *client.games:* Collection(*Guild<i>.id* => [game](#Game)) *Links every accessible guild with a Town Of Salem game instance*  
-*client.prefixes:* Collection(*folderName* => Collection(*commandName* => *command*)) *A Collection of commands, organized by prefix*  
+*client.prefixes:* Collection(*folderName* => Collection(*commandName* => *command*)) *Organizes commands prefix*  
