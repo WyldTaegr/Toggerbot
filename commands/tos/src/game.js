@@ -7,7 +7,7 @@ module.exports.game = class {
         this.players = []; //Array of GuildMembers, assigned with message.member
         this.roles = []; //Array of role names as strings
         this.assignments = new Discord.Collection(); //Maps players (As GuildMembers) with their roles (As role.object), assigned after start
-        this.stage = null; //Either 'Setup', 'Night', 'Day', or 'Trial'
+        this.stage = null; //Either 'Setup', 'Night', 'Processing' 'Day', or 'Trial'
         this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
@@ -39,6 +39,19 @@ module.exports.game = class {
             .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
             .setTimestamp();
         this.botChannel.send(night);
+        setTimeout(() => {
+            for (let priority = 0; priority < this.actions.length; priority++) {
+                for (const action of this.actions[priority]) {
+                    if (action.length == 2) {
+                        require(`../${action[1]}.js`).action();
+                    } else if (action.length == 3) {
+                        require(`../${action[1]}.js`).action(action[0], action[2]);
+                    } else {
+                        require(`../${action[1]}.js`).action(action[0], action[2], action[3]);
+                    }
+                }
+            }
+        }, 30000);
     }
 }
 module.exports.player = class {

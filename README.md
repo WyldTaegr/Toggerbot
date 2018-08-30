@@ -14,7 +14,7 @@ Here's a list of useful definitions:
 `Roles: Array of Role Names`: The roles added to the game  
 `Assignments: Collection(GuildMember => role.object)`: Assigns players with roles from respective arrays  
 `Stage: String`: Current stage of game, either `Setup`, `Night`, `Day`, or `Trial`  
-`Actions: Array of Arrays of Actions`: Organizes all actions a single night by priority, resets every new day  
+`Actions: Array of Arrays of Action[caller: GuildMember, actionType: String, ...target: GuildMember]`: Organizes all actions for a single night by priority, resets every new day  
 `Counter: Number`: Counts the number of Night/Day cycles that have gone by  
 `Category: CategoryChannel`: The Discord guild category within which the game resides  
 `BotChannel: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
@@ -27,12 +27,12 @@ Here's a list of useful definitions:
 `Alive: Boolean`: Tells whether the player is alive  
 `Will: String`: A player's last will  
 `Visited: Array of GuildMembers`: The players that visit that night  
-`Blocked: Boolean`: Checks if the player has been role-blocked  
+`Blocked: GuildMember`: False if not role-blocked; the player that role-blocked that night  
 
 #### Toggerbot/commands/tos/roles
 *Folder containing files for every role*  
 `Module.exports.view`: Contains display information for the `tos!role` and `tos!me` commands  
-- *Note:* Keep lines short for the `Abilities` property to allow the `Commands` property to be in-line  
++ *Note:* Keep lines short for the `Abilities` property to allow the `Commands` property to be in-line  
 `Module.exports.object`: Extends [Game.Player](#player), the object that is ultimately assigned to a player when a game begins  
 - `Name: String`  
 - `Priority: Number`: The priority level of the role's night ability  
@@ -42,5 +42,8 @@ Here's a list of useful definitions:
 
 ### Object Definitions  
 #### Toggerbot/index.js  
-*client.games:* Collection(*Guild<i>.id* => [game](#Game)) *Links every accessible guild with a Town Of Salem game instance*  
-*client.prefixes:* Collection(*folderName* => Collection(*commandName* => *command*)) *Organizes commands prefix*  
+*client.games:* Collection(*Guild<i>.id* => [Game](#game)) *Links every accessible guild with a Town Of Salem game instance*  
+*client.prefixes:* Collection(*folderName* => Collection(*commandName* => *command*)) *Organizes commands by prefix*  
+
+### Bot-Defined Object Properties
+*User.partOfTos: Guild<i>.id False if user is not part of a game*
