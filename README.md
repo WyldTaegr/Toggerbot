@@ -35,7 +35,7 @@ Here's a list of useful definitions:
 + *Note:* Keep lines short for the `Abilities` property to allow the `Commands` property to be in-line  
 `Module.exports.object`: Extends [Game.Player](#player), the object that is ultimately assigned to a player when a game begins  
 - `Name: String`  
-- `Priority: Number`: The priority level of the role's night ability  
+- `Priority: Number`: The priority level of the role's night ability *Might not be necessary?*  
 - `Attack: Number`: 0-3, None < Basic < Powerful < Unstoppable  
 - `Defense: Number`: 0-3 , None < Basic < Powerful < Invincible  
 - `Visits: Boolean`: States whether the role's ability causes it to visit another player  

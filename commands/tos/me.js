@@ -17,7 +17,6 @@ module.exports = {
         }
 
         message.reply('Your role is:');
-        console.log(game.assignments);
         const role = require(`./roles/${game.assignments.get(message.member).name}.js`).view;
         const embed = new Discord.RichEmbed()
             .setTitle(role.name)

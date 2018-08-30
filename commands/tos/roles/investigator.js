@@ -6,7 +6,7 @@ module.exports.view = {
     color: "#00ff00",
     abilities: `Investigate one person each night 
                 for a clue to their role.`, //Note: keep lines short to allow commands to be in-line
-    commands: 'Not implemented yet!',
+    commands: '`tos!investigate`',
     attributes: 'None',
     goal: "Lynch every criminal and evildoer."
 } 
