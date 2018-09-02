@@ -19,7 +19,8 @@ module.exports = {
                     .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
                     .setTimestamp();
                     //TO-DO: Add game info (ie players with their respective roles)
-                game.botChannel.delete();
+                game.announcements.delete();
+                game.input.delete();
                 game.category.delete();
                 game.origin.send(end);
                 game.reset();

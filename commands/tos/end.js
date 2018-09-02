@@ -11,7 +11,7 @@ module.exports = {
 
         if (!game.running) return message.reply("Wow you really don't like this game.");
         if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
-        if (message.channel != game.botChannel) return message.reply('Wrong channel my dood');
+        if (message.channel != game.announcements) return message.reply('Wrong channel my dood');
 
         const end = new Discord.RichEmbed()
             .setTitle('**The game of Town Of Salem has just finished!**')
@@ -21,7 +21,7 @@ module.exports = {
             .setTimestamp();
             //TO-DO: Add game info (ie players with their respective roles)
 
-        game.botChannel.delete();
+        game.announcements.delete();
         game.category.delete();
         game.origin.send(end);
         game.reset();

@@ -10,7 +10,7 @@ module.exports = {
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply("There's no game!");
-        if (message.channel != game.botChannel) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
 
         const playerNames = game.players.map(member => member.nickname || member.user.username)
             .toString()
@@ -27,6 +27,6 @@ module.exports = {
             .addField('Players:', playerNames, true)
             .addField('Roles:', roleNames || 'No roles yet lol', true)
 
-        game.botChannel.send(status)
+        game.announcements.send(status)
     }
 }

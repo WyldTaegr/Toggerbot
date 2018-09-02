@@ -1,15 +1,20 @@
 const Discord = require('discord.js');
 const initializeGame = async function (message, game) {
     game.category = await message.guild.createChannel('Town Of Salem', 'category');
-    game.botChannel = await message.guild.createChannel('gods-hand', 'text');
-    game.botChannel.setParent(game.category);
+    game.announcements = await message.guild.createChannel('gods-wrath', 'text');
+    game.announcements.setParent(game.category);
+    game.input = await message.guild.createChannel('gods-hand', 'text', [{
+        id: message.guild.roles.find(role => role.name == '@everyone'),    
+        denied: 1024
+    }]);
+    game.input.setParent(game.category);
     const welcome = new Discord.RichEmbed()
             .setTitle('**Welcome To Salem!**')
             .setDescription(`This game is run by: ${game.moderator.nickname || game.moderator.user.username}`)
             .setColor('#ffff00')
             .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
             .setTimestamp();
-        game.botChannel.send(welcome);
+        game.announcements.send(welcome);
 }
 
 module.exports = {

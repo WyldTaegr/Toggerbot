@@ -18,7 +18,7 @@ module.exports = {
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply('Start a game first!');
-        if (message.channel != game.botChannel) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
         if (game.stage != 'setup') return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`);
         if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
         if (game.players.length <= game.roles.length) message.channel.send('Note: there are more roles than there are players! Upon starting, roles will randomly be chosen from the role pool.');

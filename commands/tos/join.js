@@ -9,7 +9,7 @@ module.exports = {
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply('Start a game first!');
-        if (message.channel != game.botChannel) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
         if (game.stage != 'setup') return message.channel.send(`Oops, you're too late, ${message.member.nickname || message.author.username}!`);
         if (game.players.includes(message.member)) return message.reply("You're already in the game!");
         if (message.author.partOfTos) return message.reply('You are part of a game of Town Of Salem on a different server!');

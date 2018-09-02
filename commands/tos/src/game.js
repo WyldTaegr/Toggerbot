@@ -11,7 +11,8 @@ module.exports.game = class {
         this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
-        this.botChannel = null;
+        this.announcements = null;
+        this.input = null;
         this.origin = null; //Channel where the game was started, where the endcard will go upon game finish
     }
 
@@ -25,7 +26,8 @@ module.exports.game = class {
         this.actions = [[], [], [], [], []];
         this.counter = 0;
         this.category = null;
-        this.botChannel = null;
+        this.announcements = null;
+        this.input = null;
         this.origin = null;
     }
 
@@ -38,7 +40,7 @@ module.exports.game = class {
             .setColor('#ffff00')
             .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
             .setTimestamp();
-        this.botChannel.send(night);
+        this.announcements.send(night);
         setTimeout(() => {
             for (let priority = 0; priority < this.actions.length; priority++) {
                 for (const action of this.actions[priority]) {

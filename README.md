@@ -17,7 +17,8 @@ Here's a list of useful definitions:
 `Actions: Array of Arrays of Action[caller: GuildMember, actionType: String, ...target: GuildMember]`: Organizes all actions for a single night by priority, resets every new day  
 `Counter: Number`: Counts the number of Night/Day cycles that have gone by  
 `Category: CategoryChannel`: The Discord guild category within which the game resides  
-`BotChannel: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
+`Announcements: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
+`Input: TextChannel`: The Discord guild text channel where players can tell their actions to Toggerbot
 `Origin: TextChannel`: The Discord guild text channel where the game was started  
 `Reset: Function()`: Used to end a game  
 `CycleNight: Function()`: Brings the game onward into the next Night  

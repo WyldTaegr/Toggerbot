@@ -7,7 +7,7 @@ module.exports = {
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.channel.send("There's no game to leave.");
-        if (message.channel != game.botChannel) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
         if (!game.players.includes(message.member)) return message.reply("You're not in the game!");
         if (message.member == game.moderator) return message.reply("You can't leave, you're the moderator!");
         if (game.stage != 'setup') return message.channel.send("My man, you are already in too deep.");
