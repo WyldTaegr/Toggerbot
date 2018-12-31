@@ -22,14 +22,14 @@ const Object = class extends Player {
         this.defense = 0; //None
         this.visits = true;
     }
-
-    action(caller, target) {
-        const client = require("../../../index");
-        const game = client.games.get(caller.guild.id);
-
-        game.assignments.get(target).blocked = caller;
-        target.user.send('Someone role-blocked you!');
-    }
 }
 
-module.exports = { View, Object }
+const action = (agent, receiver) => {
+    const client = require("../../../index");
+    const game = client.games.get(agent.guild.id);
+
+    game.assignments.get(receiver).blocked = agent;
+    receiver.user.send('Someone role-blocked you!');
+}
+
+module.exports = { View, Object, action }

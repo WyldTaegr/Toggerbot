@@ -59,9 +59,12 @@ const Game = class {
                 run: async (user, message) => {
                     const dm = await user.createDM();
                     if (user.partOfTos != message.guild.id) return dm.send("You're not playing.");
-                    const object = this.assignments.get(message.guild.members.get(user.id));
-                    const { View } = require(`../roles/${object.name}`);
-                    object.target = member; //Used to keep track of whether the person has already selected a target
+                    const agent = this.assignments.get(message.guild.members.get(user.id));
+                    const receiver = this.assignments.get(member);
+                    const { View } = require(`../roles/${agent.name}`);
+                    const failureReason = agent.checkSelection(agent, receiver);
+                    if (failureReason) return dm.send(failureReason);
+                    agent.target = member; //Used to keep track of whether the person has already selected a target
                     const embed = new Discord.RichEmbed()
                         .setTitle(`You have targeted *${member.nickname || member.user.username}* for tonight.`)
                         .setColor(View.color)
@@ -91,15 +94,17 @@ const Game = class {
         this.stage = 'Processing';
             this.announcements.send('Processing the night...');
             this.players.forEach((member) => {
-                const object = this.assignments.get(member);
-                if (object.target) {
-                    const priority = object.priority - 1; //Subtract 1 for array indexing!
-                    this.actions[priority].push([object.name, member, object.target]);
-                    object.target = null; //clean-up for next cycle
+                const player = this.assignments.get(member);
+                if (player.target) {
+                    const priority = player.priority - 1; //Subtract 1 for array indexing!
+                    this.actions[priority].push([player.name, member, player.target]);
+                    player.target = null; //clean-up for next cycle
                 }
             })
             for (let priority = 0; priority < this.actions.length; priority++) {
                 for (const action of this.actions[priority]) {
+                    const agent = this.assignments.get(action[1]);
+                    if (!agent.checkAction()) return;
                     if (action.length == 2) {
                         require(`../roles/${action[0]}.js`).action();
                     } else if (action.length == 3) {
@@ -117,6 +122,17 @@ const Player = class {
         this.will = '`Succ my ducc`';
         this.visited = []; //Array of players as role.objects who visit that night
         this.blocked = false; //Checks if role-blocked
+        this.target = null; //GuildMember: targeted player for nighttime action
+    }
+
+    checkSelection(agent, receiver) { //Checks if the player can be selected as a target during Night stage
+
+    }
+
+    checkAction() { //Checks if action can be carried out during Processing stage
+        if (!this.alive) return false;
+        if (this.blocked) return false;
+        return true;
     }
 }
 
