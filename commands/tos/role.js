@@ -5,8 +5,8 @@ const Discord = require('discord.js');
 roles = new Discord.Collection();
 const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.js'));
 for (file of roleFiles) {
-    const role = require(`./roles/${file}`).view;
-    roles.set(role.name.toLowerCase(), role)
+    const { View } = require(`./roles/${file}`);
+    roles.set(View.name.toLowerCase(), View)
 }
 
 module.exports = {

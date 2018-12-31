@@ -17,16 +17,16 @@ module.exports = {
         }
 
         message.reply('Your role is:');
-        const role = require(`./roles/${game.assignments.get(message.member).name}.js`).view;
+        const { View } = require(`./roles/${game.assignments.get(message.channel.type == 'text' ? message.member : client.guilds.get(message.author.partOfTos).members.get(message.author.id)).name}.js`);
         const embed = new Discord.RichEmbed()
-            .setTitle(role.name)
-            .setThumbnail(role.pictureUrl)
-            .setColor(role.color)
-            .setDescription(`Alignment/Category: ${role.alignment} (${role.category})`)
-            .addField('Abilities', role.abilities, true)
-            .addField('Commands', role.commands, true)
-            .addField('Attributes', role.attributes, false)
-            .addField('Goal', role.goal, false)
+            .setTitle(View.name)
+            .setThumbnail(View.pictureUrl)
+            .setColor(View.color)
+            .setDescription(`Alignment/Category: ${View.alignment} (${View.category})`)
+            .addField('Abilities', View.abilities, true)
+            .addField('Commands', View.commands, true)
+            .addField('Attributes', View.attributes, false)
+            .addField('Goal', View.goal, false)
         message.author.send(embed);
     }
 }

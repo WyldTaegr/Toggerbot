@@ -8,6 +8,9 @@ module.exports = {
             message.author.send('You touched yourself.');
         }
         
-        message.mentions.users.map(user => user.send('Somebody touched you.'));
+        message.mentions.users.map(user => {
+            user.send('Somebody touched you.');
+            console.log(`${message.author.username} touched ${user.username}`)
+        });
     }
 }

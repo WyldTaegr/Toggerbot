@@ -1,4 +1,6 @@
-module.exports.view = {
+const { Player } = require("../src/game");
+
+const View = {
     name: 'Escort',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Escort.png',
     alignment: 'Town',
@@ -10,13 +12,24 @@ module.exports.view = {
                 You cannot be role blocked.`,
     goal: 'Lynch every criminal and evildoer.'
 }
-module.exports.object = class extends require('../src/game.js').player {
+const Object = class extends Player {
     constructor() {
         super();
         this.name = 'escort'; //Note: used as identifier in code --> keep lowercase
+        this.commands = 'distract';
         this.priority = 2; //Priority level of action
         this.attack = 0; //None
         this.defense = 0; //None
         this.visits = true;
     }
+
+    action(caller, target) {
+        const client = require("../../../index");
+        const game = client.games.get(caller.guild.id);
+
+        game.assignments.get(target).blocked = caller;
+        target.user.send('Someone role-blocked you!');
+    }
 }
+
+module.exports = { View, Object }

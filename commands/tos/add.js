@@ -3,9 +3,9 @@ const fs = require('fs');
 
 roleNames = [];
 const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.js'));
-for (file of roleFiles) {
-    const role = require(`./roles/${file}`).view;
-    roleNames.push(role.name.toLowerCase());
+for (file of roleFiles) { //List of all roles currently added to the bot
+    const { View } = require(`./roles/${file}`);
+    roleNames.push(View.name.toLowerCase());
 }
 
 module.exports = {

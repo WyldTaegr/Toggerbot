@@ -1,13 +1,9 @@
 const Discord = require('discord.js');
 const initializeGame = async function (message, game) {
     game.category = await message.guild.createChannel('Town Of Salem', 'category');
-    game.announcements = await message.guild.createChannel('gods-wrath', 'text');
+    game.announcements = await message.guild.createChannel('gods-decree', 'text');
     game.announcements.setParent(game.category);
-    game.input = await message.guild.createChannel('gods-hand', 'text', [{
-        id: message.guild.roles.find(role => role.name == '@everyone'),    
-        denied: 1024
-    }]);
-    game.input.setParent(game.category);
+
     const welcome = new Discord.RichEmbed()
             .setTitle('**Welcome To Salem!**')
             .setDescription(`This game is run by: ${game.moderator.nickname || game.moderator.user.username}`)

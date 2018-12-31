@@ -1,4 +1,6 @@
-module.exports.view = {
+const { Player } = require("../src/game");
+
+const View = {
     name: 'Jailor',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Jailor.png',
     alignment: 'Town',
@@ -13,7 +15,7 @@ module.exports.view = {
 				While jailed the prisoner is given Powerful defense.`,
     goal: "Lynch every criminal and evildoer."
 } 
-module.exports.object = class extends require('../src/game.js').player {
+const Object = class extends Player {
     constructor() {
         super();
         this.name = 'jailor'; //Note: used as identifier in code --> keep lowercase
@@ -23,3 +25,5 @@ module.exports.object = class extends require('../src/game.js').player {
         this.visits = true;
     }
 }
+
+module.exports = { View, Object }

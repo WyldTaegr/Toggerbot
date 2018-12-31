@@ -19,8 +19,11 @@ module.exports = {
             .setColor('#ffff00')
             .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
             .setTimestamp();
-            //TO-DO: Add game info (ie players with their respective roles)
+            //TO-DO: Add game info (ie reveal the roles of each player)
 
+        for (const player of game.players) {
+            player.user.partOfTos = false;
+        }
         game.announcements.delete();
         game.category.delete();
         game.origin.send(end);

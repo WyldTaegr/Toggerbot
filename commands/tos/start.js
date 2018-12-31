@@ -1,20 +1,4 @@
-function shuffle(array) {
-    var m = array.length, t, i;
-  
-    // While there remain elements to shuffle…
-    while (m) {
-  
-      // Pick a remaining element…
-      i = Math.floor(Math.random() * m--);
-  
-      // And swap it with the current element.
-      t = array[m];
-      array[m] = array[i];
-      array[i] = t;
-    }
-  
-    return array;
-  }
+const utils = require('../../utils.js');
 
 module.exports = {
     name: 'start',
@@ -32,15 +16,14 @@ module.exports = {
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
         message.channel.send('Shuffling roles...');
-        //shuffle(game.roles);
+        game.roles = utils.shuffle(game.roles);
         message.channel.send('Assigning to players...');
-        for (let i = 0; i < game.players.length; i++) {
-            const Role = require(`./roles/${game.roles[i]}.js`).object;
-            const object = new Role()
-            game.assignments.set(game.players[i], object);
-        }
+        game.players.forEach((member, index) => {
+            const { Object } = require(`./roles/${game.roles[index]}.js`);
+            const object = new Object()
+            game.assignments.set(member, object);
+        });
         message.channel.send('The game has begun!');
         game.cycleNight();
-
     }
 }
