@@ -104,7 +104,7 @@ const Game = class {
             for (let priority = 0; priority < this.actions.length; priority++) {
                 for (const action of this.actions[priority]) {
                     const agent = this.assignments.get(action[1]);
-                    if (!agent.checkAction()) return;
+                    if (!agent.checkAction()) continue;
                     if (action.length == 2) {
                         require(`../roles/${action[0]}.js`).action();
                     } else if (action.length == 3) {
