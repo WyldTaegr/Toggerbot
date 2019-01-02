@@ -62,7 +62,7 @@ const Game = class {
                     const agent = this.assignments.get(message.guild.members.get(user.id));
                     const receiver = this.assignments.get(member);
                     const { View } = require(`../roles/${agent.name}`);
-                    const failureReason = agent.checkSelection(agent, receiver);
+                    const failureReason = agent.checkSelection(receiver);
                     if (failureReason) return dm.send(failureReason);
                     agent.target = member; //Used to keep track of whether the person has already selected a target
                     const embed = new Discord.RichEmbed()
@@ -101,21 +101,19 @@ const Game = class {
                 const player = this.assignments.get(member);
                 if (player.target) {
                     const priority = player.priority - 1; //Subtract 1 for array indexing!
-                    this.actions[priority].push([player.name, member, player.target]);
+                    this.actions[priority].push({
+                        name: player.name, 
+                        agent: member, 
+                        receiver: player.target,
+                    });
                     player.target = null; //clean-up for next cycle
                 }
             })
             for (let priority = 0; priority < this.actions.length; priority++) {
                 for (const action of this.actions[priority]) {
                     const agent = this.assignments.get(action[1]);
-                    if (!agent.checkAction()) continue;
-                    if (action.length == 2) {
-                        require(`../roles/${action[0]}.js`).action();
-                    } else if (action.length == 3) {
-                        require(`../roles/${action[0]}.js`).action(action[1], action[2]);
-                    } else {
-                        require(`../roles/${action[0]}.js`).action(action[1], action[2], action[3]);
-                    }
+                    if (agent.checkAction()) require(`../roles/${action.name}.js`).action(action);
+                    
                 }
             }
     }
@@ -129,11 +127,10 @@ const Player = class {
         this.target = null; //GuildMember: targeted player for nighttime action
     }
 
-    checkSelection(agent, receiver) { //Checks if the player can be selected as a target during Night stage
-        const type = agent.selection;
-        if (type === "all") return false;
-        if (type === "others" && agent === receiver) return ("You can't target yourself!");
-        if (type === "self" && agent != receiver) return ("You can only target yourself!");
+    checkSelection(receiver) { //Checks if the player can be selected as a target during Night stage
+        if (this.selection === "all") return false;
+        if (this.selection === "others" && this === receiver) return ("You can't target yourself!");
+        if (this.selection === "self" && this != receiver) return ("You can only target yourself!");
     }
 
     checkAction() { //Checks if action can be carried out during Processing stage

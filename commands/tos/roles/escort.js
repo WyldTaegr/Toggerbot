@@ -25,12 +25,12 @@ const Object = class extends Player {
     }
 }
 
-const action = (agent, receiver) => {
+const action = (action) => {
     const client = require("../../../index");
-    const game = client.games.get(agent.guild.id);
+    const game = client.games.get(action.agent.guild.id);
 
-    game.assignments.get(receiver).blocked = agent;
-    receiver.user.send('Someone role-blocked you!');
+    game.assignments.get(action.receiver).blocked = action.agent;
+    action.receiver.user.send('Someone role-blocked you!');
 }
 
 module.exports = { View, Object, action }

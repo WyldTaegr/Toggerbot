@@ -26,14 +26,14 @@ const Object = class extends Player {
     }
 }
 
-const action = (agent, receiver) => {
-    const receiverRole = require(`./roles/${receiver.name}.js`).View;
+const action = (action) => {
+    const receiverRole = require(`./roles/${action.receiver.name}.js`).View;
     if (receiverRole.alignment === 'Town') {
-        agent.user.send('Your target is not suspicious.');
+        action.agent.user.send('Your target is not suspicious.');
     } else if (receiverRole.alignment === "Mafia") {
-        agent.user.send('Your target is a member of the Mafia!');
+        action.agent.user.send('Your target is a member of the Mafia!');
     } else if (receiverRole.name === "Serial Killer") {
-        agent.user.send('Your target is a Serial Killer!');
+        action.agent.user.send('Your target is a Serial Killer!');
     }
 }
 
