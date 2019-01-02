@@ -21,6 +21,7 @@ const Object = class extends Player {
         this.attack = 0; //None
         this.defense = 0; //None
         this.visits = true;
+        this.selection = "others";
     }
 }
 

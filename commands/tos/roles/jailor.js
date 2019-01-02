@@ -26,4 +26,8 @@ const Object = class extends Player {
     }
 }
 
-module.exports = { View, Object }
+const action = () => {
+
+}
+
+module.exports = { View, Object, action }

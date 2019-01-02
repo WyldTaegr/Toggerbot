@@ -83,15 +83,19 @@ const Game = class {
             .setFooter('Set your target for tonight by reacting below');
         const message = new RC.Menu(embed, buttons);
         client.handler.addMenus(message);
-        this.announcements.sendMenu(message);
+        let messageId; //Used to eventually remove the menu during Processing stage
+        this.announcements.sendMenu(message).then(message => messageId = message.id);
 
         setTimeout(() => {
-            this.processNight();
+            this.processNight(messageId);
         }, 30000);
     }
 
-    processNight() {
+    processNight(menu) {
+        const client = require('../../../index.js')
+
         this.stage = 'Processing';
+            client.handler.removeMenu(menu);
             this.announcements.send('Processing the night...');
             this.players.forEach((member) => {
                 const player = this.assignments.get(member);
@@ -126,7 +130,10 @@ const Player = class {
     }
 
     checkSelection(agent, receiver) { //Checks if the player can be selected as a target during Night stage
-
+        const type = agent.selection;
+        if (type === "all") return false;
+        if (type === "others" && agent === receiver) return ("You can't target yourself!");
+        if (type === "self" && agent != receiver) return ("You can only target yourself!");
     }
 
     checkAction() { //Checks if action can be carried out during Processing stage

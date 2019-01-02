@@ -21,7 +21,12 @@ const Object = class extends Player {
         this.attack = 0; //None
         this.defense = 0; //None, set to Powerful on self-heal
         this.visits = true;
+        this.selection = "all"; //TO-DO: can only target self once
     }
 }
 
-module.exports = { View, Object }
+const action = () => {
+
+}
+
+module.exports = { View, Object, action }
