@@ -1,12 +1,18 @@
-const Discord = require('discord.js');
+const { id } = require('../../config.json');
 
-module.exports = {
+import Discord from 'discord.js';
+import { Command } from '../../index';
+
+module.exports = new Command({
     name: "end",
+    aliases: ['stop'],
     description: 'Ends a Town Of Salem game. Only executable by moderator',
-    cooldown: 10,
+    usage: '`tos' + id + 'end`',
     guildOnly: true,
+    cooldown: 10,
+    args: false,
     execute(message) {
-        const client = require("../../index.js");
+        const client = require("../../index.ts");
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply("Wow you really don't like this game.");
@@ -29,4 +35,4 @@ module.exports = {
         game.origin.send(end);
         game.reset();
     }
-}
+})

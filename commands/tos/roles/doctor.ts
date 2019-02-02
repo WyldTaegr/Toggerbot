@@ -1,6 +1,6 @@
-const { Player } = require("../src/game");
+import { Selection, Action, _View, _Player } from '../src/player';
 
-const View = {
+const View = new _View({
     name: 'Doctor',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Doctor.png',
     alignment: 'Town',
@@ -12,8 +12,9 @@ const View = {
     attributes: `You may only heal yourself once.
                  You will know if your target is attacked.`,
     goal: 'Lynch every criminal and evildoer.'
-}
-const Object = class extends Player {
+})
+
+const Player = class extends _Player {
     constructor() {
         super();
         this.name = 'doctor'; //Note: used as identifier in code --> keep lowercase
@@ -21,12 +22,12 @@ const Object = class extends Player {
         this.attack = 0; //None
         this.defense = 0; //None, set to Powerful on self-heal
         this.visits = true;
-        this.selection = "all"; //TO-DO: can only target self once
+        this.selection = Selection.all; //TO-DO: can only target self once
+    }
+
+    action({agent, receiver}: Action) {
+
     }
 }
 
-const action = () => {
-
-}
-
-module.exports = { View, Object, action }
+module.exports = { View, Player }

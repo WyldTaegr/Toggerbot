@@ -2,9 +2,10 @@
   "name": "Toggerbot",
   "version": "1.0.0",
   "description": "A discord bot",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "ts-node index.ts"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,12 @@
   },
   "homepage": "https://github.com/WyldTaegr/Toggerbot#readme",
   "dependencies": {
+    "@types/node": "^10.12.18"
+  },
+  "devDependencies": {
     "discord.js": "^11.4.2",
-    "reaction-core": "^2.1.0"
+    "reaction-core": "^2.2.0",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.2.4"
   }
 }

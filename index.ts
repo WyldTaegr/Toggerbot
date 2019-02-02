@@ -1,34 +1,71 @@
-"use strict";
-
-const fs = require("fs");
-const Discord = require("discord.js");
 const { id, token } = require("./config.json");
-const { Game } = require("./commands/tos/src/game.js");
 
-const RC = require("reaction-core");
+import Discord from "discord.js"
+import fs from 'fs';
+import { Game } from "./commands/tos/src/game";
+import { Handler } from "reaction-core";
 
-const client = new Discord.Client({ sync: true });
+export class Command {
+    name: string;
+    aliases: string[];
+    description: string;
+    usage: string;  
+    guildOnly: boolean;
+    cooldown: number;
+    args: boolean;
+    execute: (message: Discord.Message, args?: string[]) => void;
+    constructor(props) {
+        this.name = props.name;
+        this.aliases = props.aliases;
+        this.description = props.description;
+        this.usage = props.usage;
+        this.guildOnly = props.guildOnly;
+        this.cooldown = props.cooldown;
+        this.args = props.args;
+        this.execute = props.execute;
+    }
+}
 
-client.handler = new RC.Handler();
+export class GameClient extends Discord.Client {
+    handler: any; //Rip no types in reaction-core
+    games: Discord.Collection<string, Game>;
+    prefixes: Discord.Collection<
+        string, Discord.Collection<
+            string, string | Command
+        >
+    >;
+    constructor(props: Discord.ClientOptions) {
+        super(props)
+    }
+}
+
+const client = new GameClient({ sync: true });
+
+client.handler = new Handler();
 
 client.games = new Discord.Collection();
 
 client.prefixes = new Discord.Collection();
 const commandFolders = fs.readdirSync("./commands");
+console.log(commandFolders);
 for (const folder of commandFolders) {
-    const commands = new Discord.Collection();
+    const commands: Discord.Collection<string, string | Command> = new Discord.Collection();
     const commandFiles = fs
         .readdirSync(`./commands/${folder}`)
-        .filter(file => file.endsWith(".js"));
+        .filter(file => file.endsWith(".ts"));
     commands.set("name", folder);
     for (const file of commandFiles) {
-        const command = require(`./commands/${folder}/${file}`);
+        const command: Command = require(`./commands/${folder}/${file}`);
         commands.set(command.name, command);
     }
     client.prefixes.set(folder, commands);
 }
 
-const cooldowns = new Discord.Collection();
+const cooldowns: Discord.Collection<
+    string, Discord.Collection<
+        string, number
+    >
+> = new Discord.Collection();
 
 client.on("ready", () => {
     console.log("Ready!");
@@ -72,10 +109,10 @@ client.on("message", message => {
     const commandName = args.shift().toLowerCase();
 
     const command =
-        client.prefixes.get(commandType).get(commandName) ||
+        client.prefixes.get(commandType).get(commandName) as Command ||
         client.prefixes
             .get(commandType)
-            .find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+            .find((cmd: Command) => cmd.aliases && cmd.aliases.includes(commandName)) as Command;
 
     if (!command) return;
 
@@ -87,7 +124,7 @@ client.on("message", message => {
         let reply = `You didn't provide any arguments, ${message.author}!`;
 
         if (command.usage) {
-            reply += `\nThe proper usage would be: \`${prefix}${command.name} ${
+            reply += `\nThe proper usage would be: \`${commandType + id + command.name} ${
                 command.usage
             }\``;
         }

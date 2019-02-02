@@ -16,18 +16,19 @@ Here's a list of useful definitions:
 
 - `Running: Boolean`: Checks if a game is currently running  
 - `Moderator: GuildMember`: The person who starts the game --> Access to empowered commands  
-- `Players: Array of GuildMembers`: The people in the game  
+- `_Players: Array of GuildMembers`: The people in the game  
 - `Roles: Array of Role Names`: The roles added to the game  
 - `Assignments: Collection(GuildMember => role.object)`: Assigns players with roles from respective arrays  
 - `Stage: String`: Current stage of game: `Setup`, `Night`, `Processing`, `Day`, or `Trial`  
-- `Actions: Array of Arrays of Action[ actionType: String, caller: GuildMember, ...target: GuildMember]`: Organizes all actions for a single night by priority, resets every new day  
+- `Actions: Array of Arrays of Action{ name: String, agent: GuildMember, receiver: GuildMember}`: Organizes all actions for a single night by priority, resets every new day  
 - `Counter: Number`: Counts the number of Night/Day cycles that have gone by  
 - `Category: CategoryChannel`: The Discord guild category within which the game resides  
 - `Announcements: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
 - `Origin: TextChannel`: The Discord guild text channel where the game was started  
 - `Reset: Function()`: Used to end a game  
 - `CheckNight: Function(Message, action: String, targets: Number)`: Checks if the command can be passed. Parameters: action: the name of the command targets: the number of players the command can target; returns: Array of role.objects of targets  
-- `CycleNight: Function()`: Brings the game onward into the next Night  
+- `CycleNight: Function()`: Brings the game onward into the next Night
+- `ProcessNight: Function(menu: String)`: Processes all actions selected by players during Night phase; Parameter: menu: Id of the message with action selection, used to close reaction menu
 
 ##### Player
 
@@ -43,7 +44,7 @@ Here's a list of useful definitions:
 *Folder containing files for every role*  
 `View`: Object containing display information for the `tos!role` and `tos!me` commands  
 + *Note:* Keep lines short for the `Abilities` property to allow the `Commands` property to be in-line  
-`Object`: Extends [Game.Player](#player), the object that is ultimately assigned to a player when a game begins  
+`Object`: Extends [Game._Player](#player), the object that is ultimately assigned to a player when a game begins  
 - `Name: String`  
 - `Commands: String`: A string that includes all the names of commands that the role can use
 - `Priority: Number`: The priority level of the role's night ability *Might not be necessary?*
@@ -53,7 +54,7 @@ Here's a list of useful definitions:
 
 ### Object Definitions  
 
-#### Toggerbot/index.js  
+#### Toggerbot/index.ts  
 
 *client.games:* Collection(*Guild<i>.id* => [Game](#game)) *Links every accessible guild with a Town Of Salem game instance*  
 *client.prefixes:* Collection(*folderName* => Collection(*commandName* => *command*)) *Organizes commands by prefix*  

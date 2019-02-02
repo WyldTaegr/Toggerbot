@@ -1,8 +1,32 @@
-const Discord = require('discord.js');
-const RC = require('reaction-core');
-const utils = require('../../../utils.js');
+import Discord, { GuildMember, Message } from "discord.js"
+import { Menu } from 'reaction-core';
+import { shuffle, emojis as _emojis } from '../../../utils';
+import { _Player, Action } from './player';
 
-const Game = class {
+export enum Stage {
+    Setup = "Setup",
+    Night = "Night",
+    Processing = "Processing",
+    Day = "Day",
+    Trial = "Trial",
+}
+
+class MenuChannel extends Discord.TextChannel {
+    sendMenu?: (message: any) => Promise<Message>; //Any should be Menu - Rip no types in reaction-core
+}
+
+export class Game {
+    running: boolean;
+    moderator: Discord.GuildMember;
+    players: Discord.GuildMember[];
+    roles: string[];
+    assignments: Discord.Collection<GuildMember, _Player>
+    stage: Stage;
+    actions: Array<Action[]>;
+    counter: number;
+    category: Discord.CategoryChannel | Discord.TextChannel | Discord.VoiceChannel;
+    announcements: MenuChannel;
+    origin: Discord.TextChannel;
     constructor() {
         this.running = false; //checks if there is a game currently going
         this.moderator = null; //person who starts the game --> will have empowered commands
@@ -32,10 +56,10 @@ const Game = class {
     }
 
     cycleNight() {
-        const client = require('../../../index.js')
+        const client = require('../../../index.ts')
 
         this.counter++;
-        this.stage = 'Night';
+        this.stage = Stage.Night;
 
         //this.players.filter(member => this.assignments.get(member).alive).forEach(player => this.nightMessage(player));
         const buttons = [];
@@ -44,7 +68,7 @@ const Game = class {
 
         let playerSelection = '';
 
-        const emojis = utils.shuffle(utils.emojis);
+        const emojis = shuffle(_emojis);
 
         playerList.forEach((member, index) => {
             const emoji = emojis[index];
@@ -81,7 +105,7 @@ const Game = class {
             .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
             .addField('Alive:', playerSelection)
             .setFooter('Set your target for tonight by reacting below');
-        const message = new RC.Menu(embed, buttons);
+        const message = new Menu(embed, buttons);
         client.handler.addMenus(message);
         let messageId; //Used to eventually remove the menu during Processing stage
         this.announcements.sendMenu(message).then(message => messageId = message.id);
@@ -92,52 +116,28 @@ const Game = class {
     }
 
     processNight(menu) {
-        const client = require('../../../index.js')
+        const client = require('../../../index.ts')
 
-        this.stage = 'Processing';
+        this.stage = Stage.Processing;
             client.handler.removeMenu(menu);
             this.announcements.send('Processing the night...');
+            this.announcements.startTyping();
             this.players.forEach((member) => {
                 const player = this.assignments.get(member);
                 if (player.target) {
                     const priority = player.priority - 1; //Subtract 1 for array indexing!
-                    this.actions[priority].push({
-                        name: player.name, 
-                        agent: member, 
-                        receiver: player.target,
+                    this.actions[priority].push({ 
+                        agent: player, 
+                        receiver: this.assignments.get(player.target),
                     });
                     player.target = null; //clean-up for next cycle
                 }
             })
-            for (let priority = 0; priority < this.actions.length; priority++) {
-                for (const action of this.actions[priority]) {
-                    const agent = this.assignments.get(action[1]);
-                    if (agent.checkAction()) require(`../roles/${action.name}.js`).action(action);
-                    
+            for (const priority of this.actions) {
+                for (const action of priority) {
+                    if (action.agent.checkAction()) action.agent.action(action);
                 }
             }
+            this.announcements.stopTyping(true);
     }
 }
-const Player = class {
-    constructor() {
-        this.alive = true;
-        this.will = '`Succ my ducc`';
-        this.visited = []; //Array of players as role.objects who visit that night
-        this.blocked = false; //Checks if role-blocked
-        this.target = null; //GuildMember: targeted player for nighttime action
-    }
-
-    checkSelection(receiver) { //Checks if the player can be selected as a target during Night stage
-        if (this.selection === "all") return false;
-        if (this.selection === "others" && this === receiver) return ("You can't target yourself!");
-        if (this.selection === "self" && this != receiver) return ("You can only target yourself!");
-    }
-
-    checkAction() { //Checks if action can be carried out during Processing stage
-        if (!this.alive) return false;
-        if (this.blocked) return false;
-        return true;
-    }
-}
-
-module.exports = { Game, Player };

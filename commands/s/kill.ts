@@ -1,10 +1,18 @@
-const Discord = require('discord.js');
+const { id } = require('../../config.json')
 
-module.exports = {
+import Discord from 'discord.js';
+import { Command } from '../../index';
+
+module.exports = new Command({
     name: 'kill',
+    aliases: undefined,
     description: 'Kills the bot safely by resetting all edited objects and logging out',
+    usage: "`s" + id + "kill`",
+    guildOnly: false,
+    cooldown: 0,
+    args: false,
     async execute(message) {
-        const client = require('../../index.js');
+        const client = require('../../index.ts');
 
         if (message.author.id != '179697448300576778') return message.reply("I don't answer to you.");
 
@@ -30,4 +38,4 @@ module.exports = {
         await console.log('The application has been shut down through user input.');
         await client.destroy('481493171587514378');
     }
-}
+});

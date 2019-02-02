@@ -1,11 +1,17 @@
-module.exports = {
+const { id } = require('../../config.json');
+
+import { Command } from '../../index';
+
+module.exports = new Command({
     name: "join",
     aliases: ['enter'],
     description: 'Join the Town Of Salem Game on the server, if there is one',
-    cooldown: 3,
+    usage: '`tos' + id + 'join`',
     guildOnly: true,
+    cooldown: 3,
+    args: false,
     execute(message) {
-        const client = require('../../index.js');
+        const client = require('../../index.ts');
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply('Start a game first!');
@@ -19,4 +25,4 @@ module.exports = {
         message.channel.send(`${message.member.nickname || message.author.username} has joined the game`)
         
     }
-}
+})

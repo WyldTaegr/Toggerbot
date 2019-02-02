@@ -1,10 +1,16 @@
-const Discord = require('discord.js');
+const { id } = require('../../config.json');
 
-module.exports = {
+import { Command } from '../../index';
+import Discord from 'discord.js'
+
+module.exports = new Command ({
     name: 'server',
     aliases: ['cfc'],
     description: 'Show info about the server',
+    usage: '`s' + id + 'server`',
+    guildOnly: true,
     cooldown: 5,
+    args: false,
     execute(message) {
         const embed = new Discord.RichEmbed()
             .setTitle(`**${message.guild.name}**`)
@@ -16,9 +22,8 @@ module.exports = {
             .addField('Server:', message.guild.region)
             .addField('AFK Timeout:', message.guild.afkTimeout)
             .addField('AFK Channel:', message.guild.afkChannel)
-            .addField('Default Channel:', message.guild.defaultChannel)
             .addField('Date of Formation:', message.guild.createdAt);
 
         message.channel.send({embed});
     }
-}
+})

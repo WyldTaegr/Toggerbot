@@ -1,6 +1,6 @@
-const { Player } = require("../src/game");
+import { Selection, _View, _Player } from '../src/player';
 
-const View = {
+const View = new _View({
     name: 'Lookout',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Lookout.png',
     alignment: 'Town',
@@ -11,8 +11,9 @@ const View = {
     commands: 'Not implemented yet!',
     attributes: 'None',
     goal: "Lynch every criminal and evildoer."
-} 
-const Object = class extends Player {
+})
+
+const Player = class extends _Player {
     constructor() {
         super();
         this.name = 'lookout'; //Note: used as identifier in code --> keep lowercase
@@ -20,12 +21,12 @@ const Object = class extends Player {
         this.attack = 0; //None
         this.defense = 0; //None
         this.visits = true;
-        this.selection = "others";
+        this.selection = Selection.others;
+    }
+
+    action(action) {
+
     }
 }
 
-const action = () => {
-
-}
-
-module.exports = { View, Object, action }
+module.exports = { View, Player }

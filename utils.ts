@@ -1,4 +1,4 @@
-module.exports.shuffle = (array) => {
+export const shuffle = (array) => {
     var m = array.length, t, i;
   
     // While there remain elements to shuffle…
@@ -16,7 +16,7 @@ module.exports.shuffle = (array) => {
     return array;
 }
 
-module.exports.emojis = [
+export const emojis = [
     '🍏', 
     '🍎',
     '🍐',

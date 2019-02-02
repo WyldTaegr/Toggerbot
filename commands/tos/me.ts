@@ -1,11 +1,18 @@
-const Discord = require('discord.js');
+const { id } = require('../../index');
+
+import Discord from 'discord.js';
+import { GameClient } from '../../index';
 
 module.exports = {
     name: 'me',
+    aliases: undefined,
     description: 'Displays your role in the Town Of Salem game. You should only use this by PMing me!',
+    usage: '`tos' + id + 'me`',
+    guildOnly: false,
     cooldown: 10,
+    args: false,
     execute(message) {
-        const client = require('../../index.js');
+        const client: GameClient = require('../../index.ts');
 
         if (!message.author.partOfTos) return message.reply('You are not in a game of Town Of Salem!');
         const game = client.games.get(message.author.partOfTos);
@@ -17,7 +24,7 @@ module.exports = {
         }
 
         message.reply('Your role is:');
-        const { View } = require(`./roles/${game.assignments.get(message.channel.type == 'text' ? message.member : client.guilds.get(message.author.partOfTos).members.get(message.author.id)).name}.js`);
+        const { View } = require(`./roles/${game.assignments.get(message.channel.type == 'text' ? message.member : client.guilds.get(message.author.partOfTos).members.get(message.author.id)).name}.ts`);
         const embed = new Discord.RichEmbed()
             .setTitle(View.name)
             .setThumbnail(View.pictureUrl)

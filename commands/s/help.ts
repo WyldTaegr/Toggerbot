@@ -1,15 +1,18 @@
 const { id } = require('../../config.json');
-const Discord = require('discord.js');
 
-module.exports = {
+import Discord from 'discord.js';
+import { Command } from '../../index';
+
+module.exports = new Command({
     name: 'help',
-    description: 'Lists all commands, or specific info for a command',
     aliases: ['commands'],
-    usage: `s${id}help [command name]`, //NOTE: prefix before id depends on folder name!
-    cooldown: 5,
+    description: 'Lists all commands, or specific info for a command',
+    usage: "`s" + id + "help [command name]`", //NOTE: prefix before id depends on folder name!
+    guildOnly: false,
+    cooldown: 2,
+    args: false,
     execute(message, args) {
-        const { commands } = message.client;
-        const client = require("../../index.js");
+        const client = require("../../index.ts");
 
         const embedInitial = new Discord.RichEmbed()
             .setTitle('**ToggerBot**')
@@ -19,7 +22,7 @@ module.exports = {
             .setThumbnail(client.user.avatarURL)
             .setTimestamp();
         const prefixList = [];
-        commandList = new Discord.Collection(); //Categorizes commands by prefix
+        const commandList: Discord.Collection<string, string[]> = new Discord.Collection(); //Categorizes commands by prefix
         for (const prefix of client.prefixes) {
             prefixList.push(prefix[0]);
             const commands = [];
@@ -64,14 +67,14 @@ module.exports = {
 
         const embed = new Discord.RichEmbed()
         if (command.length == 1) {
-            cmd = command[0];
+            const cmd = command[0];
             embed.addField(`**${String(cmd.name).charAt(0).toUpperCase() + String(cmd.name).slice(1)}**`, cmd.aliases ? "Aliases: `" + String(cmd.aliases).replace(',', `, `) + "`" : 'Aliases: `none`')
                 .setColor(0x00AE86)
                 .setTimestamp()
                 .setThumbnail(client.user.avatarURL);
             if (cmd.description) embed.addField("Description:", cmd.description);
             if (cmd.usage) embed.addField("Usage:", cmd.usage);
-            if (cmd.cooldown) embed.addField("Cooldown:", cmd.cooldown + 'seconds');
+            if (cmd.cooldown) embed.addField("Cooldown:", cmd.cooldown + ' seconds');
         } else {
             const embed = new Discord.RichEmbed()
                 .setDescription("`" + name + "` could refer to one of the following:");
@@ -85,5 +88,5 @@ module.exports = {
         }
 
         message.channel.send(embed);
-    },
-};
+    }
+})  

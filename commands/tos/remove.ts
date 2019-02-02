@@ -1,12 +1,17 @@
 const { id } = require('../../config.json');
 
-module.exports = {
+import { Command } from '../../index';
+
+module.exports = new Command({
     name: 'remove',
+    aliases: undefined,
     description: 'Remove a role added to the game. Only executable by moderator.',
+    usage: '`tos' + id + 'add [Role]`',
     guildOnly: true,
-    usage: `tos${id}add [Role]`,
+    cooldown: 2,
+    args: true,
     execute(message, args) {
-        const client = require('../../index.js');
+        const client = require('../../index.ts');
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply('Start a game first!');
@@ -20,4 +25,4 @@ module.exports = {
         game.roles.splice(game.roles.lastIndexOf(role), 1);
         message.channel.send('One instance of `' + role.charAt(0).toUpperCase() + role.slice(1) + '` has been removed from the game.');
     }
-}
+})

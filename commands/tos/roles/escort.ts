@@ -1,6 +1,6 @@
-const { Player } = require("../src/game");
+import { Selection, Action, _View, _Player } from '../src/player';
 
-const View = {
+const View = new _View({
     name: 'Escort',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Escort.png',
     alignment: 'Town',
@@ -11,26 +11,23 @@ const View = {
     attributes: `Distraction blocks your target from using their role's night ability.
                 You cannot be role blocked.`,
     goal: 'Lynch every criminal and evildoer.'
-}
-const Object = class extends Player {
+})
+
+const Player = class extends _Player {
     constructor() {
         super();
         this.name = 'escort'; //Note: used as identifier in code --> keep lowercase
-        this.commands = 'distract';
         this.priority = 2; //Priority level of action
         this.attack = 0; //None
         this.defense = 0; //None
         this.visits = true;
-        this.selection = "others";
+        this.selection = Selection.others;
+    }
+
+    action({agent, receiver}: Action) {
+        receiver.blocked = agent;
+        receiver.user.send('Someone role-blocked you!')
     }
 }
 
-const action = (action) => {
-    const client = require("../../../index");
-    const game = client.games.get(action.agent.guild.id);
-
-    game.assignments.get(action.receiver).blocked = action.agent;
-    action.receiver.user.send('Someone role-blocked you!');
-}
-
-module.exports = { View, Object, action }
+module.exports = { View, Player }

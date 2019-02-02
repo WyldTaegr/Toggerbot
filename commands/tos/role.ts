@@ -1,10 +1,12 @@
-const fs = require('fs');
 const { id } = require('../../config.json');
-const Discord = require('discord.js');
 
-roles = new Discord.Collection();
-const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.js'));
-for (file of roleFiles) {
+import Discord from 'discord.js';
+import fs from 'fs';
+import { _View } from './src/player';
+
+const roles: Discord.Collection<string, _View> = new Discord.Collection();
+const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.ts'));
+for (const file of roleFiles) {
     const { View } = require(`./roles/${file}`);
     roles.set(View.name.toLowerCase(), View)
 }
@@ -13,17 +15,14 @@ module.exports = {
     name: "role",
     aliases: ['r', 'view'],
     description: 'See more information about a specific role in Town of Salem.',
-    usage: `tos${id}role [Role]`, //NOTE: prefix before id depends on folder name!
+    usage: '`tos' + id + 'role [Role]`', //NOTE: prefix before id depends on folder name!
+    guildOnly: false,
     cooldown: 3,
+    args: true,
     execute(message, args) {
-        if(!args.length) {
-            message.reply('Stop your rarded shenanigans');
-            return;
-        }
-
-        const role = roles.get(args[0]);
+        const role: _View = roles.get(args[0]);
         if (!role) {
-            message.reply('that\'s not a role, faggot');
+            message.reply('that\'s not a role.');
             return;
         }
         const embed = new Discord.RichEmbed()
@@ -32,7 +31,6 @@ module.exports = {
             .setColor(role.color)
             .setDescription(`Alignment: ${role.alignment} (${role.category})`)
             .addField('Abilities', role.abilities, true)
-            .addField('Commands', role.commands, true)
             .addField('Attributes', role.attributes, false)
             .addField('Goal', role.goal, false)
 

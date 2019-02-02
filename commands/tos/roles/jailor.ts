@@ -1,6 +1,6 @@
-const { Player } = require("../src/game");
+import { Selection, _View, _Player } from '../src/player';
 
-const View = {
+const View = new _View({
     name: 'Jailor',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Jailor.png',
     alignment: 'Town',
@@ -14,8 +14,9 @@ const View = {
 				The jailed target cannot perform their night ability.
 				While jailed the prisoner is given Powerful defense.`,
     goal: "Lynch every criminal and evildoer."
-} 
-const Object = class extends Player {
+})
+
+const Player = class extends _Player {
     constructor() {
         super();
         this.name = 'jailor'; //Note: used as identifier in code --> keep lowercase
@@ -23,11 +24,12 @@ const Object = class extends Player {
         this.attack = 3; //Unstoppable
         this.defense = 0; //None
         this.visits = true;
+        this.selection = Selection.others;
+    }
+
+    action(action) {
+
     }
 }
 
-const action = () => {
-
-}
-
-module.exports = { View, Object, action }
+module.exports = { View, Player }

@@ -1,9 +1,17 @@
-module.exports = {
+const { id } = require('../../config.json');
+
+import { Command } from '../../index';
+
+module.exports = new Command({
     name: "leave",
+    aliases: ['exit'],
     description: "Leave the Town Of Salem Game on the server, if you are part of it",
+    usage: '`tos' + id + 'leave`',
     guildOnly: true,
+    cooldown: 2,
+    args: false,
     execute(message) {
-        const client = require('../../index.js');
+        const client = require('../../index.ts');
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.channel.send("There's no game to leave.");
@@ -16,4 +24,4 @@ module.exports = {
         message.author.partOfTos = false;
         message.channel.send(`${message.member.nickname || message.author.username} has left the game`)
     }
-}
+})
