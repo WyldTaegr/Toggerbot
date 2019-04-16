@@ -11,7 +11,7 @@ module.exports = new Command({
     guildOnly: false,
     cooldown: 0,
     args: false,
-    async execute(message) {
+    async execute(message: Discord.Message) {
         const client = require('../../index.ts');
 
         if (message.author.id != '179697448300576778') return message.reply("I don't answer to you.");

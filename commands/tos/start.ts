@@ -1,8 +1,9 @@
 const { id } = require('../../config.json')
 
+import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { Stage } from './src/game';
-import { shuffle } from '../../utils';
+import { shuffle, isUndefined } from '../../utils';
 
 module.exports = new Command({
     name: 'start',
@@ -12,9 +13,10 @@ module.exports = new Command({
     guildOnly: true,
     cooldown: 10,
     args: false,
-    execute(message) {
+    execute(message: Discord.Message) {
         const client: GameClient = require("../../index.ts");
         const game = client.games.get(message.guild.id);
+        if (isUndefined(game)) return;
 
         if (!game.running) return message.reply('Setup a game first!');
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
@@ -28,7 +30,8 @@ module.exports = new Command({
         message.channel.send('Assigning to players...');
         game.players.forEach((member, index) => {
             const { Player } = require(`./roles/${game.roles[index]}.ts`);
-            const player = new Player()
+            const user: Discord.User = member.user
+            const player = new Player(user)
             game.assignments.set(member, player);
         });
         message.channel.send('The game has begun!');

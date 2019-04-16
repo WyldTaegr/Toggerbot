@@ -1,10 +1,12 @@
 const { id } = require('../../config.json');
 
 import fs from 'fs';
+import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { Stage } from './src/game';
+import { isUndefined } from '../../utils';
 
-const roleNames = [];
+const roleNames: string[] = [];
 const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.ts'));
 for (const file of roleFiles) { //List of all roles currently added to the bot
     const { View } = require(`./roles/${file}`);
@@ -19,9 +21,11 @@ module.exports = new Command({
     guildOnly: true,
     cooldown: 1,
     args: true,
-    execute(message, args) {
+    execute(message: Discord.Message, args: string[] | undefined) {
+        if (isUndefined(args)) return;
         const client: GameClient = require('../../index.ts');
         const game = client.games.get(message.guild.id);
+            if (isUndefined(game)) return;
 
         if (!game.running) return message.reply('Start a game first!');
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');

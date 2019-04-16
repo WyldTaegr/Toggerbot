@@ -11,7 +11,7 @@ module.exports = new Command ({
     guildOnly: true,
     cooldown: 5,
     args: false,
-    execute(message) {
+    execute(message: Discord.Message) {
         const embed = new Discord.RichEmbed()
             .setTitle(`**${message.guild.name}**`)
             .setColor(0x00AE86)

@@ -1,3 +1,4 @@
+import Discord from 'discord.js';
 import { Selection, Action, _View, _Player } from '../src/player';
 
 const View = new _View({
@@ -8,15 +9,22 @@ const View = new _View({
     color: '#00ff00',
     abilities: `Heal one person each night, 
                 preventing them from dying.`, //Note: keep lines short to allow commands to be in-line
-    commands: 'Not implemented yet!',
     attributes: `You may only heal yourself once.
                  You will know if your target is attacked.`,
     goal: 'Lynch every criminal and evildoer.'
 })
 
 const Player = class extends _Player {
-    constructor() {
+    user: Discord.User;
+    name: string;
+    priority: number;
+    attack: number;
+    defense: number;
+    visits: boolean;
+    selection: Selection;
+    constructor(user: Discord.User) {
         super();
+        this.user = user;
         this.name = 'doctor'; //Note: used as identifier in code --> keep lowercase
         this.priority = 3; //Priority level of action
         this.attack = 0; //None

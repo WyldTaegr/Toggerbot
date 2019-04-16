@@ -21,7 +21,16 @@ export class _View {
   attributes: string;
   goal: string;
 
-  constructor(props) {
+  constructor(props: {
+    name: string;
+    pictureUrl: string;
+    alignment: string;
+    category: string;
+    color: string;
+    abilities: string;
+    attributes: string;
+    goal: string;
+  }) {
     this.name = props.name;
     this.pictureUrl = props.pictureUrl;
     this.alignment = props.alignment;
@@ -38,15 +47,15 @@ export abstract class _Player {
   will: string;
   visited: _Player[];
   blocked: _Player | boolean; //if not blocked, false; if blocked, shows who blocked
-  target: Discord.GuildMember;
+  target: Discord.GuildMember | null;
   //Defined in individual role class
-  user: Discord.User; //Used to DM a player when an action requires it
-  name: string; //Used as identifier in code ---> keep lowercase
-  priority: number; //Priority level of action --> -1 for Array indexing
-  attack: number; //TODO - When implemented, create enums to reference?
-  defense: number;
-  visits: boolean; //Whether the role visits its target on its action
-  selection: Selection; //The set of players available for targeting
+  abstract user: Discord.User; //Used to DM a player when an action requires it
+  abstract name: string; //Used as identifier in code ---> keep lowercase
+  abstract priority: number; //Priority level of action --> -1 for Array indexing
+  abstract attack: number; //TODO - When implemented, create enums to reference?
+  abstract defense: number;
+  abstract visits: boolean; //Whether the role visits its target on its action
+  abstract selection: Selection; //The set of players available for targeting
   abstract action(action: Action): void;
   
   constructor() {
@@ -57,7 +66,7 @@ export abstract class _Player {
       this.target = null; //GuildMember: targeted player for nighttime action
   }
 
-  checkSelection(receiver) { //Checks if the player can be selected as a target during Night stage
+  checkSelection(receiver: _Player) { //Checks if the player can be selected as a target during Night stage
       if (this.selection === Selection.all) return false;
       if (this.selection === Selection.others && this === receiver) return ("You can't target yourself!");
       if (this.selection === Selection.self && this != receiver) return ("You can only target yourself!");

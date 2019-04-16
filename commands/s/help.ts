@@ -2,6 +2,7 @@ const { id } = require('../../config.json');
 
 import Discord from 'discord.js';
 import { Command } from '../../index';
+import { isUndefined } from '../../utils';
 
 module.exports = new Command({
     name: 'help',
@@ -11,7 +12,7 @@ module.exports = new Command({
     guildOnly: false,
     cooldown: 2,
     args: false,
-    execute(message, args) {
+    execute(message: Discord.Message, args: string[] | undefined) {
         const client = require("../../index.ts");
 
         const embedInitial = new Discord.RichEmbed()
@@ -31,11 +32,13 @@ module.exports = new Command({
             }
             commandList.set(prefix[0], commands);
         }
-        if (!args.length) {
+        if (isUndefined(args)) {
             for (let i = 0; i < prefixList.length; i++) {
                 let commands = " ";
-                for (let a = 0; a < commandList.get(prefixList[i]).length; a++) {
-                    commands = commands.concat(commandList.get(prefixList[i])[a], ` `);
+                const prefixCommand: string[] | undefined = commandList.get(prefixList[i]); //Intermediate variable for type-guarding
+                    if (isUndefined(prefixCommand)) continue;
+                for (let a = 0; a < prefixCommand.length; a++) {
+                    commands = commands.concat(prefixCommand[a], ` `);
                 }
                 embedInitial.addField(`${prefixList[i]}:`, "`" + commands + "`", false);
             }
@@ -56,7 +59,9 @@ module.exports = new Command({
         const name = args[0].toLowerCase();
         const command = [];
         for (let i = 0; i < prefixList.length; i++) {
-            for (const cmd of commandList.get(prefixList[i])) {
+            const set: string[] | undefined = commandList.get(prefixList[i]); //Intermediate variable for type-guarding
+            if (isUndefined(set)) continue;
+            for (const cmd of set) {
                 if (name == cmd || client.prefixes.get(prefixList[i]).get(cmd).aliases && client.prefixes.get(prefixList[i]).get(cmd).aliases.includes(name)) {
                     command.push(client.prefixes.get(prefixList[i]).get(cmd));
                 }

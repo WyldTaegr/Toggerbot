@@ -2,6 +2,7 @@ const { id } = require('../../index');
 
 import Discord from 'discord.js';
 import { GameClient } from '../../index';
+import { isUndefined } from '../../utils';
 
 module.exports = {
     name: 'me',
@@ -11,11 +12,12 @@ module.exports = {
     guildOnly: false,
     cooldown: 10,
     args: false,
-    execute(message) {
+    execute(message: Discord.Message) {
         const client: GameClient = require('../../index.ts');
 
         if (!message.author.partOfTos) return message.reply('You are not in a game of Town Of Salem!');
         const game = client.games.get(message.author.partOfTos);
+            if (isUndefined(game)) return;
         if (message.channel.type == 'text') {
             if (message.author.partOfTos != message.guild.id) return message.channel.send('Wrong server, my dood.');
             if (!game.running) return message.reply('There is no game for you to have a role in!');
@@ -24,7 +26,18 @@ module.exports = {
         }
 
         message.reply('Your role is:');
-        const { View } = require(`./roles/${game.assignments.get(message.channel.type == 'text' ? message.member : client.guilds.get(message.author.partOfTos).members.get(message.author.id)).name}.ts`);
+        const guild: Discord.Guild | undefined = client.guilds.get(message.author.partOfTos);
+            if (isUndefined(guild)) return;
+        let member: Discord.GuildMember | undefined;
+        if (message.channel.type == 'text') {
+            member = message.member;
+        } else {
+            member = guild.members.get(message.author.id);
+        }
+            if (isUndefined(member)) return;
+        const player = game.assignments.get(member);
+            if (isUndefined(player)) return;
+        const { View } = require(`./roles/${player.name}.ts`);
         const embed = new Discord.RichEmbed()
             .setTitle(View.name)
             .setThumbnail(View.pictureUrl)

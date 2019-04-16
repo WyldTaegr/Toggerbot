@@ -3,6 +3,7 @@ const { id } = require('../../config.json');
 import Discord from 'discord.js';
 import fs from 'fs';
 import { _View } from './src/player';
+import { isUndefined } from '../../utils';
 
 const roles: Discord.Collection<string, _View> = new Discord.Collection();
 const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.ts'));
@@ -19,8 +20,9 @@ module.exports = {
     guildOnly: false,
     cooldown: 3,
     args: true,
-    execute(message, args) {
-        const role: _View = roles.get(args[0]);
+    execute(message: Discord.Message, args: string[]) {
+        const role: _View | undefined = roles.get(args[0]);
+        if (isUndefined(role)) return;
         if (!role) {
             message.reply('that\'s not a role.');
             return;

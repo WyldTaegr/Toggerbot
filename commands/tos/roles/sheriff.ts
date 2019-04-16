@@ -1,3 +1,4 @@
+import Discord from 'discord.js';
 import { Selection, _View, _Player, Action } from '../src/player'
 
 const View = new _View({
@@ -14,8 +15,16 @@ const View = new _View({
 })
 
 const Player = class extends _Player {
-    constructor() {
+    user: Discord.User;
+    name: string;
+    priority: number;
+    attack: number;
+    defense: number;
+    visits: boolean;
+    selection: Selection;
+    constructor(user: Discord.User) {
         super();
+        this.user = user;
         this.name = 'sheriff'; //Note: used as identifier in code --> keep lowercase
         this.priority = 4; //Priority level of action
         this.attack = 0; //None

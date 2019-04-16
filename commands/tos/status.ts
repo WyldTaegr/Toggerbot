@@ -11,17 +11,17 @@ module.exports = new Command ({
     guildOnly: true,
     cooldown: 6,
     args: false,
-    execute(message) {
+    execute(message: Discord.Message) {
         const client = require('../../index.ts');
         const game = client.games.get(message.guild.id);
 
         if (!game.running) return message.reply("There's no game!");
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
 
-        const playerNames = game.players.map(member => member.nickname || member.user.username)
+        const playerNames = game.players.map((member: Discord.GuildMember) => member.nickname || member.user.username)
             .toString()
             .replace(/,/g, '\n');
-        const roleNames = game.roles.map(role => role.charAt(0).toUpperCase() + role.slice(1))
+        const roleNames = game.roles.map((role: string) => role.charAt(0).toUpperCase() + role.slice(1))
             .toString()
             .replace(/,/g, '\n');
 

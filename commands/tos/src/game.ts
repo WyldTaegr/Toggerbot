@@ -1,6 +1,7 @@
 import Discord, { GuildMember, Message } from "discord.js"
+//@ts-ignore
 import { Menu } from 'reaction-core';
-import { shuffle, emojis as _emojis } from '../../../utils';
+import { shuffle, emojis as _emojis, isUndefined } from '../../../utils';
 import { _Player, Action } from './player';
 
 export enum Stage {
@@ -9,6 +10,7 @@ export enum Stage {
     Processing = "Processing",
     Day = "Day",
     Trial = "Trial",
+    Ended = "Ended",
 }
 
 class MenuChannel extends Discord.TextChannel {
@@ -17,23 +19,23 @@ class MenuChannel extends Discord.TextChannel {
 
 export class Game {
     running: boolean;
-    moderator: Discord.GuildMember;
+    moderator: Discord.GuildMember | null;
     players: Discord.GuildMember[];
     roles: string[];
     assignments: Discord.Collection<GuildMember, _Player>
     stage: Stage;
     actions: Array<Action[]>;
     counter: number;
-    category: Discord.CategoryChannel | Discord.TextChannel | Discord.VoiceChannel;
-    announcements: MenuChannel;
-    origin: Discord.TextChannel;
+    category: Discord.CategoryChannel | Discord.TextChannel | Discord.VoiceChannel | null;
+    announcements: MenuChannel | null;
+    origin: Discord.TextChannel | null;
     constructor() {
         this.running = false; //checks if there is a game currently going
         this.moderator = null; //person who starts the game --> will have empowered commands
         this.players = []; //Array of GuildMembers, assigned with message.member
         this.roles = []; //Array of role names as strings
         this.assignments = new Discord.Collection(); //Maps players (As GuildMembers) with their roles (As role.object), assigned after start
-        this.stage = null; //Either 'Setup', 'Night', 'Processing' 'Day', or 'Trial'
+        this.stage = Stage.Ended; //Either 'Setup', 'Night', 'Processing' 'Day', 'Trial', or 'Ended'
         this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number; [role of action-caller as role.object.name, caller as GuildMember, target as GuildMember]
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
@@ -47,7 +49,7 @@ export class Game {
         this.players = []; 
         this.roles = []; 
         this.assignments = new Discord.Collection();
-        this.stage = null;
+        this.stage = Stage.Ended;
         this.actions = [[], [], [], [], []];
         this.counter = 0;
         this.category = null;
@@ -62,9 +64,13 @@ export class Game {
         this.stage = Stage.Night;
 
         //this.players.filter(member => this.assignments.get(member).alive).forEach(player => this.nightMessage(player));
-        const buttons = [];
+        const buttons: Object[] = [];
         
-        const playerList = this.players.filter(member => this.assignments.get(member).alive);
+        const playerList = this.players.filter(member => {
+            const player = this.assignments.get(member)
+                if (isUndefined(player)) return;
+            return player.alive;
+        });
 
         let playerSelection = '';
 
@@ -80,7 +86,7 @@ export class Game {
             playerSelection = playerSelection.concat(member.user.username, '\n');
             buttons.push({
                 emoji: emoji,
-                run: async (user, message) => {
+                run: async (user: Discord.User, message: Discord.Message) => {
                     const dm = await user.createDM();
                     if (user.partOfTos != message.guild.id) return dm.send("You're not playing.");
                     const agent = this.assignments.get(message.guild.members.get(user.id));
@@ -107,7 +113,7 @@ export class Game {
             .setFooter('Set your target for tonight by reacting below');
         const message = new Menu(embed, buttons);
         client.handler.addMenus(message);
-        let messageId; //Used to eventually remove the menu during Processing stage
+        let messageId: string; //Used to eventually remove the menu during Processing stage
         this.announcements.sendMenu(message).then(message => messageId = message.id);
 
         setTimeout(() => {
@@ -126,7 +132,7 @@ export class Game {
                 const player = this.assignments.get(member);
                 if (player.target) {
                     const priority = player.priority - 1; //Subtract 1 for array indexing!
-                    this.actions[priority].push({ 
+                    this.actions[priority].push({
                         agent: player, 
                         receiver: this.assignments.get(player.target),
                     });

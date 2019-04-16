@@ -1,6 +1,7 @@
 const { id } = require('../../config.json');
 
 import { Command } from "../../index";
+import Discord from 'discord.js';
 
 module.exports = new Command({
     name: 'ping',
@@ -10,7 +11,7 @@ module.exports = new Command({
     guildOnly: false,
     cooldown: 2,
     args: false,
-    execute(message) {
+    execute(message: Discord.Message) {
         message.channel.send('Pong!');
     }
 });

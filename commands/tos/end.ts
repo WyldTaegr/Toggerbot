@@ -1,7 +1,9 @@
 const { id } = require('../../config.json');
 
 import Discord from 'discord.js';
-import { Command } from '../../index';
+import { Command, GameClient } from '../../index';
+import { Game } from './src/game';
+import { isUndefined } from '../../utils';
 
 module.exports = new Command({
     name: "end",
@@ -11,9 +13,10 @@ module.exports = new Command({
     guildOnly: true,
     cooldown: 10,
     args: false,
-    execute(message) {
-        const client = require("../../index.ts");
-        const game = client.games.get(message.guild.id);
+    execute(message: Discord.Message) {
+        const client: GameClient = require("../../index.ts");
+        const game: Game | undefined = client.games.get(message.guild.id);
+        if (isUndefined(game)) return;
 
         if (!game.running) return message.reply("Wow you really don't like this game.");
         if (message.member != game.moderator) return message.reply("Ask the faggot in charge");

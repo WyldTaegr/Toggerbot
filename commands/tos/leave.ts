@@ -1,6 +1,7 @@
 const { id } = require('../../config.json');
 
 import { Command } from '../../index';
+import { Message } from 'discord.js';
 
 module.exports = new Command({
     name: "leave",
@@ -10,7 +11,7 @@ module.exports = new Command({
     guildOnly: true,
     cooldown: 2,
     args: false,
-    execute(message) {
+    execute(message: Message) {
         const client = require('../../index.ts');
         const game = client.games.get(message.guild.id);
 
