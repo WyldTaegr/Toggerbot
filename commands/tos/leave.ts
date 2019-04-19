@@ -22,6 +22,7 @@ module.exports = new Command({
         if (game.stage != 'setup') return message.channel.send("My man, you are already in too deep.");
 
         game.players.splice(game.players.indexOf(message.member), 1);
+        //@ts-ignore
         message.author.partOfTos = false;
         message.channel.send(`${message.member.nickname || message.author.username} has left the game`)
     }

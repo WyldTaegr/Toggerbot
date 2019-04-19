@@ -19,9 +19,11 @@ module.exports = new Command({
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
         if (game.stage != 'setup') return message.channel.send(`Oops, you're too late, ${message.member.nickname || message.author.username}!`);
         if (game.players.includes(message.member)) return message.reply("You're already in the game!");
+        //@ts-ignore
         if (message.author.partOfTos) return message.reply('You are part of a game of Town Of Salem on a different server!');
 
         game.players.push(message.member);
+        //@ts-ignore
         message.author.partOfTos = message.guild.id;
         message.channel.send(`${message.member.nickname || message.author.username} has joined the game`)
         

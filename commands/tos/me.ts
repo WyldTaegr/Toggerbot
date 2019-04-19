@@ -14,11 +14,13 @@ module.exports = {
     args: false,
     execute(message: Discord.Message) {
         const client: GameClient = require('../../index.ts');
-
+        //@ts-ignore
         if (!message.author.partOfTos) return message.reply('You are not in a game of Town Of Salem!');
+        //@ts-ignore
         const game = client.games.get(message.author.partOfTos);
             if (isUndefined(game)) return;
         if (message.channel.type == 'text') {
+            //@ts-ignore
             if (message.author.partOfTos != message.guild.id) return message.channel.send('Wrong server, my dood.');
             if (!game.running) return message.reply('There is no game for you to have a role in!');
             
@@ -26,6 +28,7 @@ module.exports = {
         }
 
         message.reply('Your role is:');
+        //@ts-ignore
         const guild: Discord.Guild | undefined = client.guilds.get(message.author.partOfTos);
             if (isUndefined(guild)) return;
         let member: Discord.GuildMember | undefined;
@@ -44,7 +47,6 @@ module.exports = {
             .setColor(View.color)
             .setDescription(`Alignment/Category: ${View.alignment} (${View.category})`)
             .addField('Abilities', View.abilities, true)
-            .addField('Commands', View.commands, true)
             .addField('Attributes', View.attributes, false)
             .addField('Goal', View.goal, false)
         message.author.send(embed);

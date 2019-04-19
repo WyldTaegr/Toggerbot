@@ -32,7 +32,7 @@ module.exports = new Command({
             }
             commandList.set(prefix[0], commands);
         }
-        if (isUndefined(args)) {
+        if (isUndefined(args) || args.length == 0) {
             for (let i = 0; i < prefixList.length; i++) {
                 let commands = " ";
                 const prefixCommand: string[] | undefined = commandList.get(prefixList[i]); //Intermediate variable for type-guarding
@@ -56,7 +56,7 @@ module.exports = new Command({
                 });
         }
 
-        const name = args[0].toLowerCase();
+        const name = args[0] ? args[0].toLowerCase() : args[0];
         const command = [];
         for (let i = 0; i < prefixList.length; i++) {
             const set: string[] | undefined = commandList.get(prefixList[i]); //Intermediate variable for type-guarding
@@ -68,7 +68,7 @@ module.exports = new Command({
             }
         }
 
-        if (command.length == 0) return message.reply(`Sorry, that's not a valid command`);
+        if (command.length == 0) return message.reply('Sorry, `' + name + '` is not a valid command');
 
         const embed = new Discord.RichEmbed()
         if (command.length == 1) {

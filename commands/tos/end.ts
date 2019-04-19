@@ -3,7 +3,7 @@ const { id } = require('../../config.json');
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { Game } from './src/game';
-import { isUndefined } from '../../utils';
+import { isUndefined, isNull } from '../../utils';
 
 module.exports = new Command({
     name: "end",
@@ -31,9 +31,11 @@ module.exports = new Command({
             //TO-DO: Add game info (ie reveal the roles of each player)
 
         for (const player of game.players) {
+            //@ts-ignore
             player.user.partOfTos = false;
         }
         game.announcements.delete();
+        if (isNull(game.category) || isNull(game.origin)) return;
         game.category.delete();
         game.origin.send(end);
         game.reset();

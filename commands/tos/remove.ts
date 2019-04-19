@@ -3,6 +3,7 @@ const { id } = require('../../config.json');
 import { Command } from '../../index';
 import Discord from 'discord.js';
 import { isUndefined } from '../../utils';
+import { Stage } from './src/game';
 
 module.exports = new Command({
     name: 'remove',
@@ -19,7 +20,7 @@ module.exports = new Command({
 
         if (!game.running) { message.reply('Start a game first!'); return; };
         if (message.channel != game.announcements) { message.channel.send('Wrong channel, my dood.'); return; };
-        if (game.stage != 'setup') { message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`); return };
+        if (game.stage != Stage.Setup) { message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`); return };
         if (message.member != game.moderator) { message.reply("Ask the faggot in charge"); return; };
         
         const role: string = args[0].toLowerCase();

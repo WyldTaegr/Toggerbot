@@ -3,8 +3,12 @@ const { id } = require('../../config.json');
 import Discord from 'discord.js';
 import { Command } from '../../index';
 import { Game, Stage } from './src/game';
+import { isNull } from 'util';
 
 const initializeGame = async function (message: Discord.Message, game: Game) {
+
+    if(isNull(game.moderator)) return;
+
     game.category = await message.guild.createChannel('Town Of Salem', 'category') as Discord.CategoryChannel;
     game.announcements = await message.guild.createChannel('gods-decree', 'text') as Discord.TextChannel;
     game.announcements.setParent(game.category);
@@ -40,6 +44,7 @@ module.exports = new Command({
         const game: Game = client.games.get(message.guild.id);
 
         if (game.running) return message.reply("Stop being a sore-ass loser");
+        //@ts-ignore
         if (message.author.partOfTos && message.author.partOfTos != message.guild.id) return message.reply("You're already part of a game on a different server!");
 
         game.origin = message.channel as Discord.TextChannel;
@@ -47,6 +52,7 @@ module.exports = new Command({
         game.stage = Stage.Setup;
         game.moderator = message.member;
         game.players.push(message.member);
+        //@ts-ignore
         message.author.partOfTos = message.guild.id;
         
         initializeGame(message, game);

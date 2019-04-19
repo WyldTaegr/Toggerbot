@@ -6,6 +6,7 @@ import { Game } from "./commands/tos/src/game";
 //@ts-ignore
 import { Handler } from "reaction-core";
 import { isString, isNumber, isUndefined } from "./utils";
+import { isNull } from "util";
 
 export class Command {
     name: string;
@@ -76,6 +77,8 @@ const cooldowns: Discord.Collection<
 
 client.on("ready", () => {
     console.log("Ready!");
+    const Tiger = client.users.get('179697448300576778');
+    if (!isUndefined(Tiger)) Tiger.send('Online and Ready!');
     const cfc = client.guilds.get("480906166541484033")
     if (!isUndefined(cfc)) cfc.me.setNickname("Sex Bot");
     client.user.setActivity("Finding Jerry");
@@ -129,6 +132,8 @@ client.on("message", message => {
                 if (cmd.aliases && cmd.aliases.includes(commandName)) return true; else return false;
             })) as Command;
 
+    if (isNull(command)) return;
+
     if (command.guildOnly && message.channel.type !== "text") {
         return message.reply("I can't execute that command inside DMs!");
     }
@@ -180,6 +185,7 @@ client.on("message", message => {
 
     try {
         command.execute(message, args);
+        console.log(message.author.username + ': ' +message.content);
     } catch (error) {
         console.error(error);
         message.reply("no u");

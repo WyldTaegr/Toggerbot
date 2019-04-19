@@ -1,6 +1,6 @@
 # Toggerbot
 
-A discord bot
+A discord bot (ReadMe is outdated!)
 
 ## Currently developing: **Town Of Salem**
 

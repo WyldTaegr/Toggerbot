@@ -1,7 +1,7 @@
 import Discord, { GuildMember, Message } from "discord.js"
 //@ts-ignore
 import { Menu } from 'reaction-core';
-import { shuffle, emojis as _emojis, isUndefined } from '../../../utils';
+import { shuffle, emojis as _emojis, isUndefined, isNull } from '../../../utils';
 import { _Player, Action } from './player';
 
 export enum Stage {
@@ -11,6 +11,10 @@ export enum Stage {
     Day = "Day",
     Trial = "Trial",
     Ended = "Ended",
+}
+
+abstract class User {
+    abstract partOfTos: boolean
 }
 
 class MenuChannel extends Discord.TextChannel {
@@ -88,9 +92,14 @@ export class Game {
                 emoji: emoji,
                 run: async (user: Discord.User, message: Discord.Message) => {
                     const dm = await user.createDM();
+                    //@ts-ignore
                     if (user.partOfTos != message.guild.id) return dm.send("You're not playing.");
-                    const agent = this.assignments.get(message.guild.members.get(user.id));
+                    const agentMember = message.guild.members.get(user.id);
+                    if (isUndefined(agentMember)) return;
+                    const agent = this.assignments.get(agentMember);
+                    if (isUndefined(agent)) return;
                     const receiver = this.assignments.get(member);
+                    if (isUndefined(receiver)) return;
                     const { View } = require(`../roles/${agent.name}`);
                     const failureReason = agent.checkSelection(receiver);
                     if (failureReason) return dm.send(failureReason);
@@ -114,15 +123,18 @@ export class Game {
         const message = new Menu(embed, buttons);
         client.handler.addMenus(message);
         let messageId: string; //Used to eventually remove the menu during Processing stage
+        // @ts-ignore
         this.announcements.sendMenu(message).then(message => messageId = message.id);
 
         setTimeout(() => {
             this.processNight(messageId);
         }, 30000);
     }
-
+// @ts-ignore
     processNight(menu) {
         const client = require('../../../index.ts')
+
+        if (this.announcements == null) return;
 
         this.stage = Stage.Processing;
             client.handler.removeMenu(menu);
@@ -130,11 +142,13 @@ export class Game {
             this.announcements.startTyping();
             this.players.forEach((member) => {
                 const player = this.assignments.get(member);
-                if (player.target) {
+                if (player && !isNull(player.target)) {
                     const priority = player.priority - 1; //Subtract 1 for array indexing!
+                    const target = this.assignments.get(player.target);
+                    if (isUndefined(target)) return;
                     this.actions[priority].push({
                         agent: player, 
-                        receiver: this.assignments.get(player.target),
+                        receiver: target && target,
                     });
                     player.target = null; //clean-up for next cycle
                 }
