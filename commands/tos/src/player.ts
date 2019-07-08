@@ -48,6 +48,8 @@ export abstract class _Player {
   visited: _Player[];
   blocked: _Player | boolean; //if not blocked, false; if blocked, shows who blocked
   target: Discord.GuildMember | null;
+  votes: number;
+  vote: _Player | null;
   //Defined in individual role class
   abstract user: Discord.User; //Used to DM a player when an action requires it
   abstract name: string; //Used as identifier in code ---> keep lowercase
@@ -64,6 +66,8 @@ export abstract class _Player {
       this.visited = []; //Array of players as role.objects who visit that night
       this.blocked = false; //Checks if role-blocked
       this.target = null; //GuildMember: targeted player for nighttime action
+      this.votes = 0; //Number of votes against the player for Trial
+      this.vote = null; //This player's vote
   }
 
   checkSelection(receiver: _Player) { //Checks if the player can be selected as a target during Night stage

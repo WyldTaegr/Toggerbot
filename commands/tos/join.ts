@@ -2,6 +2,7 @@ const { id } = require('../../config.json');
 
 import { Command } from '../../index';
 import { Message } from 'discord.js';
+import { Stage } from './src/game';
 
 module.exports = new Command({
     name: "join",
@@ -17,7 +18,7 @@ module.exports = new Command({
 
         if (!game.running) return message.reply('Start a game first!');
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
-        if (game.stage != 'setup') return message.channel.send(`Oops, you're too late, ${message.member.nickname || message.author.username}!`);
+        if (game.stage != Stage.Setup) return message.channel.send(`Oops, you're too late, ${message.member.nickname || message.author.username}!`);
         if (game.players.includes(message.member)) return message.reply("You're already in the game!");
         //@ts-ignore
         if (message.author.partOfTos) return message.reply('You are part of a game of Town Of Salem on a different server!');

@@ -2,8 +2,22 @@ const { id } = require('../../config.json')
 
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
-import { Stage } from './src/game';
+import { Stage, Game } from './src/game';
 import { shuffle, isUndefined } from '../../utils';
+
+function firstDay(game: Game) {
+    game.counter++;
+    game.stage = Stage.Day;
+    let playerList = ''
+    game.alive.map(member => member.nickname ? member.nickname : member.user.username).forEach(value => {playerList = playerList.concat(value, '\n')})
+    const day = new Discord.RichEmbed()
+        .setTitle(`${game.stage} ${game.counter}`)
+        .setColor('#ffff00')
+        .setDescription('Welcome to Town of Salem!')
+        .addField("Players participating in this game:", playerList)
+        .setFooter("The first night will begin in 15 seconds");
+    game.announcements!.send(day)
+}
 
 module.exports = new Command({
     name: 'start',
@@ -35,6 +49,9 @@ module.exports = new Command({
             game.assignments.set(member, player);
         });
         message.channel.send('The game has begun!');
-        game.cycleNight();
+        firstDay(game);
+        setTimeout(() => {
+            game.cycleNight();
+        }, 15000);
     }
 })
