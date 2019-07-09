@@ -4,6 +4,7 @@ import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { Stage, Game } from './src/game';
 import { shuffle, isUndefined } from '../../utils';
+import { CycleNight } from './src/Night';
 
 function firstDay(game: Game) {
     game.counter++;
@@ -51,7 +52,7 @@ module.exports = new Command({
         message.channel.send('The game has begun!');
         firstDay(game);
         setTimeout(() => {
-            game.cycleNight();
+            CycleNight(game);
         }, 15000);
     }
 })

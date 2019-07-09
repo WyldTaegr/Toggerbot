@@ -4,6 +4,8 @@ import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { isUndefined } from '../../utils';
 import { Stage } from './src/game';
+import { ProcessTrial } from './src/Trial';
+import { CycleNight } from './src/Night';
 
 module.exports = new Command ({
     name: 'continue',
@@ -21,8 +23,8 @@ module.exports = new Command ({
       if (!game.running) return message.reply('Setup a game first!');
       if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
       if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
-      if (game.stage == Stage.Trial) return game.processTrial();
-      else if (game.stage == Stage.Day) return game.cycleNight();
+      if (game.stage == Stage.Trial) return ProcessTrial(game);
+      else if (game.stage == Stage.Day) return CycleNight(game);
       else return message.reply("Water you trying to continue?");
     }
   })
