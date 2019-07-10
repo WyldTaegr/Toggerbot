@@ -2,7 +2,7 @@ import Discord, { GuildMember, Message } from "discord.js"
 //@ts-ignore
 import { Menu } from 'reaction-core';
 import { shuffle, emojis as _emojis, isUndefined, isNull } from '../../../utils';
-import { _Player, Action } from './player';
+import { _Player, Action, _View } from './player';
 
 export enum Stage {
     Setup = "Setup",
@@ -28,6 +28,9 @@ export class Game {
     counter: number;
     category: Discord.CategoryChannel | Discord.TextChannel | Discord.VoiceChannel | null;
     announcements: MenuChannel | null;
+    mafia: Discord.TextChannel | null;
+    jail: Discord.TextChannel | null;
+    graveyard: Discord.TextChannel | null;
     origin: Discord.TextChannel | null;
     activeMenuId: string;
     guiltyVote: _Player[];
@@ -45,6 +48,9 @@ export class Game {
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
         this.announcements = null;
+        this.mafia = null;
+        this.jail = null;
+        this.graveyard = null;
         this.origin = null; //Channel where the game was started, where the endcard will go upon game finish
         this.activeMenuId = "";
         this.guiltyVote = [];
@@ -80,6 +86,16 @@ export class Game {
             const player = this.assignments.get(member);
                 if (isUndefined(player)) return;
             return player.alive;
+        })
+    }
+
+    get mafiaMembers() {
+        return this.players.filter(member => {
+            const player = this.assignments.get(member);
+                if (isUndefined(player)) return;
+            const role = player.name
+            const { View }: { View: _View} = require(`../roles/${role}`)
+            return View.alignment === "Mafia";
         })
     }
 

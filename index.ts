@@ -76,6 +76,7 @@ const cooldowns: Discord.Collection<
 > = new Discord.Collection();
 
 client.on("ready", () => {
+    console.clear();
     console.log("Ready!");
     const Tiger = client.users.get('179697448300576778');
     if (!isUndefined(Tiger)) Tiger.send('Online and Ready!');
@@ -185,7 +186,7 @@ client.on("message", message => {
 
     try {
         command.execute(message, args);
-        console.log(message.author.username + ': ' +message.content);
+        console.log(`${message.author.username} : ${message.content}`);
     } catch (error) {
         console.error(error);
         message.reply("no u");

@@ -28,6 +28,9 @@ module.exports = new Command({
                     .setTimestamp();
                     //TO-DO: Add game info (ie players with their respective roles)
                 game.announcements.delete();
+                game.mafia.delete();
+                game.jail.delete();
+                game.graveyard.delete();
                 game.category.delete();
                 game.origin.send(end);
                 game.reset();

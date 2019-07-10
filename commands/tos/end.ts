@@ -35,9 +35,11 @@ module.exports = new Command({
             player.user.partOfTos = false;
         }
         game.announcements.delete();
-        if (isNull(game.category) || isNull(game.origin)) return;
-        game.category.delete();
-        game.origin.send(end);
+        game.mafia!.delete();
+        game.jail!.delete();
+        game.graveyard!.delete();
+        game.category!.delete();
+        game.origin!.send(end);
         game.reset();
     }
 })

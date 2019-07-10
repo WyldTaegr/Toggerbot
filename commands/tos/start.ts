@@ -20,6 +20,30 @@ function firstDay(game: Game) {
     game.announcements!.send(day)
 }
 
+async function createChannels(game: Game) {
+    const client: GameClient = require('../../index');
+    const guildId = client.games.findKey('moderator', game.moderator)
+    const guild = client.guilds.get(guildId);
+    if (isUndefined(guild)) return;
+
+    const mafiaOptions: Array<Discord.ChannelCreationOverwrites | Discord.PermissionOverwrites> = [
+        {
+            id: guild.defaultRole.id,
+            deny: ['VIEW_CHANNEL'],
+        },
+    ]
+    game.mafiaMembers.map(member => {
+        mafiaOptions.push({ id: member.user.id, allow: ['VIEW_CHANNEL']})
+    })
+    
+    game.mafia = await guild.createChannel('Mafia', 'text', mafiaOptions) as Discord.TextChannel;
+        game.mafia.setParent(game.category!)
+    game.jail = await guild.createChannel('Jail', 'text', [ { id: guild.defaultRole.id, deny: ['VIEW_CHANNEL'] } ]) as Discord.TextChannel;
+        game.jail.setParent(game.category!)
+    game.graveyard = await guild.createChannel('Graveyard', 'text', [ { id: guild.defaultRole.id, deny: ['VIEW_CHANNEL'] } ]) as Discord.TextChannel;
+        game.graveyard.setParent(game.category!)
+}
+
 module.exports = new Command({
     name: 'start',
     aliases: undefined,
@@ -49,6 +73,7 @@ module.exports = new Command({
             const player = new Player(user)
             game.assignments.set(member, player);
         });
+        createChannels(game);
         message.channel.send('The game has begun!');
         firstDay(game);
         setTimeout(() => {
