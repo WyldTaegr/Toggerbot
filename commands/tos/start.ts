@@ -64,13 +64,16 @@ module.exports = new Command({
         if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!');
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
+        client.handler.removeMenu(game.activeMenuId);
         message.channel.send('Shuffling roles...');
         game.roles = shuffle(game.roles);
         message.channel.send('Assigning to players...');
-        game.players.forEach((member, index) => {
+        game.players.forEach(async (member, index) => {
             const { Player } = require(`./roles/${game.roles[index]}.ts`);
             const user: Discord.User = member.user
             const player = new Player(user)
+            player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, "text", [{ id: message.guild.defaultRole.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL']}])
+            player.input.setParent(game.category)
             game.assignments.set(member, player);
         });
         createChannels(game);

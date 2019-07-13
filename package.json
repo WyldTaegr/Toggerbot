@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/WyldTaegr/Toggerbot#readme",
   "dependencies": {
-    "@types/node": "^10.12.18"
+    "@types/node": "^10.12.18",
+    "@types/number-to-words": "^1.2.0",
+    "number-to-words": "^1.2.4"
   },
   "devDependencies": {
     "discord.js": "^11.4.2",
