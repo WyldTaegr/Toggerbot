@@ -3,6 +3,7 @@ const { id } = require('../../index');
 import Discord from 'discord.js';
 import { GameClient } from '../../index';
 import { isUndefined } from '../../utils';
+import { Stage } from './src/game';
 
 module.exports = {
     name: 'me',
@@ -22,7 +23,7 @@ module.exports = {
         if (message.channel.type == 'text') {
             //@ts-ignore
             if (message.author.partOfTos != message.guild.id) return message.channel.send('Wrong server, my dood.');
-            if (!game.running) return message.reply('There is no game for you to have a role in!');
+            if (game.stage === Stage.Ended) return message.reply('There is no game for you to have a role in!');
             
             message.channel.send('Did my man just make a huge mistake?');
         }

@@ -1,3 +1,5 @@
+const { token } = require("./config.json");
+
 export function shuffle<T>(array: Array<T>) {
     var m = array.length, t, i;
   

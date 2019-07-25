@@ -1,6 +1,6 @@
 const { id } = require('../../config.json');
 
-import { Command } from '../../index';
+import { Command, GameClient } from '../../index';
 import Discord from 'discord.js';
 import { isUndefined } from '../../utils';
 import { Stage } from './src/game';
@@ -9,24 +9,32 @@ module.exports = new Command({
     name: 'remove',
     aliases: undefined,
     description: 'Remove a role added to the game. Only executable by moderator.',
-    usage: '`tos' + id + 'add [Role]`',
+    usage: '`tos' + id + 'remove [Role]`',
     guildOnly: true,
     cooldown: 2,
-    args: true,
+    requireArgs: false,
     execute(message: Discord.Message, args: string[] | undefined) {
         if (isUndefined(args)) return;
-        const client = require('../../index.ts');
-        const game = client.games.get(message.guild.id);
+        const client: GameClient = require('../../index.ts');
+        //@ts-ignore
+        const game = client.games.get(message.author.partOfTos);
+        if (isUndefined(game)) return;
 
-        if (!game.running) { message.reply('Start a game first!'); return; };
+        if (game.stage === Stage.Ended) return message.reply('Start a game first!');
         if (message.channel != game.announcements) { message.channel.send('Wrong channel, my dood.'); return; };
-        if (game.stage != Stage.Setup) { message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`); return };
-        if (message.member != game.moderator) { message.reply("Ask the faggot in charge"); return; };
+
+        message.delete();
+
+        if (game.stage != Stage.Setup) { message.channel.send(`The game has already begun, <@${message.author.id}>!`); return };
+        if (message.author != game.moderator) { message.reply("Ask the guy in charge"); return; };
         
+        if (args.length === 0) return message.channel.send('Select a role to remove from the role pool: `tos!remove [Role]`').then(message => setTimeout(() => (message as Discord.Message).delete(), 3000))
+
         const role: string = args[0].toLowerCase();
-        if(!game.roles.includes(role)) { message.reply('No such role is currently added to the game!'); return; };
+        if(!game.roles.includes(role)) return message.reply('No such role is currently added to the game!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
 
         game.roles.splice(game.roles.lastIndexOf(role), 1);
-        message.channel.send('One instance of `' + role.charAt(0).toUpperCase() + role.slice(1) + '` has been removed from the game.');
+        game.setup!.edit(game.setupEmbed())
+        message.channel.send('One instance of `' + role.charAt(0).toUpperCase() + role.slice(1) + '` has been removed from the game.').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
     }
 })

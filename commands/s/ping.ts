@@ -10,7 +10,7 @@ module.exports = new Command({
     usage: "`s" + id + "ping",
     guildOnly: false,
     cooldown: 2,
-    args: false,
+    requireArgs: false,
     execute(message: Discord.Message) {
         message.channel.send('Pong!');
     }

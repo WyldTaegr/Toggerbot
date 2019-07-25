@@ -11,7 +11,7 @@ module.exports = new Command({
     usage: "`s" + id + "help [command name]`", //NOTE: prefix before id depends on folder name!
     guildOnly: false,
     cooldown: 2,
-    args: false,
+    requireArgs: false,
     execute(message: Discord.Message, args: string[] | undefined) {
         const client = require("../../index.ts");
 

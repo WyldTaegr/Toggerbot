@@ -20,24 +20,39 @@ module.exports = new Command({
     usage: '`tos' + id + 'add [Role]',
     guildOnly: true,
     cooldown: 1,
-    args: true,
-    execute(message: Discord.Message, args: string[] | undefined) {
+    requireArgs: false,
+    async execute(message: Discord.Message, args: string[] | undefined) {
         if (isUndefined(args)) return;
         const client: GameClient = require('../../index.ts');
-        const game = client.games.get(message.guild.id);
+        //@ts-ignore
+        const game = client.games.get(message.author.partOfTos);
             if (isUndefined(game)) return;
 
-        if (!game.running) return message.reply('Start a game first!');
+        if (game.stage === Stage.Ended) return message.reply('Start a game first!');
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
         if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`);
-        if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
-        if (game.players.length <= game.roles.length) message.channel.send('Note: there are more roles than there are players! Upon starting, roles will randomly be chosen from the role pool.');
+        if (message.author != game.moderator) return message.reply("Ask the guy in charge");
+        if (args.length === 0) return game.announcements.send('Provide a role to add with the command: `tos!add [Role]`').then(notification => {
+            message.delete();
+            setTimeout(() => (notification as Discord.Message).delete(), 3000)
+        })
+        if (game.players.length <= game.roles.length) {
+            const notification: Discord.Message = await message.channel.send('Note: there are more roles than there are players! Upon starting, roles will randomly be chosen from the role pool.') as Discord.Message;
+            setTimeout(() => notification.delete(), 3000);
+        }
         
+        message.delete();
+
         const role = args[0].toLowerCase();
 
-        if (!roleNames.includes(role)) return message.reply('That role is not available yet!');
+        if (!roleNames.includes(role)) {
+            const notification: Discord.Message = await message.reply('That role is not available yet!') as Discord.Message;
+            return setTimeout(() => notification.delete(), 3000);    
+        };
 
         game.roles.push(role);
-        message.channel.send('Role `' + role.charAt(0).toUpperCase() + role.slice(1) + '` Added to the game!')
+        const notification: Discord.Message = await message.channel.send('Role `' + role.charAt(0).toUpperCase() + role.slice(1) + '` Added to the game!') as Discord.Message;
+        game.setup!.edit(game.setupEmbed())
+        setTimeout(() => notification.delete(), 3000);
     }
 })

@@ -1,4 +1,4 @@
-import { Stage, Game } from "./game";
+import { Stage, Game, ActiveMenu } from "./game";
 
 import { isUndefined } from "../../../utils";
 
@@ -11,7 +11,7 @@ import { CycleDay } from "./Day";
 export function CycleTrial(game: Game) {
   const client = require('../../../index.ts');
   game.stage = Stage.Trial;
-  client.hander.removeMenu(game.activeMenuId);
+  client.hander.removeMenu(game.activeMenuIds.get(ActiveMenu.Vote));
   game.resetVotes();
   const trial = new Discord.RichEmbed()
       .setTitle(`${game.suspect!.user.username} is on trial`)
@@ -101,13 +101,13 @@ export function CycleTrial(game: Game) {
   ]
   const message = new Menu(trial, buttons);
   //@ts-ignore
-  game.announcements.sendMenu(message).then(message => game.activeMenuId = message.id);
+  game.announcements.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote));
 }
 
 export function ProcessTrial(game: Game) {
   const client = require('../../../index.ts');
   game.stage = Stage.Processing;
-  client.hander.removeMenu(game.activeMenuId);
+  client.hander.removeMenu(game.activeMenuIds.get(ActiveMenu.Vote));
   const guiltyList = game.guiltyVote.map(player => player.user);
   const innocentList = game.innocentVote.map(player => player.user);
   const abstainedList = game.players.filter(member => !guiltyList.includes(member.user) && !innocentList.includes(member.user)).map(member => member.user);

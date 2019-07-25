@@ -2,8 +2,8 @@ const { id } = require('../../config.json')
 
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
-import { Stage, Game } from './src/game';
-import { shuffle, isUndefined } from '../../utils';
+import { Stage, Game, ActiveMenu } from './src/game';
+import { shuffle, isUndefined, isNull } from '../../utils';
 import { CycleNight } from './src/Night';
 
 function firstDay(game: Game) {
@@ -25,10 +25,12 @@ async function createChannels(game: Game) {
     const guildId = client.games.findKey('moderator', game.moderator)
     const guild = client.guilds.get(guildId);
     if (isUndefined(guild)) return;
+    
+    if (isNull(game.role)) return console.log("start.ts: 29")
 
     const mafiaOptions: Array<Discord.ChannelCreationOverwrites | Discord.PermissionOverwrites> = [
         {
-            id: guild.defaultRole.id,
+            id: game.role.id,
             deny: ['VIEW_CHANNEL'],
         },
     ]
@@ -36,11 +38,14 @@ async function createChannels(game: Game) {
         mafiaOptions.push({ id: member.user.id, allow: ['VIEW_CHANNEL']})
     })
     
-    game.mafia = await guild.createChannel('Mafia', 'text', mafiaOptions) as Discord.TextChannel;
+    if (isUndefined(client.guild)) return console.log ("start.ts: 41");
+    if (isNull(game.category)) return console.log("start.ts: 42")
+
+    game.mafia = await client.guild.createChannel('Mafia', {type: 'text', permissionOverwrites: mafiaOptions}) as Discord.TextChannel;
         game.mafia.setParent(game.category!)
-    game.jail = await guild.createChannel('Jail', 'text', [ { id: guild.defaultRole.id, deny: ['VIEW_CHANNEL'] } ]) as Discord.TextChannel;
+    game.jail = await client.guild.createChannel('Jail', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
         game.jail.setParent(game.category!)
-    game.graveyard = await guild.createChannel('Graveyard', 'text', [ { id: guild.defaultRole.id, deny: ['VIEW_CHANNEL'] } ]) as Discord.TextChannel;
+    game.graveyard = await client.guild.createChannel('Graveyard', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
         game.graveyard.setParent(game.category!)
 }
 
@@ -51,28 +56,31 @@ module.exports = new Command({
     usage: '`tos' + id + 'start`',
     guildOnly: true,
     cooldown: 10,
-    args: false,
-    execute(message: Discord.Message) {
+    requireArgs: false,
+    async execute(message: Discord.Message) {
         const client: GameClient = require("../../index.ts");
-        const game = client.games.get(message.guild.id);
+        //@ts-ignore
+        const game = client.games.get(message.author.partOfTos);
         if (isUndefined(game)) return;
 
-        if (!game.running) return message.reply('Setup a game first!');
+        if (game.stage === Stage.Ended) return message.reply('Setup a game first!');
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
-        if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`);
-        if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
-        if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!');
+
+        message.delete();
+
+        if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
+        if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
-        client.handler.removeMenu(game.activeMenuId);
+        client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Setup));
         message.channel.send('Shuffling roles...');
         game.roles = shuffle(game.roles);
         message.channel.send('Assigning to players...');
-        game.players.forEach(async (member, index) => {
+        await game.players.forEach(async (member, index) => {
             const { Player } = require(`./roles/${game.roles[index]}.ts`);
             const user: Discord.User = member.user
             const player = new Player(user)
-            player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, "text", [{ id: message.guild.defaultRole.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL']}])
+            player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL']}]})
             player.input.setParent(game.category)
             game.assignments.set(member, player);
         });

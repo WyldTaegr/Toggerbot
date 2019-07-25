@@ -2,11 +2,58 @@ const { id, token } = require("./config.json");
 
 import Discord from "discord.js"
 import fs from 'fs';
-import { Game } from "./commands/tos/src/game";
+import { Game, Stage } from "./commands/tos/src/game";
 //@ts-ignore
 import { Handler } from "reaction-core";
 import { isString, isNumber, isUndefined } from "./utils";
-import { isNull } from "util";
+import { isNull } from "./utils";
+import fetch from "cross-fetch";
+
+async function createBotGuild(client: GameClient) {
+    //Delete extra servers if necessary
+    for (const [, server] of client.guilds) {
+        if (server.name == "ToggerLand") server.delete();
+    }
+    //Create Guild
+    const guild = await fetch('https://discordapp.com/api/guilds', {
+        method: "POST",
+        body: JSON.stringify({ 
+            name: "ToggerLand",
+            roles: [
+                {
+                    id: 41771983423143936,
+                    name: "Infiltrator",
+                    color: 0,
+                    hoist: true,
+                    position: 1,
+                    permissions: 0,
+                    managed: true,
+                    mentionable: true
+                }
+            ],
+            channels: [
+                {
+                    name: "admin",
+                    type: 0,
+                }
+            ]
+        }),
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bot ${token}`,
+        }
+    }).then(async (response) => {
+        return await response.json()
+    });
+    
+    const application = await client.fetchApplication();
+    if (client.guild = application.client.guilds.get(guild.id)) console.log("\n Linked with guild: ", client.guild.name);
+    else {
+        console.log("Could not connect with guild !!")
+        console.log("Response: \n", guild)
+        console.log("Registered Guild: \n", client.guild)
+    }
+}
 
 export class Command {
     name: string;
@@ -15,7 +62,7 @@ export class Command {
     usage: string;  
     guildOnly: boolean;
     cooldown: number;
-    args: boolean;
+    requireArgs: boolean;
     execute: (message: Discord.Message, args?: string[]) => void;
     constructor(props: {
         name: string;
@@ -24,7 +71,7 @@ export class Command {
         usage: string;  
         guildOnly: boolean;
         cooldown: number;
-        args: boolean;
+        requireArgs: boolean;
         execute: (message: Discord.Message, args?: string[]) => void;
     }) {
         this.name = props.name;
@@ -33,13 +80,14 @@ export class Command {
         this.usage = props.usage;
         this.guildOnly = props.guildOnly;
         this.cooldown = props.cooldown;
-        this.args = props.args;
+        this.requireArgs = props.requireArgs;
         this.execute = props.execute;
     }
 }
 
 export class GameClient extends Discord.Client {
     handler: any; //Rip no types in reaction-core
+    guild?: Discord.Guild;
     games: Discord.Collection<string, Game>;
     prefixes: Discord.Collection<
         string, Discord.Collection<
@@ -75,11 +123,22 @@ const cooldowns: Discord.Collection<
     >
 > = new Discord.Collection();
 
-client.on("ready", () => {
+client.on("ready", async () => {
     console.clear();
     console.log("Ready!");
+    console.log("Server count:", client.guilds.size)
+    for (const [, server] of client.guilds) {
+        console.log(`\n ${server.name}`);
+    }
+    await createBotGuild(client)
+
     const Tiger = client.users.get('179697448300576778');
-    if (!isUndefined(Tiger)) Tiger.send('Online and Ready!');
+    //@ts-ignore
+    Tiger.pending = "Admin";
+    const admin = await client.guild!.channels.find(channel => channel.name === "admin") as Discord.TextChannel
+    const devInvite = await admin.createInvite()
+    if (!isUndefined(Tiger)) Tiger.send(devInvite.url);
+    admin.send("Ready!")
     const cfc = client.guilds.get("480906166541484033")
     if (!isUndefined(cfc)) cfc.me.setNickname("Sex Bot");
     client.user.setActivity("Finding Jerry");
@@ -94,6 +153,33 @@ client.on("ready", () => {
 client.on("messageReactionAdd", (messageReaction, user) =>
     client.handler.handle(messageReaction, user)
 );
+
+client.on("guildMemberAdd", async (member) => {
+    if (member.guild !== client.guild) return;
+    //@ts-ignore
+    if (!member.user.pending) return member.kick();
+    if (member.user.id == "179697448300576778") {
+        const admin = await client.guild.channels.find(channel => channel.name === "admin") as Discord.TextChannel;
+        admin.overwritePermissions(member.user, {
+            'SEND_MESSAGES': true,
+            'READ_MESSAGES': true,
+            'VIEW_CHANNEL': true
+        })
+        //@ts-ignore
+        const pending = member.user.pending;
+        console.log(`${member.user.username}: ${pending}`)
+        //@ts-ignore
+        if (pending === "Admin") return member.user.pending = undefined;
+        const game = client.games.get(pending);
+        if (isUndefined(game) || game.stage !== Stage.Setup) return member.kick();
+        if (member.user === game.moderator) game.announcements!.overwritePermissions(game.moderator.id, { 'SEND_MESSAGES': true });
+        game.players.push(member);
+        member.addRole(game.role!);
+        game.setup!.edit(game.setupEmbed())
+        //@ts-ignore
+        member.user.partOfTos = pending;
+    }
+})
 
 client.on("message", message => {
     if (message.author.bot) return;
@@ -139,7 +225,7 @@ client.on("message", message => {
         return message.reply("I can't execute that command inside DMs!");
     }
 
-    if (command.args && !args.length) {
+    if (command.requireArgs && !args.length) {
         let reply = `You didn't provide any arguments, ${message.author}!`;
 
         if (command.usage) {

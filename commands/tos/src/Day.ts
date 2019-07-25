@@ -1,4 +1,4 @@
-import { Stage, Game } from "./game";
+import { Stage, Game, ActiveMenu } from "./game";
 import { isUndefined, isNull, shuffle, emojis as _emojis } from "../../../utils";
 import Discord from 'discord.js';
 //@ts-ignore
@@ -83,5 +83,5 @@ export function CycleDay(game: Game) {
   const message = new Menu(embed, buttons);
   client.handler.addMenus(message);
   // @ts-ignore
-  game.announcements.sendMenu(message).then(message => game.activeMenuId = message.id);
+  game.announcements.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Accuse, message.id));
 }

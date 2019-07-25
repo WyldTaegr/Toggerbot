@@ -10,7 +10,7 @@ module.exports = new Command ({
     usage: '`s' + id + 'server`',
     guildOnly: true,
     cooldown: 5,
-    args: false,
+    requireArgs: false,
     execute(message: Discord.Message) {
         const embed = new Discord.RichEmbed()
             .setTitle(`**${message.guild.name}**`)

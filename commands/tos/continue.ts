@@ -14,15 +14,15 @@ module.exports = new Command ({
     usage: '`tos' + id + 'continue`',
     guildOnly: true,
     cooldown: 6,
-    args: false,
+    requireArgs: false,
     execute(message: Discord.Message) {
       const client: GameClient = require("../../index.ts");
       const game = client.games.get(message.guild.id);
       if (isUndefined(game)) return;
 
-      if (!game.running) return message.reply('Setup a game first!');
+      if (game.stage = Stage.Ended) return message.reply('Setup a game first!');
       if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
-      if (message.member != game.moderator) return message.reply("Ask the faggot in charge");
+      if (message.author != game.moderator) return message.reply("Ask the guy in charge");
       if (game.stage == Stage.Trial) return ProcessTrial(game);
       else if (game.stage == Stage.Day) return CycleNight(game);
       else return message.reply("Water you trying to continue?");

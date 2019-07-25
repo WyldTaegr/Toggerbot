@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import { Game, Stage } from "./game";
+import { Game, Stage, ActiveMenu } from "./game";
 import { shuffle, isNull } from "../../../utils";
 import { isUndefined, emojis as _emojis } from "../../../utils";
 //@ts-ignore
@@ -74,7 +74,7 @@ export function ProcessNight(game: Game) {
     if (isNull(game.announcements)) return;
 
     game.stage = Stage.Processing;
-        client.handler.removeMenu(game.activeMenuId);
+        client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Night));
         game.announcements.send('Processing the night...');
         game.announcements.startTyping();
         game.players.forEach((member) => {

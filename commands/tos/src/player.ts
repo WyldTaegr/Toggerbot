@@ -50,6 +50,8 @@ export abstract class _Player {
   target: Discord.GuildMember | null;
   votes: number;
   vote: _Player | null;
+  input?: Discord.TextChannel; //The channel in which a player can make their actions
+  activeMenuId?: string; 
   //Defined in individual role class
   abstract user: Discord.User; //Used to DM a player when an action requires it
   abstract name: string; //Used as identifier in code ---> keep lowercase

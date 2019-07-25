@@ -2,6 +2,7 @@ const { id } = require('../../config.json');
 
 import Discord from 'discord.js';
 import { Command } from '../../index';
+import { Stage } from './src/game';
 
 module.exports = new Command ({
     name: 'status',
@@ -10,12 +11,12 @@ module.exports = new Command ({
     usage: '`tos' + id + 'status`',
     guildOnly: true,
     cooldown: 6,
-    args: false,
+    requireArgs: false,
     execute(message: Discord.Message) {
         const client = require('../../index.ts');
         const game = client.games.get(message.guild.id);
 
-        if (!game.running) return message.reply("There's no game!");
+        if (game.stage === Stage.Ended) return message.reply("There's no game!");
         if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
 
         const playerNames = game.players.map((member: Discord.GuildMember) => member.nickname || member.user.username)

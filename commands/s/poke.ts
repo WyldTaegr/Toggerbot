@@ -10,7 +10,7 @@ module.exports = new Command({
     usage: "`s" + id + "poke [User Mention]",
     guildOnly: false,
     cooldown: 2,
-    args: false,
+    requireArgs: false,
     execute(message: Discord.Message) {
         if (!message.mentions.users.size) {
             message.author.send('You touched yourself.');
