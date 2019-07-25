@@ -16,7 +16,7 @@ const View = new _View({
     goal: "Lynch every criminal and evildoer."
 })
 
-const Player = class extends _Player {
+export const Player = class extends _Player {
     user: Discord.User;
     name: string;
     priority: number;
@@ -24,6 +24,7 @@ const Player = class extends _Player {
     defense: number;
     visits: boolean;
     selection: Selection;
+    view: _View;
     constructor(user: Discord.User) {
         super();
         this.user = user;
@@ -33,11 +34,10 @@ const Player = class extends _Player {
         this.defense = 0; //None
         this.visits = true;
         this.selection = Selection.others;
+        this.view = View;
     }
 
     action(action: Action) {
 
     }
 }
-
-module.exports = { View, Player }

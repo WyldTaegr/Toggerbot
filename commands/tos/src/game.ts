@@ -2,6 +2,9 @@ import Discord, { GuildMember, Message } from "discord.js"
 import { emojis as _emojis, isUndefined } from '../../../utils';
 import { _Player, Action, _View } from './player';
 import { GameClient } from "../../..";
+import { CycleNight } from "./Night";
+import { CycleDay } from "./Day";
+import { CycleTrial } from "./Trial";
 
 export enum ActiveMenu {
     Vote = "Vote",
@@ -16,6 +19,18 @@ export enum Stage {
     Day = "Day",
     Trial = "Trial",
     Ended = "Ended",
+}
+
+export function roleEmbed(role: _View) {
+    const embed = new Discord.RichEmbed()
+        .setTitle(role.name)
+        .setThumbnail(role.pictureUrl)
+        .setColor(role.color)
+        .setDescription(`Alignment: ${role.alignment} (${role.category})`)
+        .addField('Abilities', role.abilities, true)
+        .addField('Attributes', role.attributes, false)
+        .addField('Goal', role.goal, false)
+    return embed;
 }
 
 class MenuChannel extends Discord.TextChannel {
@@ -128,9 +143,7 @@ export class Game {
         return this.players.filter(member => {
             const player = this.assignments.get(member);
                 if (isUndefined(player)) return;
-            const role = player.name
-            const { View }: { View: _View} = require(`../roles/${role}`)
-            return View.alignment === "Mafia";
+            return player.view.alignment === "Mafia";
         })
     }
 
@@ -162,5 +175,23 @@ export class Game {
             .addField('Players:', playerNames || "loading...", true)
             .addField('Roles:', roleNames || 'No roles yet lol', true)
         return embed;
+    }
+
+    route(next: Stage) {
+        const current = this.stage;
+        switch (next) {
+            case Stage.Night:
+                this.stage = Stage.Night;
+                CycleNight(this);
+                break;
+            case Stage.Day:
+                if (current === Stage.Night) this.counter++;
+                this.stage = Stage.Day;
+                CycleDay(this);
+                break;
+            case Stage.Trial:
+                this.stage = Stage.Trial;
+                CycleTrial(this)
+        }
     }
 }

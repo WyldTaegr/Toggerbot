@@ -4,6 +4,7 @@ import Discord from 'discord.js';
 import fs from 'fs';
 import { _View } from './src/player';
 import { isUndefined } from '../../utils';
+import { roleEmbed } from "./src/game";
 
 const roles: Discord.Collection<string, _View> = new Discord.Collection();
 const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.ts'));
@@ -27,16 +28,8 @@ module.exports = {
             message.reply('that\'s not a role.');
             return;
         }
-        const embed = new Discord.RichEmbed()
-            .setTitle(role.name)
-            .setThumbnail(role.pictureUrl)
-            .setColor(role.color)
-            .setDescription(`Alignment: ${role.alignment} (${role.category})`)
-            .addField('Abilities', role.abilities, true)
-            .addField('Attributes', role.attributes, false)
-            .addField('Goal', role.goal, false)
 
-        message.channel.send(embed);
+        message.channel.send(roleEmbed(role));
 
     }
 }

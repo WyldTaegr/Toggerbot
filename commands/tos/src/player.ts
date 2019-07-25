@@ -60,6 +60,7 @@ export abstract class _Player {
   abstract defense: number;
   abstract visits: boolean; //Whether the role visits its target on its action
   abstract selection: Selection; //The set of players available for targeting
+  abstract view: _View;
   //abstract deathNote?: string; //Roles with a kill action have death notes
   abstract action(action: Action): void;
   

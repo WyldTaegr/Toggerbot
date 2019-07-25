@@ -2,7 +2,7 @@ const { id } = require('../../config.json')
 
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
-import { Stage, Game, ActiveMenu } from './src/game';
+import { Stage, Game, ActiveMenu, roleEmbed } from './src/game';
 import { shuffle, isUndefined, isNull } from '../../utils';
 import { CycleNight } from './src/Night';
 
@@ -83,6 +83,7 @@ module.exports = new Command({
             player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL']}]})
             player.input.setParent(game.category)
             game.assignments.set(member, player);
+            player.input.send(roleEmbed(player.view))
         });
         createChannels(game);
         message.channel.send('The game has begun!');
