@@ -1,17 +1,9 @@
 const { id } = require('../../config.json');
 
-import fs from 'fs';
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
-import { Stage } from './src/game';
+import { Stage, RoleName } from './src/game';
 import { isUndefined } from '../../utils';
-
-const roleNames: string[] = [];
-const roleFiles = fs.readdirSync('./commands/tos/roles').filter(file => file.endsWith('.ts'));
-for (const file of roleFiles) { //List of all roles currently added to the bot
-    const { View } = require(`./roles/${file}`);
-    roleNames.push(View.name.toLowerCase());
-}
 
 module.exports = new Command({
     name: 'add',
@@ -43,9 +35,9 @@ module.exports = new Command({
         
         message.delete();
 
-        const role = args[0].toLowerCase();
+        const role: RoleName = args[0].toLowerCase() as RoleName;
 
-        if (!roleNames.includes(role)) {
+        if (!role) {
             const notification: Discord.Message = await message.reply('That role is not available yet!') as Discord.Message;
             return setTimeout(() => notification.delete(), 3000);    
         };

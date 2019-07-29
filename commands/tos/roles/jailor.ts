@@ -1,7 +1,7 @@
 import Discord from 'discord.js';
 import { Selection, _View, _Player, Action } from '../src/player';
 
-const View = new _View({
+export const View = new _View({
     name: 'Jailor',
     pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Jailor.png',
     alignment: 'Town',
@@ -16,8 +16,7 @@ const View = new _View({
     goal: "Lynch every criminal and evildoer."
 })
 
-export const Player = class extends _Player {
-    user: Discord.User;
+export default class Player extends _Player {
     name: string;
     priority: number;
     attack: number;
@@ -26,8 +25,7 @@ export const Player = class extends _Player {
     selection: Selection;
     view: _View;
     constructor(user: Discord.User) {
-        super();
-        this.user = user;
+        super(user);
         this.name = 'jailor'; //Note: used as identifier in code --> keep lowercase
         this.priority = 5; //Priority level of action
         this.attack = 3; //Unstoppable

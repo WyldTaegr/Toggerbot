@@ -9,6 +9,8 @@ import { isString, isNumber, isUndefined } from "./utils";
 import { isNull } from "./utils";
 import fetch from "cross-fetch";
 
+console.clear()
+
 async function createBotGuild(client: GameClient) {
     //Delete extra servers if necessary
     for (const [, server] of client.guilds) {
@@ -163,7 +165,8 @@ client.on("guildMemberAdd", async (member) => {
         admin.overwritePermissions(member.user, {
             'SEND_MESSAGES': true,
             'READ_MESSAGES': true,
-            'VIEW_CHANNEL': true
+            'VIEW_CHANNEL': true,
+            'READ_MESSAGE_HISTORY': true
         })
         //@ts-ignore
         const pending = member.user.pending;

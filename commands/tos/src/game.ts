@@ -5,6 +5,30 @@ import { GameClient } from "../../..";
 import { CycleNight } from "./Night";
 import { CycleDay } from "./Day";
 import { CycleTrial } from "./Trial";
+import Doctor from '../roles/doctor';
+import Escort from '../roles/escort';
+import Investigator from '../roles/investigator';
+import Jailor from '../roles/jailor';
+import Lookout from '../roles/lookout';
+import Sheriff from '../roles/sheriff';
+
+export enum RoleName {
+    Doctor = "doctor",
+    Escort = "escort",
+    Investigator = "investigator",
+    Jailor = "jailor",
+    Lookout = "lookout",
+    Sheriff = "sheriff",
+}
+
+export const Roles: Discord.Collection<RoleName, typeof _Player> = new Discord.Collection([
+    [RoleName.Doctor, Doctor],
+    [RoleName.Escort, Escort],
+    [RoleName.Investigator, Investigator],
+    [RoleName.Jailor, Jailor],
+    [RoleName.Lookout, Lookout],
+    [RoleName.Sheriff, Sheriff]
+])
 
 export enum ActiveMenu {
     Vote = "Vote",
@@ -41,7 +65,7 @@ export class Game {
     moderator: Discord.User | null;
     role: Discord.Role | null //The GuildRole that signifies guild origin on Bot server
     players: Discord.GuildMember[];
-    roles: string[];
+    roles: RoleName[];
     setup: Discord.Message | null; //the Discord message used in setup
     assignments: Discord.Collection<GuildMember, _Player>
     stage: Stage;
@@ -131,9 +155,7 @@ export class Game {
 
     get alive() {
         return this.players.filter(member => {
-            console.log(`MEMBER: ${member}`)
             const player = this.assignments.get(member);
-            console.log(`PLAYER: ${player}`)
                 if (isUndefined(player)) return;
             return player.alive;
         })

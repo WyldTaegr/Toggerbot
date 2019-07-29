@@ -3,7 +3,7 @@ const { id } = require('../../config.json');
 import { Command, GameClient } from '../../index';
 import Discord from 'discord.js';
 import { isUndefined } from '../../utils';
-import { Stage } from './src/game';
+import { Stage, RoleName } from './src/game';
 
 module.exports = new Command({
     name: 'remove',
@@ -30,7 +30,7 @@ module.exports = new Command({
         
         if (args.length === 0) return message.channel.send('Select a role to remove from the role pool: `tos!remove [Role]`').then(message => setTimeout(() => (message as Discord.Message).delete(), 3000))
 
-        const role: string = args[0].toLowerCase();
+        const role: RoleName = args[0].toLowerCase() as RoleName;
         if(!game.roles.includes(role)) return message.reply('No such role is currently added to the game!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
 
         game.roles.splice(game.roles.lastIndexOf(role), 1);

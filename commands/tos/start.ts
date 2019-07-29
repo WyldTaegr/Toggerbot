@@ -2,11 +2,13 @@ const { id } = require('../../config.json')
 
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
-import { Stage, Game, ActiveMenu, roleEmbed } from './src/game';
+import { Stage, Game, ActiveMenu, roleEmbed, Roles } from './src/game';
 import { shuffle, isUndefined, isNull } from '../../utils';
 import { CycleNight } from './src/Night';
+import { _Player } from './src/player';
 
 function firstDay(game: Game) {
+    if (game.assignments.size < game.players.length) return console.error("Didn't complete player assignments", game.assignments)
     game.counter++;
     game.stage = Stage.Day;
     let playerList = ''
@@ -18,11 +20,14 @@ function firstDay(game: Game) {
         .addField("Players participating in this game:", playerList)
         .setFooter("The first night will begin in 15 seconds");
     game.announcements!.send(day)
+    setTimeout(() => {
+        CycleNight(game);
+    }, 15000);
 }
 
 async function createChannels(game: Game) {
     const client: GameClient = require('../../index');
-    const guildId = client.games.findKey('moderator', game.moderator)
+    const guildId = client.games.findKey((test) => !isNull(test.moderator) && test.moderator === game.moderator)
     const guild = client.guilds.get(guildId);
     if (isUndefined(guild)) return;
     
@@ -57,7 +62,7 @@ module.exports = new Command({
     guildOnly: true,
     cooldown: 10,
     requireArgs: false,
-    async execute(message: Discord.Message) {
+    execute(message: Discord.Message) {
         const client: GameClient = require("../../index.ts");
         //@ts-ignore
         const game = client.games.get(message.author.partOfTos);
@@ -68,7 +73,7 @@ module.exports = new Command({
 
         message.delete();
 
-        if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
+        if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, <@${message.author.id}>!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
         if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
@@ -76,20 +81,23 @@ module.exports = new Command({
         message.channel.send('Shuffling roles...');
         game.roles = shuffle(game.roles);
         message.channel.send('Assigning to players...');
-        await game.players.forEach(async (member, index) => {
-            const { Player } = require(`./roles/${game.roles[index]}.ts`);
+        game.players.forEach(async (member, index) => {
+            const Player = Roles.get(game.roles[index])
+            if (isUndefined(Player)) return;
             const user: Discord.User = member.user
-            const player = new Player(user)
-            player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL']}]})
-            player.input.setParent(game.category)
-            game.assignments.set(member, player);
+            //@ts-ignore
+            const player: _Player = new Player(user)
+            player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL', 'READ_MESSAGES', 'READ_MESSAGE_HISTORY', 'SEND_MESSAGES', 'ADD_REACTIONS']}]}) as Discord.TextChannel;
+            await player.input.setParent(game.category!)
+            await game.assignments.set(member, player);
             player.input.send(roleEmbed(player.view))
         });
-        createChannels(game);
-        message.channel.send('The game has begun!');
-        firstDay(game);
-        setTimeout(() => {
-            CycleNight(game);
-        }, 15000);
+
+        const startGame = setInterval(() => {
+            if (game.assignments.size < game.players.length) return;
+            clearInterval(startGame)
+            createChannels(game);
+            firstDay(game);
+        }, 1000)
     }
 })

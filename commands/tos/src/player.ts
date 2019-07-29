@@ -43,6 +43,7 @@ export class _View {
 }
 
 export abstract class _Player {
+  user: Discord.User; //Used to DM a player when an action requires it
   alive: boolean;
   will: string;
   visited: _Player[];
@@ -53,7 +54,6 @@ export abstract class _Player {
   input?: Discord.TextChannel; //The channel in which a player can make their actions
   activeMenuId?: string; 
   //Defined in individual role class
-  abstract user: Discord.User; //Used to DM a player when an action requires it
   abstract name: string; //Used as identifier in code ---> keep lowercase
   abstract priority: number; //Priority level of action --> -1 for Array indexing
   abstract attack: number; //TODO - When implemented, create enums to reference?
@@ -64,7 +64,8 @@ export abstract class _Player {
   //abstract deathNote?: string; //Roles with a kill action have death notes
   abstract action(action: Action): void;
   
-  constructor() {
+  constructor(user: Discord.User) {
+      this.user = user;
       this.alive = true;
       this.will = '`Succ my ducc`';
       this.visited = []; //Array of players as role.objects who visit that night
