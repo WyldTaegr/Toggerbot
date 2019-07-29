@@ -86,7 +86,7 @@ module.exports = new Command({
             if (isUndefined(Player)) return;
             const user: Discord.User = member.user
             //@ts-ignore
-            const player: _Player = new Player(user)
+            const player: _Player = new Player(user, index)
             player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL', 'READ_MESSAGES', 'READ_MESSAGE_HISTORY', 'SEND_MESSAGES', 'ADD_REACTIONS']}]}) as Discord.TextChannel;
             await player.input.setParent(game.category!)
             await game.assignments.set(member, player);

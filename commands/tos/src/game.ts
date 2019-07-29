@@ -2,7 +2,7 @@ import Discord, { GuildMember, Message } from "discord.js"
 import { emojis as _emojis, isUndefined } from '../../../utils';
 import { _Player, Action, _View } from './player';
 import { GameClient } from "../../..";
-import { CycleNight } from "./Night";
+import { CycleNight, ProcessNight } from "./Night";
 import { CycleDay } from "./Day";
 import { CycleTrial } from "./Trial";
 import Doctor from '../roles/doctor';
@@ -199,15 +199,12 @@ export class Game {
         return embed;
     }
 
-    route(next: Stage) {
-        const current = this.stage;
-        switch (next) {
+    route() {
+        switch (this.stage) {
             case Stage.Night:
-                this.stage = Stage.Night;
-                CycleNight(this);
+                ProcessNight(this);
                 break;
             case Stage.Day:
-                if (current === Stage.Night) this.counter++;
                 this.stage = Stage.Day;
                 CycleDay(this);
                 break;

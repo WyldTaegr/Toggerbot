@@ -22,8 +22,8 @@ export default class Player extends _Player {
     visits: boolean;
     selection: Selection;
     view: _View
-    constructor(user: Discord.User) {
-        super(user);
+    constructor(user: Discord.User, index: number) {
+        super(user, index);
         this.name = 'sheriff'; //Note: used as identifier in code --> keep lowercase
         this.priority = 4; //Priority level of action
         this.attack = 0; //None
@@ -35,12 +35,13 @@ export default class Player extends _Player {
 
     action({agent, receiver}: Action) {
         const receiverRole: _View = require(`./roles/${receiver.name}.ts`).View;
+        if (!agent.input) return console.error("Sheriff has no input channel");
         if (receiverRole.alignment === 'Town') {
-            agent.user.send('Your target is not suspicious.');
+            agent.input.send('Your target is not suspicious.');
         } else if (receiverRole.alignment === "Mafia") {
-            agent.user.send('Your target is a member of the Mafia!');
+            agent.input.send('Your target is a member of the Mafia!');
         } else if (receiverRole.name === "Serial Killer") {
-            agent.user.send('Your target is a Serial Killer!');
+            agent.input.send('Your target is a Serial Killer!');
         }
     }
 }

@@ -15,7 +15,7 @@ export async function initializeGame(message: Discord.Message, game: Game) {
     if (isNull(game.moderator)) return console.log("Initial.ts: 15");
 
     game.category = await client.guild!.createChannel(message.guild.name, {type: "category", permissionOverwrites: [{id: game.role!.id, allow: ['VIEW_CHANNEL']}]}) as Discord.CategoryChannel;
-    game.announcements = await client.guild!.createChannel('gods-decree', {type: 'text', permissionOverwrites: [{ id: game.role.id, allow: ["VIEW_CHANNEL", "READ_MESSAGES", "READ_MESSAGE_HISTORY"]}, {id: game.moderator.id, allow: ["SEND_MESSAGES"]}]} ) as Discord.TextChannel;
+    game.announcements = await client.guild!.createChannel('announcements', {type: 'text', permissionOverwrites: [{ id: game.role.id, allow: ["VIEW_CHANNEL", "READ_MESSAGES", "READ_MESSAGE_HISTORY"]}, {id: game.moderator.id, allow: ["SEND_MESSAGES"]}]} ) as Discord.TextChannel;
     game.announcements.setParent(game.category);
     
     const invitation = await game.announcements!.createInvite();
@@ -64,7 +64,7 @@ export async function initializeGame(message: Discord.Message, game: Game) {
                 let invitation: Discord.Message | undefined = undefined;
                 try {
                     member = await client.guild!.fetchMember(user)
-                } catch(error) {console.error(error)};
+                } catch(error) {};
                 let notification: Discord.Message;
                 if (member && game.players.includes(member)) {
                     notification = await message.channel.send(`You are already in the game, <@${memberOrigin.user.id}>!`) as Discord.Message;
@@ -74,7 +74,7 @@ export async function initializeGame(message: Discord.Message, game: Game) {
                 } else {
                     //@ts-ignore
                     user.pending = message.guild.id;
-                    notification = await game.announcements!.send(`An invitation has been sent, <@${memberOrigin.user.id}>.`) as Discord.Message;
+                    notification = await message.channel.send(`An invitation has been sent, <@${memberOrigin.user.id}>.`) as Discord.Message;
                     const dm = await user.createDM();
                     const embed = new Discord.RichEmbed()
                         .setColor("#ffff00")

@@ -54,6 +54,7 @@ async function createBotGuild(client: GameClient) {
         console.log("Could not connect with guild !!")
         console.log("Response: \n", guild)
         console.log("Registered Guild: \n", client.guild)
+        client.destroy();
     }
 }
 
@@ -126,7 +127,6 @@ const cooldowns: Discord.Collection<
 > = new Discord.Collection();
 
 client.on("ready", async () => {
-    console.clear();
     console.log("Ready!");
     console.log("Server count:", client.guilds.size)
     for (const [, server] of client.guilds) {
@@ -168,20 +168,20 @@ client.on("guildMemberAdd", async (member) => {
             'VIEW_CHANNEL': true,
             'READ_MESSAGE_HISTORY': true
         })
-        //@ts-ignore
-        const pending = member.user.pending;
-        console.log(`${member.user.username}: ${pending}`)
-        //@ts-ignore
-        if (pending === "Admin") return member.user.pending = undefined;
-        const game = client.games.get(pending);
-        if (isUndefined(game) || game.stage !== Stage.Setup) return member.kick();
-        if (member.user === game.moderator) game.announcements!.overwritePermissions(game.moderator.id, { 'SEND_MESSAGES': true });
-        game.players.push(member);
-        member.addRole(game.role!);
-        game.setup!.edit(game.setupEmbed())
-        //@ts-ignore
-        member.user.partOfTos = pending;
     }
+    //@ts-ignore
+    const pending = member.user.pending;
+    console.log(`${member.user.username}: ${pending}`)
+    //@ts-ignore
+    if (pending === "Admin") return member.user.pending = undefined;
+    const game = client.games.get(pending);
+    if (isUndefined(game) || game.stage !== Stage.Setup) return member.kick();
+    if (member.user === game.moderator) game.announcements!.overwritePermissions(game.moderator.id, { 'SEND_MESSAGES': true });
+    game.players.push(member);
+    member.addRole(game.role!);
+    game.setup!.edit(game.setupEmbed())
+    //@ts-ignore
+    member.user.partOfTos = pending;
 })
 
 client.on("message", message => {

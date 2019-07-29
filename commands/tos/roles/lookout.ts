@@ -21,8 +21,8 @@ export default class Player extends _Player {
     visits: boolean;
     selection: Selection;
     view: _View;
-    constructor(user: Discord.User) {
-        super(user);
+    constructor(user: Discord.User, index: number) {
+        super(user, index);
         this.name = 'lookout'; //Note: used as identifier in code --> keep lowercase
         this.priority = 4; //Priority level of action
         this.attack = 0; //None

@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+import { emojis } from "../../../utils";
 
 export enum Selection {
   all,
@@ -44,6 +45,7 @@ export class _View {
 
 export abstract class _Player {
   user: Discord.User; //Used to DM a player when an action requires it
+  emoji: string; //Used in reaction menus
   alive: boolean;
   will: string;
   visited: _Player[];
@@ -64,10 +66,11 @@ export abstract class _Player {
   //abstract deathNote?: string; //Roles with a kill action have death notes
   abstract action(action: Action): void;
   
-  constructor(user: Discord.User) {
+  constructor(user: Discord.User, index: number) {
       this.user = user;
+      this.emoji = emojis[index];
       this.alive = true;
-      this.will = '`Succ my ducc`';
+      this.will = '';
       this.visited = []; //Array of players as role.objects who visit that night
       this.blocked = false; //Checks if role-blocked
       this.target = null; //GuildMember: targeted player for nighttime action

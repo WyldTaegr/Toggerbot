@@ -11,42 +11,34 @@ export function CycleNight(game: Game) {
     const client = require('../../../index.ts')
     game.stage = Stage.Night;
 
-    game.assignments.forEach((player: _Player) => {
+    game.alive.forEach((playerMember: Discord.GuildMember) => {
+    const player = game.assignments.get(playerMember)
+    if (isUndefined(player)) return console.error("CycleNight: GuildMember without Player assignment");
+    
     const buttons: Object[] = [];
 
     const playerList = game.alive;
 
     let playerSelection = '';
 
-    const emojis = shuffle(_emojis);
-
-    playerList.forEach((member, index) => {
-        const emoji = emojis[index];
-        playerSelection = playerSelection.concat(emoji, ' - ');
+    playerList.forEach((member) => {
+        const receiver = game.assignments.get(member);
+            if (isUndefined(receiver)) return;
+        playerSelection = playerSelection.concat(receiver.emoji, ' - ');
 
         playerSelection = playerSelection.concat(`<@${member.user.id}> \n`);
         if ((player.selection === Selection.others && game.assignments.get(member) !== player) || (player.selection === Selection.self && game.assignments.get(member) === player)) buttons.push({
-            emoji: emoji,
+            emoji: receiver.emoji,
             run: async (user: Discord.User, message: Discord.Message) => {
-                const dm = await user.createDM();
-                //@ts-ignore
-                if (user.partOfTos != message.guild.id) return dm.send("You're not playing.");
-                const agentMember = message.guild.members.get(user.id);
-                if (isUndefined(agentMember)) return;
-                const agent = game.assignments.get(agentMember);
-                if (isUndefined(agent)) return;
-                if (!agent.alive) return dm.send("You can't vote if you're dead!")
-                const receiver = game.assignments.get(member);
-                if (isUndefined(receiver)) return;
-                const { View } = require(`../roles/${agent.name}`);
-                const failureReason = agent.checkSelection(receiver);
-                if (failureReason) return dm.send(failureReason);
-                agent.target = member; //Used to keep track of whether the person has already selected a target
+                if (isUndefined(player.input)) return console.error("CycleNight: Player.input is not defined");
+                const failureReason = player.checkSelection(receiver);
+                if (failureReason) return player.input.send(failureReason).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
+                player.target = member; //Used to keep track of whether the person has already selected a target
                 const embed = new Discord.RichEmbed()
                     .setTitle(`You have targeted *${member.nickname || member.user.username}* for tonight.`)
-                    .setColor(View.color)
-                    .setThumbnail(View.pictureUrl);
-                dm.send(embed);
+                    .setColor(player.view.color)
+                    .setThumbnail(player.view.pictureUrl);
+                player.input.send(embed);
             }
         })
     })
@@ -62,11 +54,11 @@ export function CycleNight(game: Game) {
     client.handler.addMenus(message);
     // @ts-ignore
     player.input.sendMenu(message).then(message => player.activeMenuId = message.id);
-
+})
     setTimeout(() => {
-        ProcessNight(game);
+        game.route();
     }, 30000);
-})}
+}
 
 export function ProcessNight(game: Game) {
     const client = require('../../../index.ts')
@@ -96,5 +88,6 @@ export function ProcessNight(game: Game) {
             }
         }
         game.announcements.stopTyping(true);
+        game.counter++;
         CycleDay(game);
 }
