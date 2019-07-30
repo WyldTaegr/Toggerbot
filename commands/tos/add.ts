@@ -2,7 +2,7 @@ const { id } = require('../../config.json');
 
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
-import { Stage, RoleName } from './src/game';
+import { Stage, Roles, RoleName } from './src/game';
 import { isUndefined } from '../../utils';
 
 module.exports = new Command({
@@ -35,7 +35,10 @@ module.exports = new Command({
         
         message.delete();
 
-        const role: RoleName = args[0].toLowerCase() as RoleName;
+        const _role: string = args[0].toLowerCase();
+        //@ts-ignore
+        const role: RoleName = Roles.findKey(Player => new Player().name.startsWith(_role))
+        console.log(role);
 
         if (!role) {
             const notification: Discord.Message = await message.reply('That role is not available yet!') as Discord.Message;
@@ -43,7 +46,7 @@ module.exports = new Command({
         };
 
         game.roles.push(role);
-        const notification: Discord.Message = await message.channel.send('Role `' + role.charAt(0).toUpperCase() + role.slice(1) + '` Added to the game!') as Discord.Message;
+        const notification: Discord.Message = await message.channel.send('Role `' + role + '` Added to the game!') as Discord.Message;
         game.setup!.edit(game.setupEmbed())
         setTimeout(() => notification.delete(), 3000);
     }

@@ -33,7 +33,6 @@ export default class Player extends _Player {
     }
 
     action({agent, receiver}: Action) {
-        receiver.blocked = agent;
-        receiver.user.send('Someone role-blocked you!')
+        receiver.blocked.push(agent);
     }
 }

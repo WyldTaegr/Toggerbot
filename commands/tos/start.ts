@@ -17,27 +17,28 @@ async function firstDay(game: Game) {
     let counter = 15;
     function dayEmbed() { 
         const day = new Discord.RichEmbed()
-            .setTitle(`${game.stage} ${game.counter}`)
+            .setTitle(`Day ${game.counter}`)
             .setColor('#ffff00')
             .setDescription('Welcome to Town of Salem!')
             .addField("Players participating in this game:", playerList)
-            .setFooter(`The first night will begin in ${counter} seconds`);
+
+            if (counter > 0) day.setFooter(`The first night will begin in ${counter} seconds`);
         return day;
     }
     
     const message = await game.announcements!.send(dayEmbed()) as Discord.Message;
     
+    counter -= 5;
     const countdown = setInterval(() => {
+        message.edit(dayEmbed());
         if (counter === 0) {
             clearInterval(countdown);
-            message.delete();
             CycleNight(game);
         } else {
-            counter--;
-            message.edit(dayEmbed());
+            counter -= 5;
 
         }
-    }, 1000);
+    }, 5000);
 }
 
 async function createChannels(game: Game) {
@@ -104,7 +105,7 @@ module.exports = new Command({
             const user: Discord.User = member.user
             //@ts-ignore
             const player: _Player = new Player(user, index)
-            player.input = await message.guild.createChannel(member.nickname ? member.nickname : user.username, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL', 'READ_MESSAGES', 'READ_MESSAGE_HISTORY', 'SEND_MESSAGES', 'ADD_REACTIONS']}]}) as Discord.TextChannel;
+            player.input = await message.guild.createChannel(`secret ${member.user.discriminator}`, {type: "text", permissionOverwrites: [{ id: game.role!.id, deny: ['VIEW_CHANNEL']}, { id: user.id, allow: ['VIEW_CHANNEL', 'READ_MESSAGES', 'READ_MESSAGE_HISTORY', 'SEND_MESSAGES', 'ADD_REACTIONS']}]}) as Discord.TextChannel;
             await player.input.setParent(game.category!)
             await game.assignments.set(member, player);
             player.input.send(roleEmbed(player.view))

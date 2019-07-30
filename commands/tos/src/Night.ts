@@ -4,60 +4,74 @@ import { isNull } from "../../../utils";
 import { isUndefined, emojis as _emojis } from "../../../utils";
 //@ts-ignore
 import { Menu } from 'reaction-core';
-import { CycleDiscussion } from "./Day";
+import { CycleDeaths } from "./Day";
 import { _Player, Selection } from "./player";
 
-export function CycleNight(game: Game) {
+export async function CycleNight(game: Game) {
     const client = require('../../../index.ts')
     game.stage = Stage.Night;
 
     game.alive.forEach((playerMember: Discord.GuildMember) => {
-    const player = game.assignments.get(playerMember)
-    if (isUndefined(player)) return console.error("CycleNight: GuildMember without Player assignment");
-    
-    const buttons: Object[] = [];
+        const player = game.assignments.get(playerMember)
+        if (isUndefined(player)) return console.error("CycleNight: GuildMember without Player assignment");
+        
+        const buttons: Object[] = [];
 
-    const playerList = game.alive;
+        const playerList = game.alive;
 
-    let playerSelection = '';
+        let playerSelection = '';
 
-    playerList.forEach((member) => {
-        const receiver = game.assignments.get(member);
-            if (isUndefined(receiver)) return;
-        playerSelection = playerSelection.concat(receiver.emoji, ' - ');
+        playerList.forEach((member) => {
+            const receiver = game.assignments.get(member);
+                if (isUndefined(receiver)) return;
+            playerSelection = playerSelection.concat(receiver.emoji, ' - ');
 
-        playerSelection = playerSelection.concat(`<@${member.user.id}> \n`);
-        if ((player.selection === Selection.others && game.assignments.get(member) !== player) || (player.selection === Selection.self && game.assignments.get(member) === player)) buttons.push({
-            emoji: receiver.emoji,
-            run: async (user: Discord.User, message: Discord.Message) => {
-                if (isUndefined(player.input)) return console.error("CycleNight: Player.input is not defined");
-                const failureReason = player.checkSelection(receiver);
-                if (failureReason) return player.input.send(failureReason).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
-                player.target = member; //Used to keep track of whether the person has already selected a target
-                const embed = new Discord.RichEmbed()
-                    .setTitle(`You have targeted *${member.nickname || member.user.username}* for tonight.`)
-                    .setColor(player.view.color)
-                    .setThumbnail(player.view.pictureUrl);
-                player.input.send(embed);
-            }
+            playerSelection = playerSelection.concat(`<@${member.user.id}> \n`);
+            if ((player.selection === Selection.others && game.assignments.get(member) !== player) || (player.selection === Selection.self && game.assignments.get(member) === player)) buttons.push({
+                emoji: receiver.emoji,
+                run: async (user: Discord.User, message: Discord.Message) => {
+                    if (isUndefined(player.input)) return console.error("CycleNight: Player.input is not defined");
+                    if ((player.selection === Selection.others && player === receiver) ||
+                        player.selection === Selection.self && player !== receiver) return console.error(`CycleNight: ${player.user.username} targeted ${member.user.username} when they should not have been able to.`);
+                    player.target = member; //Used to keep track of whether the person has already selected a target
+                    const embed = new Discord.RichEmbed()
+                        .setTitle(`You have targeted *${member.nickname || member.user.username}* for tonight.`)
+                        .setColor('#ff0000')
+                        .setThumbnail(player.view.pictureUrl);
+                    player.input.send(embed);
+                }
+            })
         })
-    })
 
-    const embed = new Discord.RichEmbed()
-        .setTitle(`${game.stage} ${game.counter}`)
-        .setDescription('You have 30 seconds to do something.')
-        .setColor('#ffff00')
-        .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
-        .addField('Alive:', playerSelection)
-        .setFooter('Set your target for tonight by reacting below');
-    const message = new Menu(embed, buttons);
-    client.handler.addMenus(message);
-    // @ts-ignore
-    player.input.sendMenu(message).then(message => player.activeMenuId = message.id);
-})
-    setTimeout(() => {
-        game.route();
-    }, 30000);
+        const embed = new Discord.RichEmbed()
+            .setTitle(`Night ${game.counter}`)
+            .setDescription('You have 30 seconds to do something.')
+            .setColor('#562796')
+            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .addField('Alive:', playerSelection)
+            .setFooter('Set your target for tonight by reacting below');
+        const message = new Menu(embed, buttons);
+        client.handler.addMenus(message);
+        // @ts-ignore
+        player.input.sendMenu(message).then(message => player.activeMenuId = message.id);
+    })
+    let counter = 30;
+    function nightEmbed() {
+        const embed = new Discord.RichEmbed()
+            .setTitle(`Night ${game.counter}`)
+            .setColor('#562796')
+        if (counter > 0) embed.setDescription(`${counter} seconds until dawn breaks!`);
+        return embed;
+    }
+    const message = await game.announcements!.send(nightEmbed()) as Discord.Message;
+    counter -= 5;
+    const countdown = setInterval(() => {
+        message.edit(nightEmbed())
+        if (counter === 0) {
+            clearInterval(countdown);
+            game.route()
+        } else counter -= 5;
+    }, 5000);
 }
 
 export async function ProcessNight(game: Game) {
@@ -77,20 +91,21 @@ export async function ProcessNight(game: Game) {
                 if (isUndefined(target)) return;
                 game.actions[priority].push({
                     agent: player, 
-                    receiver: target && target,
+                    receiver: target,
+                    game: game
                 });
                 player.target = null; //clean-up for next cycle
             }
         })
         for (const priority of game.actions) {
             for (const action of priority) {
-                if (action.agent.checkAction()) action.agent.action(action);
+                if (action.agent.alive) action.agent.action(action);
             }
         }
         game.counter++;
         setTimeout(() => {
             game.announcements!.stopTyping(true);
             message.delete();
-            CycleDiscussion(game);
+            CycleDeaths(game);
         }, 3000);
 }

@@ -51,9 +51,8 @@ async function createBotGuild(client: GameClient) {
     const application = await client.fetchApplication();
     if (client.guild = application.client.guilds.get(guild.id)) console.log("\n Linked with guild: ", client.guild.name);
     else {
-        console.log("Could not connect with guild !!")
-        console.log("Response: \n", guild)
-        console.log("Registered Guild: \n", client.guild)
+        console.log("Could not connect with guild !")
+        console.log("Shutting down...")
         client.destroy();
     }
 }
@@ -196,9 +195,9 @@ client.on("message", message => {
     }
 
     let commandType: string | undefined;
-    for (const prefix of client.prefixes) {
-        if (message.content.startsWith(prefix[1].get("name") + id)) {
-            commandType = prefix[1].get("name") as string;
+    for (const [, prefix] of client.prefixes) {
+        if (message.content.startsWith(prefix.get("name") + id)) {
+            commandType = prefix.get("name") as string;
         }
     }
 
@@ -222,7 +221,7 @@ client.on("message", message => {
                 if (cmd.aliases && cmd.aliases.includes(commandName)) return true; else return false;
             })) as Command;
 
-    if (isNull(command)) return;
+    if (!command) return;
 
     if (command.guildOnly && message.channel.type !== "text") {
         return message.reply("I can't execute that command inside DMs!");

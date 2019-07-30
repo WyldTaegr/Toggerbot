@@ -9,15 +9,17 @@ import Escort from '../roles/escort';
 import Investigator from '../roles/investigator';
 import Jailor from '../roles/jailor';
 import Lookout from '../roles/lookout';
+import SerialKiller from '../roles/serial-killer';
 import Sheriff from '../roles/sheriff';
 
 export enum RoleName {
-    Doctor = "doctor",
-    Escort = "escort",
-    Investigator = "investigator",
-    Jailor = "jailor",
-    Lookout = "lookout",
-    Sheriff = "sheriff",
+    Doctor = "Doctor",
+    Escort = "Escort",
+    Investigator = "Investigator",
+    Jailor = "Jailor",
+    Lookout = "Lookout",
+    SerialKiller = "Serial Killer",
+    Sheriff = "Sheriff",
 }
 
 export const Roles: Discord.Collection<RoleName, typeof _Player> = new Discord.Collection([
@@ -26,7 +28,8 @@ export const Roles: Discord.Collection<RoleName, typeof _Player> = new Discord.C
     [RoleName.Investigator, Investigator],
     [RoleName.Jailor, Jailor],
     [RoleName.Lookout, Lookout],
-    [RoleName.Sheriff, Sheriff]
+    [RoleName.SerialKiller, SerialKiller],
+    [RoleName.Sheriff, Sheriff],
 ])
 
 export enum ActiveMenu {
@@ -40,6 +43,7 @@ export enum Stage {
     Setup = "Setup",
     Night = "Night",
     Processing = "Processing",
+    Deaths = "Deaths",
     Discussion = "Discussion",
     Voting = "Voting",
     Trial = "Trial",
@@ -58,8 +62,10 @@ export function roleEmbed(role: _View) {
     return embed;
 }
 
-class MenuChannel extends Discord.TextChannel {
-    sendMenu?: (message: any) => Promise<Message>; //Any should be Menu - Rip no types in reaction-core
+export interface death {
+    killers: number
+    cause: string,
+    deathNotes: string[]
 }
 
 export class Game {
@@ -73,7 +79,7 @@ export class Game {
     actions: Array<Action[]>;
     counter: number;
     category: Discord.CategoryChannel | null;
-    announcements: MenuChannel | null;
+    announcements: Discord.TextChannel | null;
     mafia: Discord.TextChannel | null;
     jail: Discord.TextChannel | null;
     graveyard: Discord.TextChannel | null;
@@ -82,7 +88,7 @@ export class Game {
     guiltyVote: _Player[];
     innocentVote: _Player[];
     suspect: _Player | null;
-    deaths: {victim: _Player, cause: string, deathNote?: string}[];
+    deaths: Discord.Collection<_Player, death>
     constructor() {
         this.moderator = null; //person who starts the game --> will have empowered commands
         this.role = null;
@@ -103,7 +109,7 @@ export class Game {
         this.guiltyVote = [];
         this.innocentVote = [];
         this.suspect = null; //The person being tried in a trial
-        this.deaths = []; //The deaths that had occurred recently
+        this.deaths = new Discord.Collection(); //The deaths that had occurred recently
     }
 
     reset(result: Discord.RichEmbed) { //used to end a game
@@ -151,7 +157,7 @@ export class Game {
         this.guiltyVote = [];
         this.innocentVote = [];
         this.suspect = null;
-        this.deaths = []
+        this.deaths = new Discord.Collection()
     }
 
     get alive() {
@@ -187,16 +193,14 @@ export class Game {
         const playerNames = this.players.map((member: Discord.GuildMember) => member.nickname || member.user.username)
             .toString()
             .replace(/,/g, '\n');
-        const roleNames = this.roles.map((role: string) => role.charAt(0).toUpperCase() + role.slice(1))
-            .toString()
-            .replace(/,/g, '\n');
+        const roleNames = this.roles.toString().replace(/,/g, '\n');
 
         const embed = new Discord.RichEmbed()
             .setTitle('Town of Salem')
             .setColor('#ffff00')
             .setDescription(`Moderator: ${this.moderator!.username!}`)
-            .addField('Players:', playerNames || "loading...", true)
-            .addField('Roles:', roleNames || 'No roles yet lol', true)
+            .addField('Players:', playerNames || "Loading...", true)
+            .addField('Roles:', roleNames || 'No roles yet!', true)
         return embed;
     }
 
@@ -213,7 +217,7 @@ export class Game {
                 this.activeMenuIds.delete(ActiveMenu.Accuse);
                 
                 this.resetVotes();
-                if (isNull(this.suspect)) {
+                if (!this.suspect) {
                     setTimeout(() => CycleNight(this), 3000);
                 } else {
                     CycleTrial(this);
