@@ -2,8 +2,7 @@ import Discord, { GuildMember, Message } from "discord.js"
 import { emojis as _emojis, isUndefined } from '../../../utils';
 import { _Player, Action, _View } from './player';
 import { GameClient } from "../../..";
-import { CycleNight, ProcessNight } from "./Night";
-import { CycleDay } from "./Day";
+import { ProcessNight } from "./Night";
 import { CycleTrial } from "./Trial";
 import Doctor from '../roles/doctor';
 import Escort from '../roles/escort';
@@ -40,7 +39,8 @@ export enum Stage {
     Setup = "Setup",
     Night = "Night",
     Processing = "Processing",
-    Day = "Day",
+    Discussion = "Discussion",
+    Voting = "Voting",
     Trial = "Trial",
     Ended = "Ended",
 }
@@ -203,10 +203,6 @@ export class Game {
         switch (this.stage) {
             case Stage.Night:
                 ProcessNight(this);
-                break;
-            case Stage.Day:
-                this.stage = Stage.Day;
-                CycleDay(this);
                 break;
             case Stage.Trial:
                 this.stage = Stage.Trial;

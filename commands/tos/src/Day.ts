@@ -5,17 +5,37 @@ import Discord from 'discord.js';
 import { Menu } from "reaction-core";
 import { CycleTrial } from "./Trial";
 
-export function CycleDay(game: Game) {
+export async function CycleDiscussion(game: Game) {
+    if (!game.announcements) return console.error("Discussion stage: announcements channel not defined");
+
+    game.stage = Stage.Discussion;
+    let counter = 30;
+    function discussionEmbed() {
+        const embed = new Discord.RichEmbed()
+            .setTitle(`Day ${game.counter}`)
+            .setColor('#ffff00')
+            .setDescription('Discussion')
+            .setFooter(`Voting begins in ${counter} seconds.`);
+        return embed;
+    }
+    const discussion = await game.announcements.send(discussionEmbed()) as Discord.Message;
+    const countdown = setInterval(() => {
+        if (counter === 0) {
+            clearInterval(countdown);
+            discussion.delete();
+            CycleVoting(game);
+        } else {
+            counter--;
+            discussion.edit(discussionEmbed());
+        }
+    }, 1000)
+}
+
+export function CycleVoting(game: Game) {
   const client = require('../../../index.ts');
-  game.stage = Stage.Day;
 
   if (isNull(game.announcements)) return;
-  //Day Announcement
-  const day = new Discord.RichEmbed()
-      .setTitle(`${game.stage} ${game.counter}`)
-      .setColor('#ffff00')
-
-  game.announcements.send(day);
+  game.stage = Stage.Voting;
 
   //Voting Selection
   const buttons: Object[] = [];

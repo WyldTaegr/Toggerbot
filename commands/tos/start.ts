@@ -7,22 +7,37 @@ import { shuffle, isUndefined, isNull } from '../../utils';
 import { CycleNight } from './src/Night';
 import { _Player } from './src/player';
 
-function firstDay(game: Game) {
+async function firstDay(game: Game) {
     if (game.assignments.size < game.players.length) return console.error("Didn't complete player assignments", game.assignments)
     game.counter++;
-    game.stage = Stage.Day;
+    game.stage = Stage.Discussion;
     let playerList = ''
     game.alive.map(member => member.nickname ? member.nickname : member.user.username).forEach(value => {playerList = playerList.concat(value, '\n')})
-    const day = new Discord.RichEmbed()
-        .setTitle(`${game.stage} ${game.counter}`)
-        .setColor('#ffff00')
-        .setDescription('Welcome to Town of Salem!')
-        .addField("Players participating in this game:", playerList)
-        .setFooter("The first night will begin in 15 seconds");
-    game.announcements!.send(day)
-    setTimeout(() => {
-        CycleNight(game);
-    }, 15000);
+
+    let counter = 15;
+    function dayEmbed() { 
+        const day = new Discord.RichEmbed()
+            .setTitle(`${game.stage} ${game.counter}`)
+            .setColor('#ffff00')
+            .setDescription('Welcome to Town of Salem!')
+            .addField("Players participating in this game:", playerList)
+            .setFooter(`The first night will begin in ${counter} seconds`);
+        return day;
+    }
+    
+    const message = await game.announcements!.send(dayEmbed()) as Discord.Message;
+    
+    const countdown = setInterval(() => {
+        if (counter === 0) {
+            clearInterval(countdown);
+            message.delete();
+            CycleNight(game);
+        } else {
+            counter--;
+            message.edit(dayEmbed());
+
+        }
+    }, 1000);
 }
 
 async function createChannels(game: Game) {
@@ -47,11 +62,11 @@ async function createChannels(game: Game) {
     if (isNull(game.category)) return console.log("start.ts: 42")
 
     game.mafia = await client.guild.createChannel('Mafia', {type: 'text', permissionOverwrites: mafiaOptions}) as Discord.TextChannel;
-        game.mafia.setParent(game.category!)
+        game.mafia.setParent(game.category)
     game.jail = await client.guild.createChannel('Jail', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
-        game.jail.setParent(game.category!)
+        game.jail.setParent(game.category)
     game.graveyard = await client.guild.createChannel('Graveyard', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
-        game.graveyard.setParent(game.category!)
+        game.graveyard.setParent(game.category)
 }
 
 module.exports = new Command({
@@ -75,6 +90,8 @@ module.exports = new Command({
 
         if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, <@${message.author.id}>!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
         if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
+
+        game.announcements.overwritePermissions(game.moderator!, { 'SEND_MESSAGES': false})
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Setup));

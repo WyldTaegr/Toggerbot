@@ -24,7 +24,7 @@ module.exports = new Command ({
       if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
       if (message.author != game.moderator) return message.reply("Ask the guy in charge");
       if (game.stage == Stage.Trial) return ProcessTrial(game);
-      else if (game.stage == Stage.Day) return CycleNight(game);
+      else if (game.stage == Stage.Voting) return CycleNight(game);
       else return message.reply("Water you trying to continue?");
     }
   })

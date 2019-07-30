@@ -1,10 +1,10 @@
 import Discord from "discord.js";
 import { Game, Stage, ActiveMenu } from "./game";
-import { shuffle, isNull } from "../../../utils";
+import { isNull } from "../../../utils";
 import { isUndefined, emojis as _emojis } from "../../../utils";
 //@ts-ignore
 import { Menu } from 'reaction-core';
-import { CycleDay } from "./Day";
+import { CycleDiscussion } from "./Day";
 import { _Player, Selection } from "./player";
 
 export function CycleNight(game: Game) {
@@ -89,5 +89,5 @@ export function ProcessNight(game: Game) {
         }
         game.announcements.stopTyping(true);
         game.counter++;
-        CycleDay(game);
+        CycleDiscussion(game);
 }

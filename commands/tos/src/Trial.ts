@@ -6,7 +6,7 @@ import Discord from 'discord.js';
 //@ts-ignore
 import { Menu } from 'reaction-core';
 import { CycleNight } from "./Night";
-import { CycleDay } from "./Day";
+import { CycleVoting } from "./Day";
 
 export function CycleTrial(game: Game) {
   const client = require('../../../index.ts');
@@ -141,6 +141,6 @@ export function ProcessTrial(game: Game) {
       game.announcements!.send(embed);
       game.suspect = null;
       game.resetVotes();
-      CycleDay(game);
+      CycleVoting(game);
   }
 }
