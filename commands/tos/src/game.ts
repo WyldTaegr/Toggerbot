@@ -1,8 +1,8 @@
 import Discord, { GuildMember, Message } from "discord.js"
-import { emojis as _emojis, isUndefined } from '../../../utils';
+import { isUndefined, isNull } from '../../../utils';
 import { _Player, Action, _View } from './player';
 import { GameClient } from "../../..";
-import { ProcessNight } from "./Night";
+import { ProcessNight, CycleNight } from "./Night";
 import { CycleTrial } from "./Trial";
 import Doctor from '../roles/doctor';
 import Escort from '../roles/escort';
@@ -30,6 +30,7 @@ export const Roles: Discord.Collection<RoleName, typeof _Player> = new Discord.C
 ])
 
 export enum ActiveMenu {
+    Accuse = "Accuse",
     Vote = "Vote",
     Setup = "Setup",
     Night = "Night"
@@ -77,7 +78,7 @@ export class Game {
     jail: Discord.TextChannel | null;
     graveyard: Discord.TextChannel | null;
     origin: Discord.TextChannel | null;
-    activeMenuIds: Discord.Collection<string, string>;
+    activeMenuIds: Discord.Collection<ActiveMenu, string>;
     guiltyVote: _Player[];
     innocentVote: _Player[];
     suspect: _Player | null;
@@ -204,9 +205,20 @@ export class Game {
             case Stage.Night:
                 ProcessNight(this);
                 break;
-            case Stage.Trial:
-                this.stage = Stage.Trial;
-                CycleTrial(this)
+            case Stage.Voting:
+                const client: GameClient = require("../../../index.ts");
+                const activeMenuId = this.activeMenuIds.get(ActiveMenu.Accuse);
+                if (!activeMenuId) return console.error("Game.route: ActiveMenu.Accuse did not exist");
+                client.handler.removeMenu(activeMenuId);
+                this.activeMenuIds.delete(ActiveMenu.Accuse);
+                
+                this.resetVotes();
+                if (isNull(this.suspect)) {
+                    setTimeout(() => CycleNight(this), 3000);
+                } else {
+                    CycleTrial(this);
+                }
+                break;
         }
     }
 }

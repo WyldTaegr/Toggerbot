@@ -60,14 +60,14 @@ export function CycleNight(game: Game) {
     }, 30000);
 }
 
-export function ProcessNight(game: Game) {
+export async function ProcessNight(game: Game) {
     const client = require('../../../index.ts')
 
     if (isNull(game.announcements)) return;
 
     game.stage = Stage.Processing;
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Night));
-        game.announcements.send('Processing the night...');
+        const message = await game.announcements.send('Processing the night...') as Discord.Message;
         game.announcements.startTyping();
         game.players.forEach((member) => {
             const player = game.assignments.get(member);
@@ -87,7 +87,10 @@ export function ProcessNight(game: Game) {
                 if (action.agent.checkAction()) action.agent.action(action);
             }
         }
-        game.announcements.stopTyping(true);
         game.counter++;
-        CycleDiscussion(game);
+        setTimeout(() => {
+            game.announcements!.stopTyping(true);
+            message.delete();
+            CycleDiscussion(game);
+        }, 3000);
 }

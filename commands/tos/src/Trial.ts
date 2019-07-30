@@ -9,99 +9,98 @@ import { CycleNight } from "./Night";
 import { CycleVoting } from "./Day";
 
 export function CycleTrial(game: Game) {
-  const client = require('../../../index.ts');
-  game.stage = Stage.Trial;
-  client.hander.removeMenu(game.activeMenuIds.get(ActiveMenu.Vote));
-  game.resetVotes();
-  const trial = new Discord.RichEmbed()
-      .setTitle(`${game.suspect!.user.username} is on trial`)
-      .setDescription('Is he guilty or innocent?')
-      .addField('','☠️ - Guilty \n ❎ - Innocent \n ⬜️ - Abstain');
-  const buttons = [
-      {
-          emoji: '☠️',
-          run: async (user: Discord.User, message: Discord.Message) => {
-              const dm = await user.createDM();
-              const agentMember = message.guild.members.get(user.id);
-              if (isUndefined(agentMember)) return;
-              const agent = game.assignments.get(agentMember);
-              if (isUndefined(agent)) return;
-              if (!agent.alive) return dm.send("You can't vote if you're dead!");
-              if (game.guiltyVote.includes(agent)) return dm.send('You have already voted guilty.');
-              if (game.innocentVote.includes(agent)) {
-                  game.innocentVote.splice(game.innocentVote.findIndex(player => player == agent), 1);
-                  game.guiltyVote.push(agent);
-                  dm.send("You have changed your vote to guilty.");
-                  game.announcements!.send(`${agent.user.username} has changed their vote.`);
-              } else if (agent.votes) { //_Player.votes used to mark a player as abstaining
-                  agent.votes = 0;
-                  game.guiltyVote.push(agent);
-                  dm.send('You have changed your vote to guilty.');
-                  game.announcements!.send(`${agent.user.username} has changed their vote.`);
-              } else {
-                  game.guiltyVote.push(agent);
-                  dm.send('You have voted guilty.');
-                  game.announcements!.send(`${agent.user.username} has voted.`);
-              }
-          }
-      },
-      {
-          emoji: '❎',
-          run: async (user: Discord.User, message: Discord.Message) => {
-              const dm = await user.createDM();
-              const agentMember = message.guild.members.get(user.id);
-              if (isUndefined(agentMember)) return;
-              const agent = game.assignments.get(agentMember);
-              if (isUndefined(agent)) return;
-              if (!agent.alive) return dm.send("You can't vote if you're dead!");
-              if (game.innocentVote.includes(agent)) return dm.send('You have already voted innocent.');
-              if (game.guiltyVote.includes(agent)) {
-                  game.guiltyVote.splice(game.guiltyVote.findIndex(player => player == agent), 1);
-                  game.innocentVote.push(agent);
-                  dm.send("You have changed your vote to innocent.");
-                  game.announcements!.send(`${agent.user.username} has changed their vote.`);
-              } else if (agent.votes) {
-                  agent.votes = 0;
-                  game.innocentVote.push(agent);
-                  dm.send('You have changed your vote to innocent.');
-                  game.announcements!.send(`${agent.user.username} has changed their vote.`);
-              } else {
-                  game.innocentVote.push(agent);
-                  dm.send('You have voted innocent.');
-                  game.announcements!.send(`${agent.user.username} has voted.`);
-              }
-          }
-      },
-      {
-          emoji: '⬜️',
-          run: async (user: Discord.User, message: Discord.Message) => {
-              const dm = await user.createDM();
-              const agentMember = message.guild.members.get(user.id);
-              if (isUndefined(agentMember)) return;
-              const agent = game.assignments.get(agentMember);
-              if (isUndefined(agent)) return;
-              if (!agent.alive) return dm.send("You can't vote if you're dead!");
-              if (game.guiltyVote.includes(agent)) {
-                  game.guiltyVote.splice(game.guiltyVote.findIndex(player => player == agent), 1);
-                  agent.votes = 1;
-                  dm.send("You have abstained.");
-                  game.announcements!.send(`${agent.user.username} has changed their vote.`);
-              } else if (game.innocentVote.includes(agent)) {
-                  game.innocentVote.splice(game.innocentVote.findIndex(player => player == agent), 1);
-                  agent.votes = 1;
-                  dm.send('You have abstained.');
-                  game.announcements!.send(`${agent.user.username} has changed their vote.`)
-              } else {
-                  agent.votes = 1;
-                  dm.send('You have abstained.');
-                  game.announcements!.send(`${agent.user.username} has voted.`);
-              }
-          }
-      }
-  ]
-  const message = new Menu(trial, buttons);
-  //@ts-ignore
-  game.announcements.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote));
+    game.stage = Stage.Trial;
+    game.resetVotes();
+    const trial = new Discord.RichEmbed()
+        .setTitle(`<@${game.suspect!.user.id}> is on trial`)
+        .setDescription('Is he guilty or innocent?')
+        .addField('','☠️ - Guilty \n ❎ - Innocent \n ⬜️ - Abstain');
+    const buttons = [
+        {
+            emoji: '☠️',
+            run: async (user: Discord.User, message: Discord.Message) => {
+                const agentMember = message.guild.members.get(user.id);
+                if (isUndefined(agentMember)) return console.error("CycleTrial: someone not in the guild voted guilty on a trial");
+                const agent = game.assignments.get(agentMember);
+                if (isUndefined(agent)) return console.error(`CycleTrial: ${agentMember.user.username} voted guilty but has no assigned player object`);
+                if (!agent.alive) return console.error(`CycleTrial: ${agent.user.username} voted guilty as a dead man`);
+                if (!agent.input) return console.error(`CycleTrial: ${agentMember.user.username}'s player object has no input channel`)
+                if (game.guiltyVote.includes(agent)) return agent.input.send('You have already voted guilty.');
+                if (game.innocentVote.includes(agent)) {
+                    game.innocentVote.splice(game.innocentVote.findIndex(player => player == agent), 1);
+                    game.guiltyVote.push(agent);
+                    agent.input.send("You have changed your vote to guilty.");
+                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                } else if (agent.votes) { //_Player.votes used to mark a player as abstaining
+                    agent.votes = 0;
+                    game.guiltyVote.push(agent);
+                    agent.input.send('You have changed your vote to guilty.');
+                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                } else {
+                    game.guiltyVote.push(agent);
+                    agent.input.send('You have voted guilty.');
+                    game.announcements!.send(`${agent.user.username} has voted.`);
+                }
+            }
+        },
+        {
+            emoji: '❎',
+            run: async (user: Discord.User, message: Discord.Message) => {
+                const agentMember = message.guild.members.get(user.id);
+                if (isUndefined(agentMember)) return console.error("CycleTrial: someone not in the guild voted innocent on a trial");
+                const agent = game.assignments.get(agentMember);
+                if (isUndefined(agent)) return console.error(`CycleTrial: ${agentMember.user.username} voted innocent but has no assigned player object`);
+                if (!agent.alive) return console.error(`CycleTrial: ${agent.user.username} voted innocent as a dead man`);
+                if (!agent.input) return console.error(`CycleTrial: ${agentMember.user.username}'s player object has no input channel`);
+                if (game.innocentVote.includes(agent)) return agent.input.send('You have already voted innocent.');
+                if (game.guiltyVote.includes(agent)) {
+                    game.guiltyVote.splice(game.guiltyVote.findIndex(player => player == agent), 1);
+                    game.innocentVote.push(agent);
+                    agent.input.send("You have changed your vote to innocent.");
+                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                } else if (agent.votes) {
+                    agent.votes = 0;
+                    game.innocentVote.push(agent);
+                    agent.input.send('You have changed your vote to innocent.');
+                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                } else {
+                    game.innocentVote.push(agent);
+                    agent.input.send('You have voted innocent.');
+                    game.announcements!.send(`${agent.user.username} has voted.`);
+                }
+            }
+        },
+        {
+            emoji: '⬜️',
+            run: async (user: Discord.User, message: Discord.Message) => {
+                const agentMember = message.guild.members.get(user.id);
+                if (isUndefined(agentMember)) return console.error("CycleTrial: someone not in the guild abstained on a trial");
+                const agent = game.assignments.get(agentMember);
+                if (isUndefined(agent)) return console.error(`CycleTrial: ${agentMember.user.username} voted innocent but has no assigned player object`);
+                if (!agent.alive) console.error(`CycleTrial: ${agent.user.username} abstained as a dead man`);
+                if (!agent.input) return console.error(`CycleTrial: ${agentMember.user.username}'s player object has no input channel`);
+                if (agent.votes) return agent.input.send('You have already abstained.');
+                if (game.guiltyVote.includes(agent)) {
+                    game.guiltyVote.splice(game.guiltyVote.findIndex(player => player == agent), 1);
+                    agent.votes = 1;
+                    agent.input.send("You have abstained.");
+                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                } else if (game.innocentVote.includes(agent)) {
+                    game.innocentVote.splice(game.innocentVote.findIndex(player => player == agent), 1);
+                    agent.votes = 1;
+                    agent.input.send('You have abstained.');
+                    game.announcements!.send(`${agent.user.username} has changed their vote.`)
+                } else {
+                    agent.votes = 1;
+                    agent.input.send('You have abstained.');
+                    game.announcements!.send(`${agent.user.username} has voted.`);
+                }
+            }
+        }
+    ]
+    const message = new Menu(trial, buttons);
+    //@ts-ignore
+    game.announcements.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote));
 }
 
 export function ProcessTrial(game: Game) {
