@@ -1,12 +1,15 @@
 import Discord from 'discord.js';
-import { Selection, _View, _Player, Action } from '../src/player';
+import { Selection, _View, _Player, Action, Alignment, Category, Color, Attack, Defense } from '../src/player';
+
+const image = new Discord.Attachment('images/tos/jailor.png')
 
 export const View = new _View({
     name: 'Jailor',
-    pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Jailor.png',
-    alignment: 'Town',
-    category: 'Killing',
-    color: "#00ff00",
+    picture: image,
+    pictureUrl: 'attachment://jailor.png',
+    alignment: Alignment.Town,
+    category: Category.Killing,
+    color: Color.Town,
     abilities: `You may choose one person during the 
     			day to jail for the night.`, //Note: keep lines short to allow commands to be in-line
     attributes: `You may anonymously talk with your prisoner.
@@ -28,8 +31,8 @@ export default class Player extends _Player {
         super(user, index);
         this.name = 'jailor'; //Note: used as identifier in code --> keep lowercase
         this.priority = 5; //Priority level of action
-        this.attack = 3; //Unstoppable
-        this.defense = 0; //None
+        this.attack = Attack.Unstoppable;
+        this.defense = Defense.None;
         this.visits = true;
         this.selection = Selection.others;
         this.view = View;

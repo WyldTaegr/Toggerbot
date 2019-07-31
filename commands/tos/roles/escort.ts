@@ -1,12 +1,15 @@
-import { Selection, Action, _View, _Player } from '../src/player';
+import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 import Discord from 'discord.js';
+
+const image = new Discord.Attachment('images/tos/escort.png')
 
 export const View = new _View({
     name: 'Escort',
-    pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Escort.png',
-    alignment: 'Town',
-    category: 'Support',
-    color: '#00ff00',
+    picture: image,
+    pictureUrl: 'attachment://escort.png',
+    alignment: Alignment.Town,
+    category: Category.Support,
+    color: Color.Town,
     abilities: `Distract someone each night.`, //Note: keep lines short to allow commands to be in-line
     attributes: `Distraction blocks your target from using their role's night ability.
                 You cannot be role blocked.`,
@@ -25,8 +28,8 @@ export default class Player extends _Player {
         super(user, index);
         this.name = 'escort'; //Note: used as identifier in code --> keep lowercase
         this.priority = 2; //Priority level of action
-        this.attack = 0; //None
-        this.defense = 0; //None
+        this.attack = Attack.None;
+        this.defense = Defense.None;
         this.visits = true;
         this.selection = Selection.others;
         this.view = View;

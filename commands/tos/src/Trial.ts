@@ -127,7 +127,7 @@ export function ProcessTrial(game: Game) {
           .addField("Those who abstained:", convertToString(abstainedList));
       game.announcements!.send(embed);
       game.resetVotes();
-      game.death(game.suspect!, "", undefined) //FINISH game
+      //FINISH guilty death announcement
       game.suspect = null;
       CycleNight(game);
   } else {

@@ -1,12 +1,15 @@
 import Discord from 'discord.js';
-import { Selection, Action, _View, _Player } from '../src/player';
+import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
+
+const image = new Discord.Attachment('images/tos/investigator.png')
 
 export const View = new _View({
     name: 'Investigator',
-    pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Investigator.png',
-    alignment: 'Town',
-    category: 'Investigative',
-    color: "#00ff00",
+    picture: image,
+    pictureUrl: 'attachment://investigator.png',
+    alignment: Alignment.Town,
+    category: Category.Investigative,
+    color: Color.Town,
     abilities: `Investigate one person each night 
                 for a clue to their role.`, //Note: keep lines short to allow commands to be in-line
     attributes: 'None',
@@ -25,8 +28,8 @@ export default class Player extends _Player {
         super(user, index);
         this.name = 'investigator'; //Note: used as identifier in code --> keep lowercase
         this.priority = 4; //Priority level of action
-        this.attack = 0; //None
-        this.defense = 0; //None
+        this.attack = Attack.None;
+        this.defense = Defense.None;
         this.visits = true;
         this.selection = Selection.others;
         this.view = View;

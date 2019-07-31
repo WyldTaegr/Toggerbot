@@ -4,6 +4,8 @@ import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { Stage } from '../tos/src/game';
 
+const logo = new Discord.Attachment('images/tos/logo.png');
+
 module.exports = new Command({
     name: 'kill',
     aliases: undefined,
@@ -23,6 +25,8 @@ module.exports = new Command({
                 const moderator = await game.origin!.guild.fetchMember(game.moderator!)
                 const end = new Discord.RichEmbed()
                     .setTitle('**The game of Town Of Salem has been forced to end.**')
+                    .attachFile(logo)
+                    .setThumbnail('attachment://logo.png')
                     .setDescription(`This game was run by: ${moderator!.nickname || moderator!.user.username}`)
                     .setColor('#ffff00')
                     .setTimestamp();

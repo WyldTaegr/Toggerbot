@@ -3,7 +3,9 @@ const { id } = require('../../config.json');
 import Discord from 'discord.js';
 import { Command, GameClient } from '../../index';
 import { Game, Stage } from './src/game';
-import { isUndefined, isNull } from '../../utils';
+import { isUndefined } from '../../utils';
+
+const logo = new Discord.Attachment('images/tos/logo.png');
 
 module.exports = new Command({
     name: "end",
@@ -26,7 +28,8 @@ module.exports = new Command({
             .setTitle('**The game of Town Of Salem has just finished!**')
             .setDescription(`This game was run by: ${message.member.nickname || message.author.username}`)
             .setColor('#ffff00')
-            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .attachFile(logo)
+            .setThumbnail('attachment://logo.png')
             .setTimestamp();
             //TO-DO: Add game info (ie reveal the roles of each player)
         game.reset(end);

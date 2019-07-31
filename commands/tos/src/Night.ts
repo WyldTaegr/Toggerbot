@@ -7,6 +7,8 @@ import { Menu } from 'reaction-core';
 import { CycleDeaths } from "./Day";
 import { _Player, Selection } from "./player";
 
+const night = new Discord.Attachment('images/tos/night.png')
+
 export async function CycleNight(game: Game) {
     const client = require('../../../index.ts')
     game.stage = Stage.Night;
@@ -47,7 +49,8 @@ export async function CycleNight(game: Game) {
             .setTitle(`Night ${game.counter}`)
             .setDescription('You have 30 seconds to do something.')
             .setColor('#562796')
-            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .attachFile(night)
+            .setThumbnail('attachment://night.png')
             .addField('Alive:', playerSelection)
             .setFooter('Set your target for tonight by reacting below');
         const message = new Menu(embed, buttons);
@@ -59,7 +62,10 @@ export async function CycleNight(game: Game) {
     function nightEmbed() {
         const embed = new Discord.RichEmbed()
             .setTitle(`Night ${game.counter}`)
+            .attachFile(night)
+            .setThumbnail('attachment://night.png')
             .setColor('#562796')
+            .setTimestamp()
         if (counter > 0) embed.setDescription(`${counter} seconds until dawn breaks!`);
         return embed;
     }
@@ -102,6 +108,7 @@ export async function ProcessNight(game: Game) {
                 if (action.agent.alive) action.agent.action(action);
             }
         }
+        game.actions = [[], [], [], [], []]
         game.counter++;
         setTimeout(() => {
             game.announcements!.stopTyping(true);

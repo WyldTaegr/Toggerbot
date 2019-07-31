@@ -7,6 +7,8 @@ import { shuffle, isUndefined, isNull } from '../../utils';
 import { CycleNight } from './src/Night';
 import { _Player } from './src/player';
 
+const day = new Discord.Attachment('images/tos/day.png');
+
 async function firstDay(game: Game) {
     if (game.assignments.size < game.players.length) return console.error("Didn't complete player assignments", game.assignments)
     game.counter++;
@@ -16,14 +18,16 @@ async function firstDay(game: Game) {
 
     let counter = 15;
     function dayEmbed() { 
-        const day = new Discord.RichEmbed()
+        const embed = new Discord.RichEmbed()
             .setTitle(`Day ${game.counter}`)
+            .attachFile(day)
+            .setThumbnail('attachment://day.png')
             .setColor('#ffff00')
             .setDescription('Welcome to Town of Salem!')
             .addField("Players participating in this game:", playerList)
 
-            if (counter > 0) day.setFooter(`The first night will begin in ${counter} seconds`);
-        return day;
+            if (counter > 0) embed.setFooter(`The first night will begin in ${counter} seconds`);
+        return embed;
     }
     
     const message = await game.announcements!.send(dayEmbed()) as Discord.Message;

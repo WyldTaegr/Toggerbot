@@ -5,6 +5,8 @@ import { Game, ActiveMenu } from "./game";
 //@ts-ignore
 import { Menu } from "reaction-core";
 
+const logo = new Discord.Attachment('images/tos/logo.png');
+
 export async function initializeGame(message: Discord.Message, game: Game) {
     const client: GameClient = require('../../../index');
 
@@ -99,7 +101,8 @@ export async function initializeGame(message: Discord.Message, game: Game) {
             .setDescription(`This game is run by: ${game.moderator!.username}
                              Join the game by reacting below!`)
             .setColor('#ffff00')
-            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .attachFile(logo)
+            .setThumbnail('attachment://logo.png')
             .setTimestamp();
     const gameInvite = new Menu(gameLink, joinButton)
         client.handler.addMenus(gameInvite)

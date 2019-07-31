@@ -5,25 +5,31 @@ import Discord from 'discord.js';
 import { Menu } from "reaction-core";
 import { _Player } from "./player";
 
+const day = new Discord.Attachment('images/tos/day.png')
+
 async function DisplayDeath(player: _Player, game: Game) {
     const death = game.deaths.get(player);
     if (!death) return console.error(`CycleDeaths: ${player.user.username} was passed as killed but has no assigned death object`);
     game.deaths.delete(player);
-    let embed: Discord.RichEmbed = new Discord.RichEmbed();
+    let embed: Discord.RichEmbed = new Discord.RichEmbed()
+        .setColor('#ff0000')
     switch (death.killers) {
         case 1:
-            embed.setTitle(`${player.user.username}> was killed last night.`);
+            embed.setTitle(`${player.user.username} was killed last night.`);
             break;
         case 2:
-            embed.setTitle(`<@${player.user.username}> was brutally murdered last night.`)
+            embed.setTitle(`${player.user.username} was brutally murdered last night.`)
             break;
         default:
-            embed.setTitle(`<@${player.user.username}> was slaughtered last night.`)
+            embed.setTitle(`${player.user.username} was slaughtered last night.`)
     }
-    const message: Discord.Message = await game.announcements!.send(embed) as Discord.Message;
+    let message: Discord.Message = await game.announcements!.send(embed) as Discord.Message;
     embed.setDescription(death.cause);
     let timer = 3000;
-    setTimeout(() => message.edit(embed), timer);
+    setTimeout(async () => {
+        message = await message.edit(embed);
+        embed.setColor(player.view.color);
+    }, timer);
     
     
     timer += 3000;
@@ -37,7 +43,7 @@ async function DisplayDeath(player: _Player, game: Game) {
         }, timer)
     }
 
-    if (death.deathNotes.length >= 0) {
+    if (death.deathNotes.length !== 0) {
         timer += 3000;
         setTimeout(() => {
             game.announcements!.send('We found a death note next to their body.')
@@ -47,23 +53,36 @@ async function DisplayDeath(player: _Player, game: Game) {
 
     timer += 3000;
     const role = player.name.charAt(0).toUpperCase() + player.name.slice(1);
-    setTimeout(() => game.announcements!.send(`<@${player.user.id}>'s role was ${"`" + role + "`"}.`), timer)
+    setTimeout(() => {
+        game.announcements!.send(`<@${player.user.id}>'s role was ${"`" + role + "`"}.`);
+        message.edit(embed)
+    }, timer)
 }
 
 export async function CycleDeaths(game: Game) {
     game.stage = Stage.Deaths;
     if (game.deaths.size === 0) return CycleDiscussion(game);
+    const embed = new Discord.RichEmbed()
+        .setTitle(`Day ${game.counter}`)
+        .attachFile(day)
+        .setThumbnail('attachment://day.png')
+        .setColor('#ffff00')
+        .setTimestamp();
+    game.announcements!.send(embed)
     const deaths = game.deaths.keys()
     let result = deaths.next()
-    const displayDeaths = setInterval(() => {
-        if (result.done) {
-            clearInterval(displayDeaths)
-            CycleDiscussion(game)
-        } else {
-            DisplayDeath(result.value, game);
-            result = deaths.next();
-        }
-    }, 15000)
+    setTimeout(() => {
+        DisplayDeath(result.value, game);
+        result = deaths.next();
+        const displayDeaths = setInterval(() => {
+            if (result.done) {
+                clearInterval(displayDeaths)
+                CycleDiscussion(game)
+            } else {
+                DisplayDeath(result.value, game);
+                result = deaths.next();
+            }
+    }, 15000)}, 3000)
 }
 
 async function CycleDiscussion(game: Game) {
@@ -74,6 +93,8 @@ async function CycleDiscussion(game: Game) {
     function discussionEmbed() {
         const embed = new Discord.RichEmbed()
             .setTitle(`Day ${game.counter}`)
+            .attachFile(day)
+            .setThumbnail('attachment://day.png')
             .setColor('#ffff00')
             .setDescription('Discussion');
         if (counter > 0) embed.setFooter(`Voting begins in ${counter} seconds.`);
@@ -156,9 +177,10 @@ export async function CycleVoting(game: Game) {
         })
         const embed = new Discord.RichEmbed()
             .setTitle(`Day ${game.counter}`)
-            .setDescription(`Vote for someone to lynch! (${counter})`)
+            .setDescription(`Vote for someone to lynch! ${counter > 0 ? "(" + counter + ")" : ""}`)
             .setColor('#ffff00')
-            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .attachFile(day)
+            .setThumbnail('attachment://day.png')
             .addField('Suspects', playerSelection)
             .setFooter('Vote for someone by reacting below');
         return embed;
@@ -173,12 +195,12 @@ export async function CycleVoting(game: Game) {
     game.activeMenuIds.set(ActiveMenu.Accuse, vote.id);
     counter -= 5;
     const countdown = setInterval(() => {
+        vote.edit(voteEmbed());
         if (counter === 0) {
             clearInterval(countdown);
             game.route();
         } else {
             counter -= 5;
-            vote.edit(voteEmbed());
         }
     }, 5000);
 }

@@ -1,12 +1,15 @@
 import Discord from 'discord.js';
-import { Selection, Action, _View, _Player } from '../src/player';
+import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
+
+const image = new Discord.Attachment('images/tos/doctor.png')
 
 export const View = new _View({
     name: 'Doctor',
-    pictureUrl: 'http://www.blankmediagames.com/wp-content/themes/townofsalem/assets/img/roles/Doctor.png',
-    alignment: 'Town',
-    category: 'Protective',
-    color: '#00ff00',
+    picture: image,
+    pictureUrl: 'attachment://doctor.png',
+    alignment: Alignment.Town,
+    category: Category.Protective,
+    color: Color.Town,
     abilities: `Heal one person each night, 
                 preventing them from dying.`, //Note: keep lines short to allow commands to be in-line
     attributes: `You may only heal yourself once.
@@ -26,8 +29,8 @@ export default class Player extends _Player {
         super(user, index);
         this.name = 'doctor'; //Note: used as identifier in code --> keep lowercase
         this.priority = 3; //Priority level of action
-        this.attack = 0; //None
-        this.defense = 0; //None, set to Powerful on self-heal
+        this.attack = Attack.None; //None
+        this.defense = Defense.None; //None, set to Powerful on self-heal
         this.visits = true;
         this.selection = Selection.all; //TO-DO: can only target self once
         this.view = View;

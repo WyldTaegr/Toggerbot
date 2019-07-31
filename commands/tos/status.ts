@@ -4,6 +4,8 @@ import Discord from 'discord.js';
 import { Command } from '../../index';
 import { Stage } from './src/game';
 
+const logo = new Discord.Attachment('images/tos/logo.png');
+
 module.exports = new Command ({
     name: 'status',
     aliases: ['info'],
@@ -29,7 +31,8 @@ module.exports = new Command ({
         const status = new Discord.RichEmbed()
             .setTitle('**Town Of Salem**')
             .setColor('#ffff00')
-            .setThumbnail('https://s3.amazonaws.com/geekretreatimages/wp-content/uploads/2017/12/8710ecd8a710e3b557904bfaadfe055084a0d1d6.jpg')
+            .attachFile(logo)
+            .setThumbnail('attachment://logo.png')
             .setDescription(`Moderator: ${game.moderator.nickname || game.moderator.user.username}`)
             .addField('Players:', playerNames, true)
             .addField('Roles:', roleNames || 'No roles yet lol', true)

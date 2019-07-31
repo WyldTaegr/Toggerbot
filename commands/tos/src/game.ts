@@ -12,6 +12,8 @@ import Lookout from '../roles/lookout';
 import SerialKiller from '../roles/serial-killer';
 import Sheriff from '../roles/sheriff';
 
+const logo = new Discord.Attachment('images/tos/logo.png');
+
 export enum RoleName {
     Doctor = "Doctor",
     Escort = "Escort",
@@ -53,6 +55,7 @@ export enum Stage {
 export function roleEmbed(role: _View) {
     const embed = new Discord.RichEmbed()
         .setTitle(role.name)
+        .attachFile(role.picture)
         .setThumbnail(role.pictureUrl)
         .setColor(role.color)
         .setDescription(`Alignment: ${role.alignment} (${role.category})`)
@@ -68,6 +71,8 @@ export interface death {
     deathNotes: string[]
 }
 
+type Actions = [ Action[], Action[], Action[], Action[], Action[]]
+
 export class Game {
     moderator: Discord.User | null;
     role: Discord.Role | null //The GuildRole that signifies guild origin on Bot server
@@ -76,7 +81,7 @@ export class Game {
     setup: Discord.Message | null; //the Discord message used in setup
     assignments: Discord.Collection<GuildMember, _Player>
     stage: Stage;
-    actions: Array<Action[]>;
+    actions: Actions;
     counter: number;
     category: Discord.CategoryChannel | null;
     announcements: Discord.TextChannel | null;
@@ -185,10 +190,6 @@ export class Game {
         this.innocentVote = [];
     }
 
-    death({user, name, will}: _Player, causeOfDeath: string, deathNote: string | undefined) { //Announce the death of a player
-        console.log(user, will, deathNote)
-    }
-
     setupEmbed() {
         const playerNames = this.players.map((member: Discord.GuildMember) => member.nickname || member.user.username)
             .toString()
@@ -197,6 +198,8 @@ export class Game {
 
         const embed = new Discord.RichEmbed()
             .setTitle('Town of Salem')
+            .attachFile(logo)
+            .setThumbnail('attachment://logo.png')
             .setColor('#ffff00')
             .setDescription(`Moderator: ${this.moderator!.username!}`)
             .addField('Players:', playerNames || "Loading...", true)
