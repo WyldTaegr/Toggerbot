@@ -38,12 +38,18 @@ module.exports = new Command({
         const _role: string = args[0].toLowerCase();
         //@ts-ignore
         const role: RoleName = Roles.findKey(Player => new Player().name.startsWith(_role))
-        console.log(role);
 
         if (!role) {
             const notification: Discord.Message = await message.reply('That role is not available yet!') as Discord.Message;
-            return setTimeout(() => notification.delete(), 3000);    
+            return setTimeout(() => notification.delete(), 3000);
         };
+
+        const Player = Roles.get(role);
+        //@ts-ignore
+        if (new Player().unique && game.roles.includes(role)) {
+            const notification: Discord.Message = await message.reply(`A ${role} is already in the game, and cannot be added again!`) as Discord.Message;
+            return setTimeout(() => notification.delete(), 3000);
+        }
 
         game.roles.push(role);
         const notification: Discord.Message = await message.channel.send('Role `' + role + '` Added to the game!') as Discord.Message;

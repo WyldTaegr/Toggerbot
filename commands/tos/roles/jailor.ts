@@ -21,6 +21,7 @@ export default class Player extends _Player {
     defense: number;
     visits: boolean;
     selection: Selection;
+    unique: boolean;
     view: _View;
     constructor(user: Discord.User, index: number) {
         super(user, index);
@@ -30,6 +31,7 @@ export default class Player extends _Player {
         this.defense = Defense.None;
         this.visits = true;
         this.selection = Selection.others;
+        this.unique = true;
         this.view = View;
     }
 

@@ -97,6 +97,7 @@ export abstract class _Player {
   abstract defense: Defense;
   abstract visits: boolean; //Whether the role visits its target on its action
   abstract selection: Selection; //The set of players available for targeting
+  abstract unique: boolean; //Some roles must only appear once per game
   abstract view: _View;
   abstract action(action: Action): void;
   
