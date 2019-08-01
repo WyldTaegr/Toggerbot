@@ -1,19 +1,16 @@
 import Discord from 'discord.js';
 import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 
-const image = new Discord.Attachment('images/tos/doctor.png')
+const image = new Discord.Attachment('images/tos/doctor.png', 'doctor.png')
 
 export const View = new _View({
     name: 'Doctor',
     picture: image,
-    pictureUrl: 'attachment://doctor.png',
     alignment: Alignment.Town,
     category: Category.Protective,
     color: Color.Town,
-    abilities: `Heal one person each night, 
-                preventing them from dying.`, //Note: keep lines short to allow commands to be in-line
-    attributes: `You may only heal yourself once.
-                 You will know if your target is attacked.`,
+    abilities: "Heal one person each night,\npreventing them from dying.", //Note: keep lines short to allow commands to be in-line
+    attributes: "You may only heal yourself once.\nYou will know if your target is attacked.",
     goal: 'Lynch every criminal and evildoer.'
 })
 

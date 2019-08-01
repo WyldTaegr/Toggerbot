@@ -23,7 +23,7 @@ async function DisplayDeath(player: _Player, game: Game) {
         default:
             embed.setTitle(`${player.user.username} was slaughtered last night.`)
     }
-    let message: Discord.Message = await game.announcements!.send(embed) as Discord.Message;
+    let message: Discord.Message = await game.chat!.send(embed) as Discord.Message;
     embed.setDescription(death.cause);
     let timer = 3000;
     setTimeout(async () => {
@@ -34,27 +34,27 @@ async function DisplayDeath(player: _Player, game: Game) {
     
     timer += 3000;
     if (!player.will) {
-        setTimeout(() => game.announcements!.send('We could not find a last will.'), timer)
+        setTimeout(() => game.chat!.send('We could not find a last will.'), timer)
     } else {
         setTimeout(() => {
-            if (!game.announcements) return console.error('CycleDeaths: game.announcements is not defined when describing a will')
-            game.announcements.send('We found a will next to their body.')
-            game.announcements.send(player.will);
+            if (!game.chat) return console.error('CycleDeaths: game.chat is not defined when describing a will')
+            game.chat.send('We found a will next to their body.')
+            game.chat.send(player.will);
         }, timer)
     }
 
     if (death.deathNotes.length !== 0) {
         timer += 3000;
         setTimeout(() => {
-            game.announcements!.send('We found a death note next to their body.')
-            death.deathNotes.forEach(deathNote => game.announcements!.send(deathNote));
+            game.chat!.send('We found a death note next to their body.')
+            death.deathNotes.forEach(deathNote => game.chat!.send(deathNote));
         }, timer)
     }
 
     timer += 3000;
     const role = player.name.charAt(0).toUpperCase() + player.name.slice(1);
     setTimeout(() => {
-        game.announcements!.send(`<@${player.user.id}>'s role was ${"`" + role + "`"}.`);
+        game.chat!.send(`<@${player.user.id}>'s role was ${"`" + role + "`"}.`);
         message.edit(embed)
     }, timer)
 }
@@ -68,7 +68,7 @@ export async function CycleDeaths(game: Game) {
         .setThumbnail('attachment://day.png')
         .setColor('#ffff00')
         .setTimestamp();
-    game.announcements!.send(embed)
+    game.chat!.send(embed)
     const deaths = game.deaths.keys()
     let result = deaths.next()
     setTimeout(() => {
@@ -86,7 +86,7 @@ export async function CycleDeaths(game: Game) {
 }
 
 async function CycleDiscussion(game: Game) {
-    if (!game.announcements) return console.error("Discussion stage: announcements channel not defined");
+    if (!game.chat) return console.error("CycleDiscussion: game.chat not defined");
 
     game.stage = Stage.Discussion;
     let counter = 30;
@@ -100,7 +100,7 @@ async function CycleDiscussion(game: Game) {
         if (counter > 0) embed.setFooter(`Voting begins in ${counter} seconds.`);
         return embed;
     }
-    const discussion = await game.announcements.send(discussionEmbed()) as Discord.Message;
+    const discussion = await game.chat.send(discussionEmbed()) as Discord.Message;
     counter -= 5;
     const countdown = setInterval(() => {
         discussion.edit(discussionEmbed());
@@ -116,7 +116,7 @@ async function CycleDiscussion(game: Game) {
 export async function CycleVoting(game: Game) {
     const client = require('../../../index.ts');
 
-    if (isNull(game.announcements)) return;
+    if (isNull(game.chat)) return;
     game.stage = Stage.Voting;
 
     //Voting Selection
@@ -136,18 +136,18 @@ export async function CycleVoting(game: Game) {
                 if (!agent.alive) return console.error(`CycleVoting: ${user.username} voted in the trial as a dead man`)
                 const receiver = game.assignments.get(member);
                 if (isUndefined(receiver)) return console.error(`CycleVoting: ${member.user.username} has no assigned player object`);
-                if (!game.announcements) return console.error("CycleVoting: game.announcements is undefined");
+                if (!game.chat) return console.error("CycleVoting: game.chat is undefined");
 
                 if (agent.vote == receiver) { //Player selected the person he was already voting for
                     agent.vote = null;
                     receiver.votes -= 1;
-                    game.announcements.send(`<@${user.id}> is no longer voting for <@${member.user.id}>.`);
+                    game.chat.send(`<@${user.id}> is no longer voting for <@${member.user.id}>.`);
                 } else if (agent == receiver) { //Player selected himself
-                    game.announcements.send(`<@${user.id}> just tried to vote for themselves, what a moron!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
+                    game.chat.send(`<@${user.id}> just tried to vote for themselves, what a moron!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
                 } else if(agent.vote == null) { //Player selecting new person, not already voting
                     agent.vote = receiver;
                     receiver.votes += 1;
-                    game.announcements.send(`<@${user.id}> has voted for <@${member.user.id}>!`);
+                    game.chat.send(`<@${user.id}> has voted for <@${member.user.id}>!`);
                     if (receiver.votes >= game.alive.length / 2) {
                         game.suspect = receiver;
                         game.route()
@@ -157,7 +157,7 @@ export async function CycleVoting(game: Game) {
                     oldVote.votes -= 1;
                     agent.vote = receiver;
                     receiver.votes += 1;
-                    game.announcements!.send(`<@${user.id}> has changed his vote to <@${member.user.id}>!`);
+                    game.chat!.send(`<@${user.id}> has changed his vote to <@${member.user.id}>!`);
                     if (receiver.votes >= game.alive.length / 2) {
                         game.suspect = receiver;
                         game.route()
@@ -191,7 +191,7 @@ export async function CycleVoting(game: Game) {
     const message = new Menu(voteEmbed(), buttons);
     client.handler.addMenus(message);
     // @ts-ignore
-    const vote = await game.announcements.sendMenu(message);
+    const vote = await game.chat.sendMenu(message);
     game.activeMenuIds.set(ActiveMenu.Accuse, vote.id);
     counter -= 5;
     const countdown = setInterval(() => {

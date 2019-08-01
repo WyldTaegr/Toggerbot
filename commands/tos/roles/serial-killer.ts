@@ -1,19 +1,16 @@
 import Discord from 'discord.js';
 import { Selection, _View, _Player, Action, Color, Alignment, Category, Attack, Defense } from '../src/player';
 
-const image = new Discord.Attachment('images/tos/serial-killer.png')
+const image = new Discord.Attachment('images/tos/serial-killer.png', 'serial-killer.png')
 
 export const View = new _View({
     name: 'Serial Killer',
     picture: image,
-    pictureUrl: 'attachment://serial-killer.png',
     alignment: Alignment.Neutral,
     category: Category.Killing,
     color: Color.Neutral,
-    abilities: `Kill someone each night.`,
-    attributes: `If you are role blocked you will attack the role
-                 blocker instead of your target.
-                 You can not be killed at night.`,
+    abilities: "Kill someone each night.",
+    attributes: "If you are role blocked you will attack\nthe role blocker instead of your target.\nYou can not be killed at night.",
     goal: "Kill everyone who would oppose you."
 })
 
@@ -51,7 +48,6 @@ export default class Player extends _Player {
                     deathNotes: agent.deathNote ? [agent.deathNote] : []
                 })
             })
-            agent.blocked = []
         } else if (!receiver.alive) { //Serial Killer's target was already killed
             const death = game.deaths.get(receiver)
             if (!death) return console.error("Serial Killer: Already killed target returned no death object");

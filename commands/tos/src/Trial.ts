@@ -30,16 +30,16 @@ export function CycleTrial(game: Game) {
                     game.innocentVote.splice(game.innocentVote.findIndex(player => player == agent), 1);
                     game.guiltyVote.push(agent);
                     agent.input.send("You have changed your vote to guilty.");
-                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                    game.chat!.send(`${agent.user.username} has changed their vote.`);
                 } else if (agent.votes) { //_Player.votes used to mark a player as abstaining
                     agent.votes = 0;
                     game.guiltyVote.push(agent);
                     agent.input.send('You have changed your vote to guilty.');
-                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                    game.chat!.send(`${agent.user.username} has changed their vote.`);
                 } else {
                     game.guiltyVote.push(agent);
                     agent.input.send('You have voted guilty.');
-                    game.announcements!.send(`${agent.user.username} has voted.`);
+                    game.chat!.send(`${agent.user.username} has voted.`);
                 }
             }
         },
@@ -57,16 +57,16 @@ export function CycleTrial(game: Game) {
                     game.guiltyVote.splice(game.guiltyVote.findIndex(player => player == agent), 1);
                     game.innocentVote.push(agent);
                     agent.input.send("You have changed your vote to innocent.");
-                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                    game.chat!.send(`${agent.user.username} has changed their vote.`);
                 } else if (agent.votes) {
                     agent.votes = 0;
                     game.innocentVote.push(agent);
                     agent.input.send('You have changed your vote to innocent.');
-                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                    game.chat!.send(`${agent.user.username} has changed their vote.`);
                 } else {
                     game.innocentVote.push(agent);
                     agent.input.send('You have voted innocent.');
-                    game.announcements!.send(`${agent.user.username} has voted.`);
+                    game.chat!.send(`${agent.user.username} has voted.`);
                 }
             }
         },
@@ -84,23 +84,23 @@ export function CycleTrial(game: Game) {
                     game.guiltyVote.splice(game.guiltyVote.findIndex(player => player == agent), 1);
                     agent.votes = 1;
                     agent.input.send("You have abstained.");
-                    game.announcements!.send(`${agent.user.username} has changed their vote.`);
+                    game.chat!.send(`${agent.user.username} has changed their vote.`);
                 } else if (game.innocentVote.includes(agent)) {
                     game.innocentVote.splice(game.innocentVote.findIndex(player => player == agent), 1);
                     agent.votes = 1;
                     agent.input.send('You have abstained.');
-                    game.announcements!.send(`${agent.user.username} has changed their vote.`)
+                    game.chat!.send(`${agent.user.username} has changed their vote.`)
                 } else {
                     agent.votes = 1;
                     agent.input.send('You have abstained.');
-                    game.announcements!.send(`${agent.user.username} has voted.`);
+                    game.chat!.send(`${agent.user.username} has voted.`);
                 }
             }
         }
     ]
     const message = new Menu(trial, buttons);
     //@ts-ignore
-    game.announcements.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote));
+    game.chat.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote));
 }
 
 export function ProcessTrial(game: Game) {
@@ -125,7 +125,7 @@ export function ProcessTrial(game: Game) {
           .addField("Those who voted guilty:", convertToString(guiltyList))
           .addField("Those who voted innocent:", convertToString(innocentList))
           .addField("Those who abstained:", convertToString(abstainedList));
-      game.announcements!.send(embed);
+      game.chat!.send(embed);
       game.resetVotes();
       //FINISH guilty death announcement
       game.suspect = null;
@@ -137,7 +137,7 @@ export function ProcessTrial(game: Game) {
           .addField("Those who voted guilty:", convertToString(guiltyList))
           .addField("Those who voted innocent:", convertToString(innocentList))
           .addField("Those who abstained:", convertToString(abstainedList));
-      game.announcements!.send(embed);
+      game.chat!.send(embed);
       game.suspect = null;
       game.resetVotes();
       CycleVoting(game);

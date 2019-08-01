@@ -30,7 +30,7 @@ async function firstDay(game: Game) {
         return embed;
     }
     
-    const message = await game.announcements!.send(dayEmbed()) as Discord.Message;
+    const message = await game.chat!.send(dayEmbed()) as Discord.Message;
     
     counter -= 5;
     const countdown = setInterval(() => {
@@ -89,14 +89,14 @@ module.exports = new Command({
         if (isUndefined(game)) return;
 
         if (game.stage === Stage.Ended) return message.reply('Setup a game first!');
-        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.chat) return message.channel.send('Wrong channel, my dood.');
 
         message.delete();
 
         if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, <@${message.author.id}>!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
         if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
 
-        game.announcements.overwritePermissions(game.moderator!, { 'SEND_MESSAGES': false})
+        game.chat.overwritePermissions(game.moderator!, { 'SEND_MESSAGES': false})
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Setup));
@@ -117,6 +117,8 @@ module.exports = new Command({
 
         const startGame = setInterval(() => {
             if (game.assignments.size < game.players.length) return;
+            if (!game.chat) return console.error('tos!start: game.chat is not defined');
+            game.chat.bulkDelete(game.chat.messages.size);
             clearInterval(startGame)
             createChannels(game);
             firstDay(game);

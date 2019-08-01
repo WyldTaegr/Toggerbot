@@ -1,19 +1,16 @@
 import Discord from 'discord.js';
 import { Selection, _View, _Player, Action, Alignment, Category, Color, Attack, Defense } from '../src/player'
 
-const image = new Discord.Attachment('images/tos/sheriff.png')
+const image = new Discord.Attachment('images/tos/sheriff.png', 'sheriff.png')
 
 export const View = new _View({
     name: 'Sheriff',
     picture: image,
-    pictureUrl: 'attachment://sheriff.png',
     alignment: Alignment.Town,
     category: Category.Investigative,
     color: Color.Town,
-    abilities: `Check one person each night 
-                for suspicious activity.`,
-    attributes: `You will know if your target is a member of the Mafia, except for the Godfather.
-                 You will know if your target is a Serial Killer.`,
+    abilities: "Check one person each night\nfor suspicious activity.",
+    attributes: "You will know if your target is a member of the Mafia, except for the Godfather.\nYou will know if your target is a Serial Killer.",
     goal: "Lynch every criminal and evildoer."
 })
 

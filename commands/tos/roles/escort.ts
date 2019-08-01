@@ -1,18 +1,16 @@
 import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 import Discord from 'discord.js';
 
-const image = new Discord.Attachment('images/tos/escort.png')
+const image = new Discord.Attachment('images/tos/escort.png', 'escort.png')
 
 export const View = new _View({
     name: 'Escort',
     picture: image,
-    pictureUrl: 'attachment://escort.png',
     alignment: Alignment.Town,
     category: Category.Support,
     color: Color.Town,
-    abilities: `Distract someone each night.`, //Note: keep lines short to allow commands to be in-line
-    attributes: `Distraction blocks your target from using their role's night ability.
-                You cannot be role blocked.`,
+    abilities: "Distract someone each night.", //Note: keep lines short to allow commands to be in-line
+    attributes: "Distraction blocks your target from using\ntheir role's night ability.\nYou cannot be role blocked.",
     goal: 'Lynch every criminal and evildoer.'
 })
 

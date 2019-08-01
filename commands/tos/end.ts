@@ -22,7 +22,7 @@ module.exports = new Command({
 
         if (game.stage === Stage.Ended) return message.reply("Wow you really don't like this game.");
         if (message.author != game.moderator) return message.reply("Ask the guy in charge");
-        if (message.channel != game.announcements) return message.reply('Wrong channel my dood');
+        if (message.channel != game.chat) return message.reply('Wrong channel my dood');
 
         const end = new Discord.RichEmbed()
             .setTitle('**The game of Town Of Salem has just finished!**')

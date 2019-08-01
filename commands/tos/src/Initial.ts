@@ -17,10 +17,10 @@ export async function initializeGame(message: Discord.Message, game: Game) {
     if (isNull(game.moderator)) return console.log("Initial.ts: 15");
 
     game.category = await client.guild!.createChannel(message.guild.name, {type: "category", permissionOverwrites: [{id: game.role!.id, allow: ['VIEW_CHANNEL']}]}) as Discord.CategoryChannel;
-    game.announcements = await client.guild!.createChannel('chat', {type: 'text', permissionOverwrites: [{ id: game.role.id, allow: ["VIEW_CHANNEL", "READ_MESSAGES", "READ_MESSAGE_HISTORY", "ADD_REACTIONS"]}, {id: game.moderator.id, allow: ["SEND_MESSAGES"]}]} ) as Discord.TextChannel;
-    game.announcements.setParent(game.category);
+    game.chat = await client.guild!.createChannel('chat', {type: 'text', permissionOverwrites: [{ id: game.role.id, allow: ["VIEW_CHANNEL", "READ_MESSAGES", "READ_MESSAGE_HISTORY", "ADD_REACTIONS"]}, {id: game.moderator.id, allow: ["SEND_MESSAGES"]}]} ) as Discord.TextChannel;
+    game.chat.setParent(game.category);
     
-    const invitation = await game.announcements!.createInvite();
+    const invitation = await game.chat!.createInvite();
     const inviteLink = invitation.url;
     
     //@ts-ignore
@@ -52,7 +52,7 @@ export async function initializeGame(message: Discord.Message, game: Game) {
     const setup = new Menu(game.setupEmbed(), setupButtons)
     client.handler.addMenus(setup)
     //@ts-ignore
-    game.announcements.sendMenu(setup).then(message => {
+    game.chat.sendMenu(setup).then(message => {
         game.setup = message as Discord.Message;
         game.activeMenuIds.set(ActiveMenu.Setup, message.id);
     })

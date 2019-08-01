@@ -1,5 +1,5 @@
-import Discord, { GuildMember, Message } from "discord.js"
-import { isUndefined, isNull } from '../../../utils';
+import Discord from "discord.js"
+import { isUndefined } from '../../../utils';
 import { _Player, Action, _View } from './player';
 import { GameClient } from "../../..";
 import { ProcessNight, CycleNight } from "./Night";
@@ -56,12 +56,12 @@ export function roleEmbed(role: _View) {
     const embed = new Discord.RichEmbed()
         .setTitle(role.name)
         .attachFile(role.picture)
-        .setThumbnail(role.pictureUrl)
+        .setThumbnail(`attachment://${role.picture.name}`)
         .setColor(role.color)
         .setDescription(`Alignment: ${role.alignment} (${role.category})`)
         .addField('Abilities', role.abilities, true)
-        .addField('Attributes', role.attributes, false)
-        .addField('Goal', role.goal, false)
+        .addField('Attributes', role.attributes, true)
+        .addField('Goal', role.goal, true)
     return embed;
 }
 
@@ -71,20 +71,18 @@ export interface death {
     deathNotes: string[]
 }
 
-type Actions = [ Action[], Action[], Action[], Action[], Action[]]
-
 export class Game {
     moderator: Discord.User | null;
     role: Discord.Role | null //The GuildRole that signifies guild origin on Bot server
     players: Discord.GuildMember[];
     roles: RoleName[];
     setup: Discord.Message | null; //the Discord message used in setup
-    assignments: Discord.Collection<GuildMember, _Player>
+    assignments: Discord.Collection<Discord.GuildMember, _Player>
     stage: Stage;
-    actions: Actions;
+    actions: [ Action[], Action[], Action[], Action[], Action[]];
     counter: number;
     category: Discord.CategoryChannel | null;
-    announcements: Discord.TextChannel | null;
+    chat: Discord.TextChannel | null;
     mafia: Discord.TextChannel | null;
     jail: Discord.TextChannel | null;
     graveyard: Discord.TextChannel | null;
@@ -105,7 +103,7 @@ export class Game {
         this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number; [role of action-caller as role.object.name, caller as GuildMember, target as GuildMember]
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
-        this.announcements = null;
+        this.chat = null;
         this.mafia = null;
         this.jail = null;
         this.graveyard = null;
@@ -134,7 +132,7 @@ export class Game {
         }
         //Delete public channels and roles
         this.role && this.role.delete();
-        this.announcements && this.announcements.delete();
+        this.chat && this.chat.delete();
         this.mafia && this.mafia.delete();
         this.jail && this.jail.delete();
         this.graveyard && this.graveyard.delete();
@@ -153,7 +151,7 @@ export class Game {
         this.actions = [[], [], [], [], []];
         this.counter = 0;
         this.category = null;
-        this.announcements = null;
+        this.chat = null;
         this.mafia = null;
         this.jail = null;
         this.graveyard = null;

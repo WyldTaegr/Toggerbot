@@ -13,9 +13,19 @@ export async function CycleNight(game: Game) {
     const client = require('../../../index.ts')
     game.stage = Stage.Night;
 
-    game.alive.forEach((playerMember: Discord.GuildMember) => {
+    game.players.forEach((playerMember: Discord.GuildMember) => {
         const player = game.assignments.get(playerMember)
         if (isUndefined(player)) return console.error("CycleNight: GuildMember without Player assignment");
+        if (!player.alive) {
+            const embed = new Discord.RichEmbed()
+                .setTitle(`Night ${game.counter}`)
+                .setColor('#562796')
+                .attachFile(night)
+                .setThumbnail('attachment://night.png')
+                .setDescription('You are dead.')
+                .setTimestamp()
+            return player.input!.send(embed)
+        }
         
         const buttons: Object[] = [];
 
@@ -39,7 +49,8 @@ export async function CycleNight(game: Game) {
                     const embed = new Discord.RichEmbed()
                         .setTitle(`You have targeted *${member.nickname || member.user.username}* for tonight.`)
                         .setColor('#ff0000')
-                        .setThumbnail(player.view.pictureUrl);
+                        .attachFile(player.view.picture)
+                        .setThumbnail(`attachment://${player.view.picture.name}`);
                     player.input.send(embed);
                 }
             })
@@ -69,7 +80,7 @@ export async function CycleNight(game: Game) {
         if (counter > 0) embed.setDescription(`${counter} seconds until dawn breaks!`);
         return embed;
     }
-    const message = await game.announcements!.send(nightEmbed()) as Discord.Message;
+    const message = await game.chat!.send(nightEmbed()) as Discord.Message;
     counter -= 5;
     const countdown = setInterval(() => {
         message.edit(nightEmbed())
@@ -83,12 +94,12 @@ export async function CycleNight(game: Game) {
 export async function ProcessNight(game: Game) {
     const client = require('../../../index.ts')
 
-    if (isNull(game.announcements)) return;
+    if (isNull(game.chat)) return;
 
     game.stage = Stage.Processing;
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Night));
-        const message = await game.announcements.send('Processing the night...') as Discord.Message;
-        game.announcements.startTyping();
+        const message = await game.chat.send('Processing the night...') as Discord.Message;
+        game.chat.startTyping();
         game.players.forEach((member) => {
             const player = game.assignments.get(member);
             if (player && !isNull(player.target)) {
@@ -100,7 +111,6 @@ export async function ProcessNight(game: Game) {
                     receiver: target,
                     game: game
                 });
-                player.target = null; //clean-up for next cycle
             }
         })
         for (const priority of game.actions) {
@@ -108,10 +118,17 @@ export async function ProcessNight(game: Game) {
                 if (action.agent.alive) action.agent.action(action);
             }
         }
+        game.alive.forEach(member => {
+            const player = game.assignments.get(member);
+            if (!player) return console.error(`ProcessNight: ${member.user.username} has no assigned player object`);
+            player.visited = [];
+            player.blocked = [];
+            player.target = null;
+        })
         game.actions = [[], [], [], [], []]
         game.counter++;
         setTimeout(() => {
-            game.announcements!.stopTyping(true);
+            game.chat!.stopTyping(true);
             message.delete();
             CycleDeaths(game);
         }, 3000);

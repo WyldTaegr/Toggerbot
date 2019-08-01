@@ -1,17 +1,15 @@
 import Discord from 'discord.js';
 import { Selection, _View, _Player, Action, Alignment, Category, Color, Attack, Defense } from '../src/player';
 
-const image = new Discord.Attachment('images/tos/lookout.png')
+const image = new Discord.Attachment('images/tos/lookout.png', 'lookout.png')
 
 export const View = new _View({
     name: 'Lookout',
     picture: image,
-    pictureUrl: 'attachment://lookout.png',
     alignment: Alignment.Town,
     category: Category.Investigative,
     color: Color.Town,
-    abilities: `Watch one person at night to 
-                see who visits them.`, //Note: keep lines short to allow commands to be in-line
+    abilities: "Watch one person at night to\nsee who visits them.",
     attributes: 'None',
     goal: "Lynch every criminal and evildoer."
 })

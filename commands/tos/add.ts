@@ -21,10 +21,10 @@ module.exports = new Command({
             if (isUndefined(game)) return;
 
         if (game.stage === Stage.Ended) return message.reply('Start a game first!');
-        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.chat) return message.channel.send('Wrong channel, my dood.');
         if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, ${message.member.nickname || message.author.username}!`);
         if (message.author != game.moderator) return message.reply("Ask the guy in charge");
-        if (args.length === 0) return game.announcements.send('Provide a role to add with the command: `tos!add [Role]`').then(notification => {
+        if (args.length === 0) return game.chat.send('Provide a role to add with the command: `tos!add [Role]`').then(notification => {
             message.delete();
             setTimeout(() => (notification as Discord.Message).delete(), 3000)
         })

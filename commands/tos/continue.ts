@@ -21,7 +21,7 @@ module.exports = new Command ({
       if (isUndefined(game)) return;
 
       if (game.stage = Stage.Ended) return message.reply('Setup a game first!');
-      if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
+      if (message.channel != game.chat) return message.channel.send('Wrong channel, my dood.');
       if (message.author != game.moderator) return message.reply("Ask the guy in charge");
       if (game.stage == Stage.Trial) return ProcessTrial(game);
       else if (game.stage == Stage.Voting) return CycleNight(game);

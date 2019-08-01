@@ -132,11 +132,13 @@ client.on("ready", async () => {
         console.log(`\n ${server.name}`);
     }
     await createBotGuild(client)
+    if (!client.guild) return;
+    client.guild.setIcon("./images/tos/logo.png");
 
     const Tiger = client.users.get('179697448300576778');
     //@ts-ignore
     Tiger.pending = "Admin";
-    const admin = await client.guild!.channels.find(channel => channel.name === "admin") as Discord.TextChannel
+    const admin = await client.guild.channels.find(channel => channel.name === "admin") as Discord.TextChannel
     const devInvite = await admin.createInvite()
     if (!isUndefined(Tiger)) Tiger.send(devInvite.url);
     admin.send("Ready!")
@@ -175,7 +177,7 @@ client.on("guildMemberAdd", async (member) => {
     if (pending === "Admin") return member.user.pending = undefined;
     const game = client.games.get(pending);
     if (isUndefined(game) || game.stage !== Stage.Setup) return member.kick();
-    if (member.user === game.moderator) game.announcements!.overwritePermissions(game.moderator.id, { 'SEND_MESSAGES': true });
+    if (member.user === game.moderator) game.chat!.overwritePermissions(game.moderator.id, { 'SEND_MESSAGES': true });
     game.players.push(member);
     member.addRole(game.role!);
     game.setup!.edit(game.setupEmbed())

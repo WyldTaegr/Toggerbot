@@ -19,7 +19,7 @@ module.exports = new Command ({
         const game = client.games.get(message.guild.id);
 
         if (game.stage === Stage.Ended) return message.reply("There's no game!");
-        if (message.channel != game.announcements) return message.channel.send('Wrong channel, my dood.');
+        if (message.channel != game.chat) return message.channel.send('Wrong channel, my dood.');
 
         const playerNames = game.players.map((member: Discord.GuildMember) => member.nickname || member.user.username)
             .toString()
@@ -37,6 +37,6 @@ module.exports = new Command ({
             .addField('Players:', playerNames, true)
             .addField('Roles:', roleNames || 'No roles yet lol', true)
 
-        game.announcements.send(status)
+        game.chat.send(status)
     }
 })

@@ -49,10 +49,9 @@ export enum Defense {
 export class _View {
   name: string;
   picture: Discord.Attachment;
-  pictureUrl: string;
-  alignment: string;
-  category: string;
-  color: string;
+  alignment: Alignment;
+  category: Category;
+  color: Color;
   abilities: string;
   attributes: string;
   goal: string;
@@ -60,17 +59,15 @@ export class _View {
   constructor(props: {
     name: string;
     picture: Discord.Attachment;
-    pictureUrl: string;
-    alignment: string;
-    category: string;
-    color: string;
+    alignment: Alignment;
+    category: Category;
+    color: Color;
     abilities: string;
     attributes: string;
     goal: string;
   }) {
     this.name = props.name;
     this.picture = props.picture;
-    this.pictureUrl = props.pictureUrl;
     this.alignment = props.alignment;
     this.category = props.category;
     this.color = props.color;
@@ -96,8 +93,8 @@ export abstract class _Player {
   //Defined in individual role class
   abstract name: string; //Used as identifier in code ---> keep lowercase
   abstract priority: number; //Priority level of action --> -1 for Array indexing
-  abstract attack: number; //TODO - When implemented, create enums to reference?
-  abstract defense: number;
+  abstract attack: Attack;
+  abstract defense: Defense;
   abstract visits: boolean; //Whether the role visits its target on its action
   abstract selection: Selection; //The set of players available for targeting
   abstract view: _View;

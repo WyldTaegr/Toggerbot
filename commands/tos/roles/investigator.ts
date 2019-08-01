@@ -1,17 +1,15 @@
 import Discord from 'discord.js';
 import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 
-const image = new Discord.Attachment('images/tos/investigator.png')
+const image = new Discord.Attachment('images/tos/investigator.png', 'investigator.png')
 
 export const View = new _View({
     name: 'Investigator',
     picture: image,
-    pictureUrl: 'attachment://investigator.png',
     alignment: Alignment.Town,
     category: Category.Investigative,
     color: Color.Town,
-    abilities: `Investigate one person each night 
-                for a clue to their role.`, //Note: keep lines short to allow commands to be in-line
+    abilities: "Investigate one person each night\nfor a clue to their role.",
     attributes: 'None',
     goal: "Lynch every criminal and evildoer."
 })

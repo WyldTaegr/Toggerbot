@@ -23,7 +23,7 @@ Here's a list of useful definitions:
 - `Actions: Array of Arrays of Action{ name: String, agent: GuildMember, receiver: GuildMember}`: Organizes all actions for a single night by priority, resets every new day  
 - `Counter: Number`: Counts the number of Night/Day cycles that have gone by  
 - `Category: CategoryChannel`: The Discord guild category within which the game resides  
-- `Announcements: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
+- `chat: TextChannel`: The Discord guild text channel where Toggerbot will make announcements as God  
 - `Origin: TextChannel`: The Discord guild text channel where the game was started  
 - `Reset: Function()`: Used to end a game  
 - `CheckNight: Function(Message, action: String, targets: Number)`: Checks if the command can be passed. Parameters: action: the name of the command targets: the number of players the command can target; returns: Array of role.objects of targets  

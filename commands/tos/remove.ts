@@ -21,7 +21,7 @@ module.exports = new Command({
         if (isUndefined(game)) return;
 
         if (game.stage === Stage.Ended) return message.reply('Start a game first!');
-        if (message.channel != game.announcements) { message.channel.send('Wrong channel, my dood.'); return; };
+        if (message.channel != game.chat) { message.channel.send('Wrong channel, my dood.'); return; };
 
         message.delete();
 
