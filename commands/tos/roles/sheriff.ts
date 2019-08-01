@@ -38,12 +38,10 @@ export default class Player extends _Player {
     action({agent, receiver}: Action) {
         const receiverRole: _View = require(`./roles/${receiver.name}.ts`).View;
         if (!agent.input) return console.error("Sheriff has no input channel");
-        if (receiverRole.alignment === 'Town') {
-            agent.input.send('Your target is not suspicious.');
-        } else if (receiverRole.alignment === "Mafia") {
-            agent.input.send('Your target is a member of the Mafia!');
-        } else if (receiverRole.name === "Serial Killer") {
-            agent.input.send('Your target is a Serial Killer!');
+        if (receiverRole.alignment === Alignment.Mafia || receiverRole.name === "Serial Killer") { //TODO: add exception to Godfather after role added
+            agent.input.send('Your target is suspicious.');
+        } else {
+            agent.input.send('You cannot find evidence of wrongdoing. Your target seems innocent.')
         }
     }
 }
