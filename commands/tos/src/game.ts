@@ -12,7 +12,9 @@ import Lookout from '../roles/lookout';
 import SerialKiller from '../roles/serial-killer';
 import Sheriff from '../roles/sheriff';
 
-const logo = new Discord.Attachment('images/tos/logo.png');
+const logo = new Discord.Attachment('images/tos/logo.png', "logo.png");
+const night = new Discord.Attachment('images/tos/night.png', 'night.png');
+const day = new Discord.Attachment('images/tos/day.png', 'day.png');
 
 export enum RoleName {
     Doctor = "Doctor",
@@ -78,11 +80,13 @@ export class Game {
     roles: RoleName[];
     setup: Discord.Message | null; //the Discord message used in setup
     assignments: Discord.Collection<Discord.GuildMember, _Player>
-    stage: Stage;
+    _stage: Stage; //Getters and setters have been applied
     actions: [ Action[], Action[], Action[], Action[], Action[]];
     counter: number;
     category: Discord.CategoryChannel | null;
     chat: Discord.TextChannel | null;
+    infoChannel: Discord.TextChannel | null;
+    infoMessage: Discord.Message | null;
     mafia: Discord.TextChannel | null;
     jail: Discord.TextChannel | null;
     graveyard: Discord.TextChannel | null;
@@ -99,11 +103,13 @@ export class Game {
         this.roles = []; //Array of role names as strings
         this.setup = null;
         this.assignments = new Discord.Collection(); //Maps players (As GuildMembers) with their roles (As role.object), assigned after start
-        this.stage = Stage.Ended; //Either 'Setup', 'Night', 'Processing' 'Day', 'Trial', or 'Ended'
+        this._stage = Stage.Ended; //Either 'Setup', 'Night', 'Processing' 'Day', 'Trial', or 'Ended'
         this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number; [role of action-caller as role.object.name, caller as GuildMember, target as GuildMember]
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
         this.chat = null;
+        this.infoChannel = null;
+        this.infoMessage = null;
         this.mafia = null;
         this.jail = null;
         this.graveyard = null;
@@ -133,6 +139,7 @@ export class Game {
         //Delete public channels and roles
         this.role && this.role.delete();
         this.chat && this.chat.delete();
+        this.infoChannel && this.infoChannel.delete();
         this.mafia && this.mafia.delete();
         this.jail && this.jail.delete();
         this.graveyard && this.graveyard.delete();
@@ -147,11 +154,13 @@ export class Game {
         this.roles = [];
         this.setup = null;
         this.assignments = new Discord.Collection();
-        this.stage = Stage.Ended;
+        this._stage = Stage.Ended;
         this.actions = [[], [], [], [], []];
         this.counter = 0;
         this.category = null;
         this.chat = null;
+        this.infoChannel = null;
+        this.infoMessage = null;
         this.mafia = null;
         this.jail = null;
         this.graveyard = null;
@@ -169,6 +178,20 @@ export class Game {
                 if (isUndefined(player)) return;
             return player.alive;
         })
+    }
+
+    get dead() {
+        return this.players.filter(member => {
+            const player = this.assignments.get(member);
+                if (isUndefined(player)) return;
+            return !player.alive;
+        })
+    }
+
+    get stage() { return this._stage };
+    set stage(stage: Stage) {
+        this._stage = stage;
+        if ((stage === Stage.Discussion || stage === Stage.Voting || stage === Stage.Night) && this.counter > 1) this.updateStatus();
     }
 
     get mafiaMembers() {
@@ -203,6 +226,34 @@ export class Game {
             .addField('Players:', playerNames || "Loading...", true)
             .addField('Roles:', roleNames || 'No roles yet!', true)
         return embed;
+    }
+    
+    async updateStatus() {
+        let stage: string, image: Discord.Attachment, color: string;
+        if (this.stage === Stage.Night) {
+            [stage, image, color] = ["Night", night, "#562796"]
+        } else {
+            [stage, image, color] = ["Day", day, "#ffff00"]
+        }
+        let graveyard = "";
+        this.dead.forEach(member => {
+            const player = this.assignments.get(member);
+            if (!player) return console.error("StatusEmbed: dead player has no assigned player object");
+            graveyard = graveyard.concat(`${player.emoji} - ${player.user.username} (${player.view.name})\n`) //TODO: display false role if framed/disguised
+        })
+
+
+        const embed = new Discord.RichEmbed()
+            .setTitle(`${stage} ${this.counter}`)
+            .attachFile(image)
+            .setThumbnail(`attachment://${image.name}`)
+            .setColor(color)
+            .addField("Graveyard", graveyard || "No one has died yet!", true)
+            .addField("Role List", this.roles.toString().replace(/,/g, "\n",), true);
+        
+        if (!this.infoChannel) return console.error("UpdateStatus: game.infoChannel is null")
+        if (this.infoMessage) this.infoMessage.delete();
+        this.infoMessage = await this.infoChannel.send(embed) as Discord.Message;
     }
 
     route() {

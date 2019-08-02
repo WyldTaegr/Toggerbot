@@ -13,8 +13,7 @@ export function CycleTrial(game: Game) {
     game.resetVotes();
     const trial = new Discord.RichEmbed()
         .setTitle(`<@${game.suspect!.user.id}> is on trial`)
-        .setDescription('Is he guilty or innocent?')
-        .addField('','☠️ - Guilty \n ❎ - Innocent \n ⬜️ - Abstain');
+        .addField('Is he guilty or innocent?','☠️ - Guilty \n ❎ - Innocent \n ⬜️ - Abstain');
     const buttons = [
         {
             emoji: '☠️',

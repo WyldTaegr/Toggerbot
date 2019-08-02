@@ -15,7 +15,7 @@ export async function CycleNight(game: Game) {
 
     game.players.forEach((playerMember: Discord.GuildMember) => {
         const player = game.assignments.get(playerMember)
-        if (isUndefined(player)) return console.error("CycleNight: GuildMember without Player assignment");
+        if (isUndefined(player)) return console.error("CycleNight: GuildMember without Player assignment [1]");
         if (!player.alive) {
             const embed = new Discord.RichEmbed()
                 .setTitle(`Night ${game.counter}`)
@@ -35,11 +35,11 @@ export async function CycleNight(game: Game) {
 
         playerList.forEach((member) => {
             const receiver = game.assignments.get(member);
-                if (isUndefined(receiver)) return;
+                if (isUndefined(receiver)) return console.error("CycleNight: GuildMember without Player assignment [2]");
             playerSelection = playerSelection.concat(receiver.emoji, ' - ');
 
             playerSelection = playerSelection.concat(`<@${member.user.id}> \n`);
-            if ((player.selection === Selection.others && game.assignments.get(member) !== player) || (player.selection === Selection.self && game.assignments.get(member) === player)) buttons.push({
+            if ((player.selection === Selection.all || player.selection === Selection.others && game.assignments.get(member) !== player) || (player.selection === Selection.self && game.assignments.get(member) === player)) buttons.push({
                 emoji: receiver.emoji,
                 run: async (user: Discord.User, message: Discord.Message) => {
                     if (isUndefined(player.input)) return console.error("CycleNight: Player.input is not defined");
@@ -103,37 +103,55 @@ export async function ProcessNight(game: Game) {
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Night));
         const message = await game.chat.send('Processing the night...') as Discord.Message;
         game.chat.startTyping();
-        game.players.forEach((member) => {
+        let process = 0;
+        game.alive.forEach((member, index, array) => {
             const player = game.assignments.get(member);
-            if (player && !isNull(player.target)) {
+            if (player && player.target) {
                 const priority = player.priority - 1; //Subtract 1 for array indexing!
                 const target = game.assignments.get(player.target);
-                if (isUndefined(target)) return;
+                if (isUndefined(target)) return console.error(`ProcessNight: player.target has no assigned player object\nPlayer: ${player.user.username}\nTarget: ${player.target}`);
                 game.actions[priority].push({
                     agent: player, 
                     receiver: target,
                     game: game
                 });
             }
+            if (index + 1 === array.length) process++;
         })
-        for (const priority of game.actions) {
-            for (const action of priority) {
-                if (action.agent.alive) action.agent.action(action);
+        const actions = setInterval(() => {
+            if (process === 1) {
+                clearInterval(actions)
+                let lastPriority = false;
+                game.actions.forEach((priority, index, array) => {
+                    if (index + 1 === array.length) lastPriority = true;
+                    priority.forEach((action, index, array) => {
+                        if (action.agent.alive) action.agent.action(action);
+                        if (index + 1 === array.length && lastPriority) process++;
+                    })
+                })
+            }}, 1000
+        )
+        const reset = setInterval(() => {
+            if (process === 2) {
+                clearInterval(reset);
+                game.alive.forEach((member, index, array) => {
+                    const player = game.assignments.get(member);
+                    if (!player) return console.error(`ProcessNight: ${member.user.username} has no assigned player object`);
+                    player.visited = [];
+                    player.blocked = [];
+                    player.healed = [];
+                    player.target = null;
+                    if (index + 1 === array.length) process++;
+                })}
+        })
+        const route = setInterval(() => {
+            if (process === 3) {
+                clearInterval(route);
+                game.actions = [[], [], [], [], []]
+                game.counter++;
+                game.chat!.stopTyping(true);
+                message.delete();
+                CycleDeaths(game);
             }
-        }
-        game.alive.forEach(member => {
-            const player = game.assignments.get(member);
-            if (!player) return console.error(`ProcessNight: ${member.user.username} has no assigned player object`);
-            player.visited = [];
-            player.blocked = [];
-            player.healed = [];
-            player.target = null;
-        })
-        game.actions = [[], [], [], [], []]
-        game.counter++;
-        setTimeout(() => {
-            game.chat!.stopTyping(true);
-            message.delete();
-            CycleDeaths(game);
-        }, 3000);
+        }, 1000);
 }

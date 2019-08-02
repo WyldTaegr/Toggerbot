@@ -63,9 +63,11 @@ async function createChannels(game: Game) {
         mafiaOptions.push({ id: member.user.id, allow: ['VIEW_CHANNEL']})
     })
     
-    if (isUndefined(client.guild)) return console.log ("start.ts: 41");
-    if (isNull(game.category)) return console.log("start.ts: 42")
-
+    if (isUndefined(client.guild)) return console.error("tos!start: client.guild is undefined");
+    if (isNull(game.category)) return console.error("tos!start: game.category is null");
+    game.infoChannel = await client.guild.createChannel('Info', {type: 'text', permissionOverwrites: [ {id: game.role.id, allow: ['VIEW_CHANNEL', 'READ_MESSAGES', 'READ_MESSAGE_HISTORY', 'ADD_REACTIONS']} ]}) as Discord.TextChannel;
+        game.infoChannel.setParent(game.category);
+        game.updateStatus();
     game.mafia = await client.guild.createChannel('Mafia', {type: 'text', permissionOverwrites: mafiaOptions}) as Discord.TextChannel;
         game.mafia.setParent(game.category)
     game.jail = await client.guild.createChannel('Jail', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
