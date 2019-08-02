@@ -35,6 +35,10 @@ export default class Player extends _Player {
         this.view = View;
     }
 
+    targetMessage(target: _Player): string {
+        return `You have decided to heal ${this === target ? "yourself": `<@${target.user.id}>`} tonight.`
+    };
+
     action() {
         if (!this.target) return;
         if (!this.input) return console.error("Doctor: this.input is not defined");

@@ -37,6 +37,8 @@ export default class Player extends _Player {
         this.hasVisited = false;
     }
 
+    targetMessage(target: _Player) { return `You have decided to watch <@${target.user.id}> tonight.` };
+
     action(game: Game) {
         if (!this.target) return;
         if (!this.input) return console.error("Lookout has no input channel");

@@ -34,6 +34,8 @@ export default class Player extends _Player {
         this.view = View;
     }
 
+    targetMessage(target: _Player) { return `You have decided to distract <@${target.user.id}> tonight.` };
+
     action() {
         if (!this.target) return;
         if (this.blocked.length !== 0) this.input!.send("Someone tried to role block you but you're immune!");

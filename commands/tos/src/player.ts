@@ -101,6 +101,7 @@ export abstract class _Player {
   abstract useLimit?: number; //Some actions have limited uses on certain roles
   abstract unique: boolean; //Some roles must only appear once per game
   abstract view: _View;
+  abstract targetMessage(target: _Player): string;
   abstract action(game?: Game): void;
   
   constructor(user: Discord.User, index: number) {
@@ -115,6 +116,13 @@ export abstract class _Player {
     this.votes = 0; //Number of votes against the player for Trial
     this.vote = null; //This player's vote
   }
+
+  async setTarget(player: _Player | null) {
+    this.target = player
+    if (!player) return;
+    this.input!.send(this.targetMessage(player));
+  }
+
   async kill(game: Game) {
     this.alive = false;
     const client: GameClient = require('../../../index');

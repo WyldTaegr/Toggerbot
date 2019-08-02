@@ -45,13 +45,7 @@ export async function CycleNight(game: Game) {
                     if (isUndefined(player.input)) return console.error("CycleNight: Player.input is not defined");
                     if ((player.selection === Selection.others && player === receiver) ||
                         player.selection === Selection.self && player !== receiver) return console.error(`CycleNight: ${player.user.username} targeted ${member.user.username} when they should not have been able to.`);
-                    player.target = receiver; //Used to keep track of whether the person has already selected a target
-                    const embed = new Discord.RichEmbed()
-                        .setTitle(`You have targeted *${member.nickname || member.user.username}* for tonight.`)
-                        .setColor('#ff0000')
-                        .attachFile(player.view.picture)
-                        .setThumbnail(`attachment://${player.view.picture.name}`);
-                    player.input.send(embed);
+                    player.setTarget(receiver); //Used to keep track of whether the person has already selected a target
                 }
             })
         })

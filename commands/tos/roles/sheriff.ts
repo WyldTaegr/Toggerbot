@@ -22,7 +22,7 @@ export default class Player extends _Player {
     selection: Selection;
     useLimit?: number;
     unique: boolean;
-    view: _View
+    view: _View;
     constructor(user: Discord.User, index: number) {
         super(user, index);
         this.name = 'sheriff'; //Note: used as identifier in code --> keep lowercase
@@ -33,6 +33,7 @@ export default class Player extends _Player {
         this.unique = false;
         this.view = View;
     }
+    targetMessage(target: _Player) { return `You have decided to interrogate <@${target.user.id}> tonight.` };
 
     action() {
         if (!this.target) return;

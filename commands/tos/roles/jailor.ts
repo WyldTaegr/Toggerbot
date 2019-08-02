@@ -35,6 +35,8 @@ export default class Player extends _Player {
         this.view = View;
     }
 
+    targetMessage(target: _Player) { return `You have decided to jail <@${target.user.id}> tonight.` };
+
     action(game: Game) {
 
     }

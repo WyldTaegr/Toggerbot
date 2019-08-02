@@ -35,6 +35,8 @@ export default class Player extends _Player {
         this.view = View;
     }
 
+    targetMessage(target: _Player) { return `You have decided to kill <@${target.user.id}> tonight.` };
+
     action(game: Game) {
         if (!this.target) return;
         if (!this.input) return console.error('Serial Killer: this.input is not defined');
