@@ -1,6 +1,6 @@
 import Discord from "discord.js"
 import { isUndefined } from '../../../utils';
-import { _Player, Action, _View } from './player';
+import { _Player, Action, _View, Alignment } from './player';
 import { GameClient } from "../../..";
 import { ProcessNight, CycleNight } from "./Night";
 import { CycleTrial } from "./Trial";
@@ -9,7 +9,7 @@ import Escort from '../roles/escort';
 import Investigator from '../roles/investigator';
 import Jailor from '../roles/jailor';
 import Lookout from '../roles/lookout';
-import SerialKiller from '../roles/serial-killer';
+import SerialKiller from '../roles/serial';
 import Sheriff from '../roles/sheriff';
 
 const logo = new Discord.Attachment('images/tos/logo.png', "logo.png");
@@ -191,14 +191,23 @@ export class Game {
     get stage() { return this._stage };
     set stage(stage: Stage) {
         this._stage = stage;
-        if ((stage === Stage.Discussion || stage === Stage.Voting || stage === Stage.Night) && this.counter > 1) this.updateStatus();
+        if (stage === Stage.Night) { //No talking in chat, mafia can talk
+            this.mafiaMembers.forEach(member => this.mafia!.overwritePermissions(member, {"SEND_MESSAGES": true}));
+            this.chat!.overwritePermissions(this.role!, {"SEND_MESSAGES": false})
+        } else { //Day - Mafia can no longer talk, talk in chat can start after death announcements
+            this.mafiaMembers.forEach(member => this.mafia!.overwritePermissions(member, {"SEND_MESSAGES": false}));
+            if (stage === Stage.Discussion) {
+                this.chat!.overwritePermissions(this.role!, {"SEND_MESSAGES": true});
+            }
+        }
+        if (stage === Stage.Voting || stage === Stage.Night || (stage === Stage.Discussion && this.counter > 1)) this.updateStatus();
     }
 
     get mafiaMembers() {
         return this.players.filter(member => {
             const player = this.assignments.get(member);
                 if (isUndefined(player)) return;
-            return player.view.alignment === "Mafia";
+            return player.view.alignment === Alignment.Mafia;
         })
     }
 
@@ -231,7 +240,7 @@ export class Game {
     async updateStatus() {
         let stage: string, image: Discord.Attachment, color: string;
         if (this.stage === Stage.Night) {
-            [stage, image, color] = ["Night", night, "#562796"]
+            [stage, image, color] = ["Night", night, "#562796"];
         } else {
             [stage, image, color] = ["Day", day, "#ffff00"]
         }

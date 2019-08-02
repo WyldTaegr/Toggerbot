@@ -17,7 +17,11 @@ export async function initializeGame(message: Discord.Message, game: Game) {
     if (isNull(game.moderator)) return console.log("Initial.ts: 15");
 
     game.category = await client.guild!.createChannel(message.guild.name, {type: "category", permissionOverwrites: [{id: game.role!.id, allow: ['VIEW_CHANNEL']}]}) as Discord.CategoryChannel;
-    game.chat = await client.guild!.createChannel('chat', {type: 'text', permissionOverwrites: [{ id: game.role.id, allow: ["VIEW_CHANNEL", "READ_MESSAGES", "READ_MESSAGE_HISTORY", "ADD_REACTIONS"]}, {id: game.moderator.id, allow: ["SEND_MESSAGES"]}]} ) as Discord.TextChannel;
+    game.chat = await client.guild!.createChannel('chat', {type: 'text', permissionOverwrites: [
+        { id: client.guild.defaultRole, deny: ["VIEW_CHANNEL"] },
+        { id: game.role, allow: ["VIEW_CHANNEL", "READ_MESSAGES", "READ_MESSAGE_HISTORY", "ADD_REACTIONS"] },
+        {id: game.moderator, allow: ["SEND_MESSAGES"] }
+    ]} ) as Discord.TextChannel;
     game.chat.setParent(game.category);
     
     const invitation = await game.chat!.createInvite();

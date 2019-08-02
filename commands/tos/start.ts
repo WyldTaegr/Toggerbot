@@ -97,8 +97,8 @@ module.exports = new Command({
 
         if (game.stage != Stage.Setup) return message.channel.send(`The game has already begun, <@${message.author.id}>!`).then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
         if (game.players.length > game.roles.length) return message.reply('You need to add more roles first!').then(message => setTimeout(() => (message as Discord.Message).delete() , 3000));
-
-        game.chat.overwritePermissions(game.moderator!, { 'SEND_MESSAGES': false})
+        //@ts-ignore
+        game.chat.overwritePermissions(game.moderator!, { 'SEND_MESSAGES': null})
 
         if (game.players.length <= 5) message.channel.send('This is gonna be a pretty lame game, just saying.');
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Setup));

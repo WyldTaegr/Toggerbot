@@ -124,6 +124,7 @@ export async function ProcessNight(game: Game) {
                 let lastPriority = false;
                 game.actions.forEach((priority, index, array) => {
                     if (index + 1 === array.length) lastPriority = true;
+                    if (priority.length === 0 && lastPriority) process++;
                     priority.forEach((action, index, array) => {
                         if (action.agent.alive) action.agent.action(action);
                         if (index + 1 === array.length && lastPriority) process++;

@@ -10,7 +10,7 @@ export const View = new _View({
     category: Category.Investigative,
     color: Color.Town,
     abilities: "Check one person each night\nfor suspicious activity.",
-    attributes: "You will know if your target is a member of the Mafia, except for the Godfather.\nYou will know if your target is a Serial Killer.",
+    attributes: "You will know if your target is suspicious",
     goal: "Lynch every criminal and evildoer."
 })
 
@@ -34,11 +34,10 @@ export default class Player extends _Player {
         this.view = View;
     }
 
-    action({agent, receiver}: Action) {
-        const receiverRole: _View = require(`./roles/${receiver.name}.ts`).View;
+    action({agent, receiver}: Action) {;
         if (!agent.input) return console.error("Sheriff has no input channel");
         if (agent.blocked.length !== 0) return agent.input.send("Someone occupied your night. You were role blocked!")
-        if (receiverRole.alignment === Alignment.Mafia || receiverRole.name === "Serial Killer") { //TODO: add exception to Godfather after role added
+        if (receiver.view.alignment === Alignment.Mafia || receiver.view.name === "Serial Killer") { //TODO: add exception to Godfather after role added
             agent.input.send('Your target is suspicious.');
         } else {
             agent.input.send('You cannot find evidence of wrongdoing. Your target seems innocent.')
