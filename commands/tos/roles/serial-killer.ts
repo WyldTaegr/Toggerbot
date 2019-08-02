@@ -19,8 +19,8 @@ export default class Player extends _Player {
     priority: number;
     attack: number;
     defense: number;
-    visits: boolean;
     selection: Selection;
+    useLimit?: number;
     unique: boolean;
     view: _View;
     constructor(user: Discord.User, index: number) {
@@ -29,7 +29,6 @@ export default class Player extends _Player {
         this.priority = 5;
         this.attack = Attack.Basic;
         this.defense = Defense.Basic;
-        this.visits = true;
         this.selection = Selection.others;
         this.unique = false;
         this.view = View;
@@ -50,25 +49,29 @@ export default class Player extends _Player {
                     deathNotes: agent.deathNote ? [agent.deathNote] : []
                 })
             })
-        } else if (!receiver.alive) { //Serial Killer's target was already killed
-            const death = game.deaths.get(receiver)
-            if (!death) return console.error("Serial Killer: Already killed target returned no death object");
-            death.killers++;
-            death.cause = death.cause.concat("\nThey were also stabbed by a Serial Killer.")
-            agent.deathNote && death.deathNotes.push(agent.deathNote)
-            game.deaths.set(receiver, death);
-        } else if (receiver.defense >= Defense.Basic) { //Serial Killer attacked a target with higher defense
-            agent.input.send("Your target's defence was too high to kill!");
-            receiver.input.send("Someone attacked you but your defence was too high!")
-        } else if (false) { //TO-DO: target was healed or otherwise had increased defence by an ability
-
-        } else { //Serial Killer successfully attacked their target
-            receiver.alive = false;
-            game.deaths.set(receiver, {
-                killers: 1,
-                cause: "They were stabbed by a Serial Killer.",
-                deathNotes: agent.deathNote ? [agent.deathNote] : []
-            })
+        } else {
+            receiver.visited.push(agent);
+            if (!receiver.alive) { //Serial Killer's target was already killed
+                const death = game.deaths.get(receiver)
+                if (!death) return console.error("Serial Killer: Already killed target returned no death object");
+                death.killers++;
+                death.cause = death.cause.concat("\nThey were also stabbed by a Serial Killer.")
+                agent.deathNote && death.deathNotes.push(agent.deathNote)
+                game.deaths.set(receiver, death);
+            } else if (receiver.defense >= Defense.Basic) { //Serial Killer attacked a target with higher defense
+                agent.input.send("Your target's defence was too high to kill!");
+                receiver.input.send("Someone attacked you but your defence was too high!")
+            } else if (receiver.healed.length !== 0) { //TO-DO: target was healed or otherwise had increased defence by an ability
+                for (const healer of receiver.healed) {
+                    if (healer.name === "doctor") receiver.input!.send("You were attacked but someone nursed you back to health!");
+                }
+            } else { //Serial Killer successfully attacked their target
+                receiver.alive = false;
+                game.deaths.set(receiver, {
+                    killers: 1,
+                    cause: "They were stabbed by a Serial Killer.",
+                    deathNotes: agent.deathNote ? [agent.deathNote] : []
+            })}
         }
     }
 }

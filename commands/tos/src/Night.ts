@@ -68,6 +68,9 @@ export async function CycleNight(game: Game) {
         client.handler.addMenus(message);
         // @ts-ignore
         player.input.sendMenu(message).then(message => player.activeMenuId = message.id);
+        if (player.name === "doctor" && player.useLimit) {
+            player.input!.send("You have 1 self-heal remaining.");
+        }
     })
     let counter = 30;
     function nightEmbed() {
@@ -123,6 +126,7 @@ export async function ProcessNight(game: Game) {
             if (!player) return console.error(`ProcessNight: ${member.user.username} has no assigned player object`);
             player.visited = [];
             player.blocked = [];
+            player.healed = [];
             player.target = null;
         })
         game.actions = [[], [], [], [], []]

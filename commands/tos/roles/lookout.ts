@@ -19,17 +19,16 @@ export default class Player extends _Player {
     priority: number;
     attack: number;
     defense: number;
-    visits: boolean;
     selection: Selection;
+    useLimit?: number;
     unique: boolean;
     view: _View;
     constructor(user: Discord.User, index: number) {
         super(user, index);
         this.name = 'lookout'; //Note: used as identifier in code --> keep lowercase
         this.priority = 4; //Priority level of action
-        this.attack = Attack.None; //None
-        this.defense = Defense.None; //None
-        this.visits = true;
+        this.attack = Attack.None;
+        this.defense = Defense.None;
         this.selection = Selection.others;
         this.unique = false;
         this.view = View;

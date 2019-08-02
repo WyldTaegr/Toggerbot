@@ -19,8 +19,8 @@ export default class Player extends _Player {
     priority: number;
     attack: number;
     defense: number;
-    visits: boolean;
     selection: Selection;
+    useLimit?: number;
     unique: boolean;
     view: _View;
     constructor(user: Discord.User, index: number) {
@@ -29,13 +29,13 @@ export default class Player extends _Player {
         this.priority = 4; //Priority level of action
         this.attack = Attack.None;
         this.defense = Defense.None;
-        this.visits = true;
         this.selection = Selection.others;
         this.unique = false;
         this.view = View;
     }
 
     action({agent, receiver}: Action) {
+        if (agent.blocked.length !== 0) return agent.input!.send("Someone occupied your night. You were role blocked!")
         receiver.visited.push(agent)
         const role = receiver.name;
         if (!agent.input) return console.error("Investigator has no input channel");

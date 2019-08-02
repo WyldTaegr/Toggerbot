@@ -19,8 +19,8 @@ export default class Player extends _Player {
     priority: number;
     attack: number;
     defense: number;
-    visits: boolean;
     selection: Selection;
+    useLimit?: number;
     unique: boolean;
     view: _View
     constructor(user: Discord.User, index: number) {
@@ -29,7 +29,6 @@ export default class Player extends _Player {
         this.priority = 4; //Priority level of action
         this.attack = Attack.None;
         this.defense = Defense.None;
-        this.visits = true;
         this.selection = Selection.others;
         this.unique = false;
         this.view = View;
@@ -38,6 +37,7 @@ export default class Player extends _Player {
     action({agent, receiver}: Action) {
         const receiverRole: _View = require(`./roles/${receiver.name}.ts`).View;
         if (!agent.input) return console.error("Sheriff has no input channel");
+        if (agent.blocked.length !== 0) return agent.input.send("Someone occupied your night. You were role blocked!")
         if (receiverRole.alignment === Alignment.Mafia || receiverRole.name === "Serial Killer") { //TODO: add exception to Godfather after role added
             agent.input.send('Your target is suspicious.');
         } else {

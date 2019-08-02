@@ -19,8 +19,8 @@ export default class Player extends _Player {
     priority: number;
     attack: number;
     defense: number;
-    visits: boolean;
     selection: Selection;
+    useLimit?: number;
     unique: boolean;
     view: _View;
     constructor(user: Discord.User, index: number) {
@@ -29,7 +29,6 @@ export default class Player extends _Player {
         this.priority = 5; //Priority level of action
         this.attack = Attack.Unstoppable;
         this.defense = Defense.None;
-        this.visits = true;
         this.selection = Selection.others;
         this.unique = true;
         this.view = View;

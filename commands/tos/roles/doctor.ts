@@ -19,23 +19,29 @@ export default class Player extends _Player {
     priority: number;
     attack: number;
     defense: number;
-    visits: boolean;
     selection: Selection;
+    useLimit: number;
     unique: boolean;
     view: _View;
     constructor(user: Discord.User, index: number) {
         super(user, index);
         this.name = 'doctor'; //Note: used as identifier in code --> keep lowercase
         this.priority = 3; //Priority level of action
-        this.attack = Attack.None; //None
-        this.defense = Defense.None; //None, set to Powerful on self-heal
-        this.visits = true;
+        this.attack = Attack.None;
+        this.defense = Defense.None;
         this.selection = Selection.all; //TO-DO: can only target self once
+        this.useLimit = 1;
         this.unique = false;
         this.view = View;
     }
 
     action({agent, receiver}: Action) {
-
+        if (!agent.input) return console.error("Doctor: agent.input is not defined");
+        if (agent.blocked.length !== 0) return agent.input.send("Someone occupied your night. You were role blocked!");
+        if (agent === receiver) {
+            this.useLimit--;
+            this.selection = Selection.others;
+        }
+        receiver.healed.push(agent);
     }
 }
