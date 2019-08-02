@@ -41,7 +41,7 @@ export default class Player extends _Player {
             agent.input.send("Someone role blocked you, so you attacked them!");
             agent.blocked.forEach(blocker => {
                 if (!blocker.alive) return; //Role-blocker has already died to other causes, won't actually visit the Serial Killer
-                blocker.alive = false;
+                blocker.kill(game)
                 blocker.input!.send('You were murdered by the Serial Killer you visited!');
                 game.deaths.set(blocker, {
                     killers: 1,
@@ -66,7 +66,7 @@ export default class Player extends _Player {
                     if (healer.name === "doctor") receiver.input!.send("You were attacked but someone nursed you back to health!");
                 }
             } else { //Serial Killer successfully attacked their target
-                receiver.alive = false;
+                receiver.kill(game);
                 game.deaths.set(receiver, {
                     killers: 1,
                     cause: "They were stabbed by a Serial Killer.",

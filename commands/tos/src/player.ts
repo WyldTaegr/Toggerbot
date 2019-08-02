@@ -1,6 +1,7 @@
 import Discord from "discord.js";
 import { emojis } from "../../../utils";
 import { Game } from "./game";
+import { GameClient } from "../../..";
 
 export enum Selection {
   all,
@@ -55,7 +56,7 @@ export class _View {
   abilities: string;
   attributes: string;
   goal: string;
-
+  
   constructor(props: {
     name: string;
     picture: Discord.Attachment;
@@ -101,7 +102,7 @@ export abstract class _Player {
   abstract unique: boolean; //Some roles must only appear once per game
   abstract view: _View;
   abstract action(action: Action): void;
-
+  
   constructor(user: Discord.User, index: number) {
     this.user = user;
     this.emoji = emojis[index];
@@ -113,5 +114,13 @@ export abstract class _Player {
     this.target = null; //GuildMember: targeted player for nighttime action
     this.votes = 0; //Number of votes against the player for Trial
     this.vote = null; //This player's vote
+  }
+  async kill(game: Game) {
+    this.alive = false;
+    const client: GameClient = require('../../../index');
+    const member = await client.guild!.fetchMember(this.user)
+    game.chat!.overwritePermissions(member, {"SEND_MESSAGES": false, "ADD_REACTIONS": false})
+    game.mafia!.overwritePermissions(member, {"SEND_MESSAGES": false})
+    game.graveyard!.overwritePermissions(member, {"VIEW_CHANNEL": true, "READ_MESSAGE_HISTORY": true, "SEND_MESSAGES": true});
   }
 }

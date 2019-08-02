@@ -1,6 +1,6 @@
 import { Stage, Game, ActiveMenu } from "./game";
 
-import { isUndefined } from "../../../utils";
+import { isUndefined, isNull } from "../../../utils";
 
 import Discord from 'discord.js';
 //@ts-ignore
@@ -116,10 +116,11 @@ export function ProcessTrial(game: Game) {
       })
       return string;
   }
+  if (isNull(game.suspect)) return console.error("ProcessTrial: game.suspect is null");
   if (game.guiltyVote.length > game.innocentVote.length) {
-      game.suspect!.alive = false;
+      game.suspect.kill(game);
       const embed = new Discord.RichEmbed()
-          .setTitle(`The Town has voted ${game.suspect!.user.username} guilty, ${game.guiltyVote.length} to ${game.innocentVote.length}`)
+          .setTitle(`The Town has voted ${game.suspect.user.username} guilty, ${game.guiltyVote.length} to ${game.innocentVote.length}`)
           .setColor('#ffff00')
           .addField("Those who voted guilty:", convertToString(guiltyList))
           .addField("Those who voted innocent:", convertToString(innocentList))
@@ -131,7 +132,7 @@ export function ProcessTrial(game: Game) {
       CycleNight(game);
   } else {
       const embed = new Discord.RichEmbed()
-          .setTitle(`The Town has voted ${game.suspect!.user.username} innocent, ${game.innocentVote.length} to ${game.guiltyVote.length}`)
+          .setTitle(`The Town has voted ${game.suspect.user.username} innocent, ${game.innocentVote.length} to ${game.guiltyVote.length}`)
           .setColor('#ffff00')
           .addField("Those who voted guilty:", convertToString(guiltyList))
           .addField("Those who voted innocent:", convertToString(innocentList))
