@@ -34,13 +34,14 @@ export default class Player extends _Player {
         this.view = View;
     }
 
-    action({agent, receiver}: Action) {;
-        if (!agent.input) return console.error("Sheriff has no input channel");
-        if (agent.blocked.length !== 0) return agent.input.send("Someone occupied your night. You were role blocked!")
-        if (receiver.view.alignment === Alignment.Mafia || receiver.view.name === "Serial Killer") { //TODO: add exception to Godfather after role added
-            agent.input.send('Your target is suspicious.');
+    action() {
+        if (!this.target) return;
+        if (!this.input) return console.error("Sheriff has no input channel");
+        if (this.blocked.length !== 0) return this.input.send("Someone occupied your night. You were role blocked!")
+        if (this.target.view.alignment === Alignment.Mafia || this.target.view.name === "Serial Killer") { //TODO: add exception to Godfather after role added
+            this.input.send('Your target is suspicious.');
         } else {
-            agent.input.send('You cannot find evidence of wrongdoing. Your target seems innocent.')
+            this.input.send('You cannot find evidence of wrongdoing. Your target seems innocent.')
         }
     }
 }

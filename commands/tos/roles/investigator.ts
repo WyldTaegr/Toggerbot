@@ -34,33 +34,34 @@ export default class Player extends _Player {
         this.view = View;
     }
 
-    action({agent, receiver}: Action) {
-        if (agent.blocked.length !== 0) return agent.input!.send("Someone occupied your night. You were role blocked!")
-        receiver.visited.push(agent)
-        const role = receiver.name;
-        if (!agent.input) return console.error("Investigator has no input channel");
+    action() {
+        if (!this.target) return;
+        if (this.blocked.length !== 0) return this.input!.send("Someone occupied your night. You were role blocked!")
+        this.target.visited.push(this)
+        const role = this.target.name;
+        if (!this.input) return console.error("Investigator has no input channel");
         if (role === 'vigilante' || role === 'veteran' || role === 'mafioso') {
-            agent.input.send("Your target could be a `Vigilante`, `Veteran`, or `Mafioso`.");
+            this.input.send("Your target could be a `Vigilante`, `Veteran`, or `Mafioso`.");
         } else if (role === 'medium' || role === 'janitor' || role === 'retributionist') {
-            agent.input.send('Your target could be a `Medium`, `Janitor`, or `Retributionist`.');
+            this.input.send('Your target could be a `Medium`, `Janitor`, or `Retributionist`.');
         } else if (role === 'survivor' || role === 'vampire hunter' || role === 'amnesiac') {
-            agent.input.send('Your target could be a `Survivor`, `Vampire Hunter`, or `Amnesiac`.');
+            this.input.send('Your target could be a `Survivor`, `Vampire Hunter`, or `Amnesiac`.');
         } else if (role === 'spy' || role === 'blackmailer' || role === 'jailor') {
-            agent.input.send('Your target could be a `Spy`, `Blackmailer`, or `Jailor`.');
+            this.input.send('Your target could be a `Spy`, `Blackmailer`, or `Jailor`.');
         } else if (role === 'sheriff' || role === 'executioner' || role === 'werewolf') {
-            agent.input.send('Your target could be a `Sheriff`, `Executioner`, or `Werewolf`.');
+            this.input.send('Your target could be a `Sheriff`, `Executioner`, or `Werewolf`.');
         } else if (role === 'framer' || role === 'vampire' || role === 'jester') {
-            agent.input.send('Your target could be a `Framer`, `Vampire`, or `Jester`.');
+            this.input.send('Your target could be a `Framer`, `Vampire`, or `Jester`.');
         } else if (role === 'lookout' || role === 'forger' || role === 'witch') {
-            agent.input.send('Your target could be a `Lookout`, `Forger`, or `Witch`.');
+            this.input.send('Your target could be a `Lookout`, `Forger`, or `Witch`.');
         } else if (role === 'escort' || role === 'transporter' || role === 'consort') {
-            agent.input.send('Your target could be an `Escort`, `Transporter`, or `Consort`.');
-        } else if (role === 'doctor' || role === 'disguiser' || role === 'serial killer') {
-            agent.input.send('Your target could be a `Doctor`, `Disguiser`, or `Serial Killer`.');
+            this.input.send('Your target could be an `Escort`, `Transporter`, or `Consort`.');
+        } else if (role === 'doctor' || role === 'disguiser' || role === 'serial') {
+            this.input.send('Your target could be a `Doctor`, `Disguiser`, or `Serial Killer`.');
         } else if (role === 'investigator' || role === 'consigliere' || role === 'mayor') {
-            agent.input.send('Your target could be an `Investigator`, `Consigliere`, or `Mayor`.');
+            this.input.send('Your target could be an `Investigator`, `Consigliere`, or `Mayor`.');
         } else if (role === 'bodyguard' || role === 'godfather' || role === 'arsonist') {
-            agent.input.send('Your target could be a `Bodyguard`, `Godfather`, or `Arsonist`.');
+            this.input.send('Your target could be a `Bodyguard`, `Godfather`, or `Arsonist`.');
         } else console.log(`Error with Investigator action; Role given: ${role}`)
     }
 }

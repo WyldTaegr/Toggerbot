@@ -1,5 +1,6 @@
 import Discord from 'discord.js';
 import { Selection, _View, _Player, Action, Alignment, Category, Color, Attack, Defense } from '../src/player';
+import { Game } from '../src/game';
 
 const image = new Discord.Attachment('images/tos/jailor.png', 'jailor.png')
 
@@ -34,7 +35,7 @@ export default class Player extends _Player {
         this.view = View;
     }
 
-    action(action: Action) {
+    action(game: Game) {
 
     }
 }

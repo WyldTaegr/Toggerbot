@@ -120,6 +120,8 @@ module.exports = new Command({
         const startGame = setInterval(() => {
             if (game.assignments.size < game.players.length) return;
             if (!game.chat) return console.error('tos!start: game.chat is not defined');
+            game.actions = game.players.map(member => game.assignments.get(member)!).sort((a, b) => a.priority - b.priority)
+            game.actions.forEach(player => { if (player.name === "lookout") game.actions.push(player)});
             game.chat.bulkDelete(game.chat.messages.size);
             clearInterval(startGame)
             createChannels(game);

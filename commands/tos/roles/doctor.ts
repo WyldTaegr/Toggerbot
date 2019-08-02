@@ -35,13 +35,14 @@ export default class Player extends _Player {
         this.view = View;
     }
 
-    action({agent, receiver}: Action) {
-        if (!agent.input) return console.error("Doctor: agent.input is not defined");
-        if (agent.blocked.length !== 0) return agent.input.send("Someone occupied your night. You were role blocked!");
-        if (agent === receiver) {
+    action() {
+        if (!this.target) return;
+        if (!this.input) return console.error("Doctor: this.input is not defined");
+        if (this.blocked.length !== 0) return this.input.send("Someone occupied your night. You were role blocked!");
+        if (this === this.target) {
             this.useLimit--;
             this.selection = Selection.others;
         }
-        receiver.healed.push(agent);
+        this.target.healed.push(this);
     }
 }

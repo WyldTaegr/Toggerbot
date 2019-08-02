@@ -34,8 +34,9 @@ export default class Player extends _Player {
         this.view = View;
     }
 
-    action({agent, receiver}: Action) {
-        if (agent.blocked.length !== 0) agent.input!.send("Someone tried to role block you but you're immune!");
-        receiver.blocked.push(agent);
+    action() {
+        if (!this.target) return;
+        if (this.blocked.length !== 0) this.input!.send("Someone tried to role block you but you're immune!");
+        this.target.blocked.push(this);
     }
 }

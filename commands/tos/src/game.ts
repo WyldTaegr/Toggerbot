@@ -81,7 +81,7 @@ export class Game {
     setup: Discord.Message | null; //the Discord message used in setup
     assignments: Discord.Collection<Discord.GuildMember, _Player>
     _stage: Stage; //Getters and setters have been applied
-    actions: [ Action[], Action[], Action[], Action[], Action[]];
+    actions: _Player[];
     counter: number;
     category: Discord.CategoryChannel | null;
     chat: Discord.TextChannel | null;
@@ -104,7 +104,7 @@ export class Game {
         this.setup = null;
         this.assignments = new Discord.Collection(); //Maps players (As GuildMembers) with their roles (As role.object), assigned after start
         this._stage = Stage.Ended; //Either 'Setup', 'Night', 'Processing' 'Day', 'Trial', or 'Ended'
-        this.actions = [[], [], [], [], []]; //Array of arrays, organizes actions by priority number; [role of action-caller as role.object.name, caller as GuildMember, target as GuildMember]
+        this.actions = []; //Array of arrays, organizes actions by priority number; [role of action-caller as role.object.name, caller as GuildMember, target as GuildMember]
         this.counter = 0; //Counts the number of Nights/Days that have gone by
         this.category = null;
         this.chat = null;
@@ -155,7 +155,7 @@ export class Game {
         this.setup = null;
         this.assignments = new Discord.Collection();
         this._stage = Stage.Ended;
-        this.actions = [[], [], [], [], []];
+        this.actions = [];
         this.counter = 0;
         this.category = null;
         this.chat = null;

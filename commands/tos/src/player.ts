@@ -86,7 +86,7 @@ export abstract class _Player {
   visited: _Player[];
   blocked: _Player[];
   healed: _Player[]; // Checks if doctor healed
-  target: Discord.GuildMember | null;
+  target: _Player | null;
   votes: number;
   vote: _Player | null;
   deathNote?: string; //Roles with a kill action have death notes
@@ -101,7 +101,7 @@ export abstract class _Player {
   abstract useLimit?: number; //Some actions have limited uses on certain roles
   abstract unique: boolean; //Some roles must only appear once per game
   abstract view: _View;
-  abstract action(action: Action): void;
+  abstract action(game?: Game): void;
   
   constructor(user: Discord.User, index: number) {
     this.user = user;
