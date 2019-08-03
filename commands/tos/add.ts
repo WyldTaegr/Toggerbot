@@ -28,10 +28,6 @@ module.exports = new Command({
             message.delete();
             setTimeout(() => (notification as Discord.Message).delete(), 3000)
         })
-        if (game.players.length <= game.roles.length) {
-            const notification: Discord.Message = await message.channel.send('Note: there are more roles than there are players! Upon starting, roles will randomly be chosen from the role pool.') as Discord.Message;
-            setTimeout(() => notification.delete(), 3000);
-        }
         
         message.delete();
 
@@ -49,6 +45,11 @@ module.exports = new Command({
         if (new Player().unique && game.roles.includes(role)) {
             const notification: Discord.Message = await message.reply(`A ${role} is already in the game, and cannot be added again!`) as Discord.Message;
             return setTimeout(() => notification.delete(), 3000);
+        }
+
+        if (game.players.length <= game.roles.length) {
+            const notification: Discord.Message = await message.channel.send('Note: there are more roles than there are players! Upon starting, roles will randomly be chosen from the role pool.') as Discord.Message;
+            setTimeout(() => notification.delete(), 3000);
         }
 
         game.roles.push(role);

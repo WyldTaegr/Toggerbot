@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { Selection, _View, _Player, Action, Alignment, Category, Color, Attack, Defense } from '../src/player';
+import { Selection, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 import { Game } from '../src/game';
 
 const image = new Discord.Attachment('images/tos/lookout.png', 'lookout.png')

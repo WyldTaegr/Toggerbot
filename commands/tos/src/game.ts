@@ -1,6 +1,6 @@
 import Discord from "discord.js"
 import { isUndefined } from '../../../utils';
-import { _Player, Action, _View, Alignment } from './player';
+import { _Player, _View, Alignment } from './player';
 import { GameClient } from "../../..";
 import { ProcessNight, CycleNight } from "./Night";
 import { CycleTrial } from "./Trial";
@@ -191,13 +191,18 @@ export class Game {
     get stage() { return this._stage };
     set stage(stage: Stage) {
         this._stage = stage;
+        const jailor = this.actions.find(player => player.name === "jailor")
         if (stage === Stage.Night) { //No talking in chat, mafia can talk
             this.mafiaMembers.forEach(member => this.mafia!.overwritePermissions(member, {"SEND_MESSAGES": true}));
             this.chat!.overwritePermissions(this.role!, {"SEND_MESSAGES": false})
+            //Jailor's day action
+            if (jailor) jailor.action(this);
         } else { //Day - Mafia can no longer talk, talk in chat can start after death announcements
             this.mafiaMembers.forEach(member => this.mafia!.overwritePermissions(member, {"SEND_MESSAGES": false}));
             if (stage === Stage.Discussion) {
                 this.chat!.overwritePermissions(this.role!, {"SEND_MESSAGES": true});
+                //Jailor's day selection
+                if (jailor) jailor.action(this);
             }
         }
         if (stage === Stage.Voting || stage === Stage.Night || (stage === Stage.Discussion && this.counter > 1)) this.updateStatus();

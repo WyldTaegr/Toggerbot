@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { Selection, _View, _Player, Action, Alignment, Category, Color, Attack, Defense } from '../src/player'
+import { Selection, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player'
 
 const image = new Discord.Attachment('images/tos/sheriff.png', 'sheriff.png')
 
@@ -39,6 +39,7 @@ export default class Player extends _Player {
         if (!this.target) return;
         if (!this.input) return console.error("Sheriff has no input channel");
         if (this.blocked.length !== 0) return this.input.send("Someone occupied your night. You were role blocked!")
+        if (this.target.jailed) return this.input.send("Your target was jailed last night!");
         if (this.target.view.alignment === Alignment.Mafia || this.target.view.name === "Serial Killer") { //TODO: add exception to Godfather after role added
             this.input.send('Your target is suspicious.');
         } else {

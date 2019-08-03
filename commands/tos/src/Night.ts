@@ -26,26 +26,24 @@ export async function CycleNight(game: Game) {
                 .setTimestamp()
             return player.input!.send(embed)
         }
+        if (player.name === "jailor") return;
+        if (player.jailed) return;
         
         const buttons: Object[] = [];
 
-        const playerList = game.alive;
-
         let playerSelection = '';
 
-        playerList.forEach((member) => {
+        game.alive.forEach((member) => {
             const receiver = game.assignments.get(member);
                 if (isUndefined(receiver)) return console.error("CycleNight: GuildMember without Player assignment [2]");
-            playerSelection = playerSelection.concat(receiver.emoji, ' - ');
-
-            playerSelection = playerSelection.concat(`<@${member.user.id}> \n`);
-            if ((player.selection === Selection.all || player.selection === Selection.others && game.assignments.get(member) !== player) || (player.selection === Selection.self && game.assignments.get(member) === player)) buttons.push({
+            playerSelection = playerSelection.concat(receiver.emoji, ` - <@${member.user.id}>\n`);
+            if (player.selection === Selection.all || (player.selection === Selection.others && receiver !== player) || (player.selection === Selection.self && receiver === player)) buttons.push({
                 emoji: receiver.emoji,
-                run: async (user: Discord.User, message: Discord.Message) => {
+                run: async () => {
                     if (isUndefined(player.input)) return console.error("CycleNight: Player.input is not defined");
                     if ((player.selection === Selection.others && player === receiver) ||
                         player.selection === Selection.self && player !== receiver) return console.error(`CycleNight: ${player.user.username} targeted ${member.user.username} when they should not have been able to.`);
-                    player.setTarget(receiver); //Used to keep track of whether the person has already selected a target
+                    player.setTarget(receiver);
                 }
             })
         })
@@ -99,6 +97,7 @@ export async function ProcessNight(game: Game) {
         game.chat.startTyping();
         let process = 0;
         game.actions.forEach((player, index, array) => {
+            client.handler.removeMenu(player.activeMenuId);
             if (player.alive) player.action(game);
             if (index + 1 === array.length) process++;
         })
@@ -110,6 +109,7 @@ export async function ProcessNight(game: Game) {
                     player.visited = [];
                     player.blocked = [];
                     player.healed = [];
+                    player.jailed = false;
                     player.target = null;
                     if (index + 1 === array.length) process++;
                 })}

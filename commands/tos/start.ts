@@ -71,7 +71,15 @@ async function createChannels(game: Game) {
     game.mafia = await client.guild.createChannel('Mafia', {type: 'text', permissionOverwrites: mafiaOptions}) as Discord.TextChannel;
         game.mafia.setParent(game.category)
     game.jail = await client.guild.createChannel('Jail', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
-        game.jail.setParent(game.category)
+        game.jail.setParent(game.category);
+        const jailor = game.assignments.find(player => player.name === "jailor");
+        if (jailor) {
+            if (!jailor.input) return console.error("CreateChannels: Jailor.input is undefined");
+            const jail = game.jail.createMessageCollector((arg) => arg.author !== client.user);
+            jail.on("collect", (message: Discord.Message) => jailor.input!.send(`<@${message.author.id}>: ${message.content}`))
+            const collector = jailor.input.createMessageCollector((arg) => arg.author !== client.user);
+            collector.on("collect", (message: Discord.Message) => game.jail!.send(`**Jailor**: ${message.content}`));
+        }
     game.graveyard = await client.guild.createChannel('Graveyard', {type: 'text', permissionOverwrites: [ { id: game.role.id, deny: ['VIEW_CHANNEL'] } ]}) as Discord.TextChannel;
         game.graveyard.setParent(game.category)
 }
@@ -121,7 +129,10 @@ module.exports = new Command({
             if (game.assignments.size < game.players.length) return;
             if (!game.chat) return console.error('tos!start: game.chat is not defined');
             game.actions = game.players.map(member => game.assignments.get(member)!).sort((a, b) => a.priority - b.priority)
-            game.actions.forEach(player => { if (player.name === "lookout") game.actions.push(player)});
+            //Exceptions - some roles need to perform their ability at specific times separate from priority
+            game.actions.forEach(player => { 
+                if (player.name === "lookout") game.actions.push(player);
+            });
             game.chat.bulkDelete(game.chat.messages.size);
             clearInterval(startGame)
             createChannels(game);

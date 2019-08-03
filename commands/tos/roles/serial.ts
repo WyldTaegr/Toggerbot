@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { Selection, _View, _Player, Action, Color, Alignment, Category, Attack, Defense } from '../src/player';
+import { Selection, _View, _Player, Color, Alignment, Category, Attack, Defense } from '../src/player';
 import { Game } from '../src/game';
 
 const image = new Discord.Attachment('images/tos/serial-killer.png', 'serial-killer.png')
@@ -45,13 +45,15 @@ export default class Player extends _Player {
             this.input.send("Someone role blocked you, so you attacked them!");
             this.blocked.forEach(blocker => {
                 if (!blocker.alive) return; //Role-blocker has already died to other causes, won't actually visit the Serial Killer
-                blocker.kill(game)
-                blocker.input!.send('You were murdered by the Serial Killer you visited!');
-                game.deaths.set(blocker, {
-                    killers: 1,
-                    cause: 'They were stabbed by a Serial Killer',
-                    deathNotes: this.deathNote ? [this.deathNote] : []
-                })
+                blocker.kill(
+                    game,
+                    'You were murdered by the Serial Killer you visited!',
+                    {
+                        killers: 1,
+                        cause: 'They were stabbed by a Serial Killer',
+                        deathNotes: this.deathNote ? [this.deathNote] : []
+                    }
+                )
             })
         } else {
             this.target.visited.push(this);
@@ -69,13 +71,19 @@ export default class Player extends _Player {
                 for (const healer of this.target.healed) {
                     if (healer.name === "doctor") this.target.input!.send("You were attacked but someone nursed you back to health!");
                 }
+            } else if (this.target.jailed) {
+                this.input.send("Your target was jailed last night!");
             } else { //Serial Killer successfully attacked their target
-                this.target.kill(game);
-                game.deaths.set(this.target, {
-                    killers: 1,
-                    cause: "They were stabbed by a Serial Killer.",
-                    deathNotes: this.deathNote ? [this.deathNote] : []
-            })}
+                this.target.kill(
+                    game,
+                    "You were stabbed by a Serial Killer!",
+                    {
+                        killers: 1,
+                        cause: "They were stabbed by a Serial Killer.",
+                        deathNotes: this.deathNote ? [this.deathNote] : []
+                    }
+                );
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
+import { Selection, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 import Discord from 'discord.js';
 
 const image = new Discord.Attachment('images/tos/escort.png', 'escort.png')
@@ -38,7 +38,10 @@ export default class Player extends _Player {
 
     action() {
         if (!this.target) return;
+        if (!this.input) return console.error("Escort.action: player.input is undefined");
         if (this.blocked.length !== 0) this.input!.send("Someone tried to role block you but you're immune!");
+        this.target.visited.push(this);
+        if (this.target.jailed) return this.input.send("Your target was jailed last night!");
         this.target.blocked.push(this);
     }
 }

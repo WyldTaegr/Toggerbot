@@ -1,18 +1,12 @@
 import Discord from "discord.js";
 import { emojis } from "../../../utils";
-import { Game } from "./game";
+import { Game, death } from "./game";
 import { GameClient } from "../../..";
 
 export enum Selection {
   all,
   others,
   self
-}
-
-export interface Action {
-  agent: _Player;
-  receiver: _Player;
-  game: Game;
 }
 
 export enum Color {
@@ -83,12 +77,13 @@ export abstract class _Player {
   emoji: string; //Used in reaction menus
   alive: boolean;
   will: string;
-  visited: _Player[];
-  blocked: _Player[];
+  visited: _Player[]; //Array of players as role.objects who visit that night
+  blocked: _Player[]; //Checks if role-blocked
   healed: _Player[]; // Checks if doctor healed
-  target: _Player | null;
-  votes: number;
-  vote: _Player | null;
+  jailed: boolean;
+  target: _Player | null; //targeted player for nighttime action
+  votes: number;  //Number of votes against the player during Voting, abstain if true during Judgement
+  vote: _Player | null; //This player's vote during Voting
   deathNote?: string; //Roles with a kill action have death notes
   input?: Discord.TextChannel; //The channel in which a player can make their actions
   activeMenuId?: string;
@@ -109,22 +104,34 @@ export abstract class _Player {
     this.emoji = emojis[index];
     this.alive = true;
     this.will = "";
-    this.visited = []; //Array of players as role.objects who visit that night
-    this.blocked = []; //Checks if role-blocked
+    this.visited = [];
+    this.blocked = [];
     this.healed = [];
-    this.target = null; //GuildMember: targeted player for nighttime action
-    this.votes = 0; //Number of votes against the player for Trial
-    this.vote = null; //This player's vote
+    this.jailed = false;
+    this.target = null;
+    this.votes = 0;
+    this.vote = null;
   }
 
-  async setTarget(player: _Player | null) {
-    this.target = player
-    if (!player) return;
-    this.input!.send(this.targetMessage(player));
+  async setTarget(player: _Player) {
+    if (!player) return console.error("Player.setTarget: player is not defined");
+    if (!this.input) return console.error("Player.setTarget: player.input is not defined");
+    if (player === this.target) {
+      this.target = null;
+      this.input.send("You have changed your mind.");
+    } else {
+      this.target = player
+      this.input.send(this.targetMessage(player));
+    }
   }
 
-  async kill(game: Game) {
+  async kill(game: Game, notification: string, death: death) {
     this.alive = false;
+    const embed = new Discord.RichEmbed()
+      .setTitle(notification)
+      .setColor('#ff0000')
+    this.input!.send(embed);
+    game.deaths.set(this, death);
     const client: GameClient = require('../../../index');
     const member = await client.guild!.fetchMember(this.user)
     game.chat!.overwritePermissions(member, {"SEND_MESSAGES": false, "ADD_REACTIONS": false})

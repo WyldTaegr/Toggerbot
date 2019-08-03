@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { Selection, Action, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
+import { Selection, _View, _Player, Alignment, Category, Color, Attack, Defense } from '../src/player';
 
 const image = new Discord.Attachment('images/tos/doctor.png', 'doctor.png')
 
@@ -42,7 +42,9 @@ export default class Player extends _Player {
     action() {
         if (!this.target) return;
         if (!this.input) return console.error("Doctor: this.input is not defined");
+        this.visited.push(this)
         if (this.blocked.length !== 0) return this.input.send("Someone occupied your night. You were role blocked!");
+        if (this.target.jailed) return this.input.send("Your target was jailed last night!");
         if (this === this.target) {
             this.useLimit--;
             this.selection = Selection.others;

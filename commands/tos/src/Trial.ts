@@ -99,7 +99,7 @@ export function CycleTrial(game: Game) {
     ]
     const message = new Menu(trial, buttons);
     //@ts-ignore
-    game.chat.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote));
+    game.chat.sendMenu(message).then(message => game.activeMenuIds.set(ActiveMenu.Vote, message.id));
 }
 
 export function ProcessTrial(game: Game) {
@@ -118,7 +118,6 @@ export function ProcessTrial(game: Game) {
   }
   if (isNull(game.suspect)) return console.error("ProcessTrial: game.suspect is null");
   if (game.guiltyVote.length > game.innocentVote.length) {
-      game.suspect.kill(game);
       const embed = new Discord.RichEmbed()
           .setTitle(`The Town has voted ${game.suspect.user.username} guilty, ${game.guiltyVote.length} to ${game.innocentVote.length}`)
           .setColor('#ffff00')
@@ -127,9 +126,7 @@ export function ProcessTrial(game: Game) {
           .addField("Those who abstained:", convertToString(abstainedList));
       game.chat!.send(embed);
       game.resetVotes();
-      //FINISH guilty death announcement
-      game.suspect = null;
-      CycleNight(game);
+      guilty(game);
   } else {
       const embed = new Discord.RichEmbed()
           .setTitle(`The Town has voted ${game.suspect.user.username} innocent, ${game.innocentVote.length} to ${game.guiltyVote.length}`)
@@ -142,4 +139,7 @@ export function ProcessTrial(game: Game) {
       game.resetVotes();
       CycleVoting(game);
   }
+}
+function guilty(game: Game) { //FINISH THIS
+
 }
