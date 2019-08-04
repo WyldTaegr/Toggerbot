@@ -82,8 +82,9 @@ export abstract class _Player {
   healed: _Player[]; // Checks if doctor healed
   jailed: boolean;
   target: _Player | null; //targeted player for nighttime action
-  votes: number;  //Number of votes against the player during Voting, abstain if true during Judgement
+  votes: number;  //Number of votes against the player during Voting,
   vote: _Player | null; //This player's vote during Voting
+  abstain: boolean; //Whether the player is abstaining during Judgement
   deathNote?: string; //Roles with a kill action have death notes
   input?: Discord.TextChannel; //The channel in which a player can make their actions
   activeMenuId?: string;
@@ -111,6 +112,7 @@ export abstract class _Player {
     this.target = null;
     this.votes = 0;
     this.vote = null;
+    this.abstain = true;
   }
 
   async setTarget(player: _Player) {
@@ -135,7 +137,7 @@ export abstract class _Player {
     const client: GameClient = require('../../../index');
     const member = await client.guild!.fetchMember(this.user)
     game.chat!.overwritePermissions(member, {"SEND_MESSAGES": false, "ADD_REACTIONS": false})
-    game.mafia!.overwritePermissions(member, {"SEND_MESSAGES": false})
+    game.mafia!.overwritePermissions(member, {"SEND_MESSAGES": false, "ADD_REACTIONS": false})
     game.graveyard!.overwritePermissions(member, {"VIEW_CHANNEL": true, "READ_MESSAGE_HISTORY": true, "SEND_MESSAGES": true});
   }
 }

@@ -102,8 +102,7 @@ export async function initializeGame(message: Discord.Message, game: Game) {
 
     const gameLink = new Discord.RichEmbed()
             .setTitle('**Town of Salem has started!**')
-            .setDescription(`This game is run by: ${game.moderator!.username}
-                             Join the game by reacting below!`)
+            .setDescription(`This game is run by: ${game.moderator!.username}\nJoin the game by reacting below!`)
             .setColor('#ffff00')
             .attachFile(logo)
             .setThumbnail('attachment://logo.png')

@@ -2,8 +2,8 @@ import Discord from "discord.js"
 import { isUndefined } from '../../../utils';
 import { _Player, _View, Alignment } from './player';
 import { GameClient } from "../../..";
-import { ProcessNight, CycleNight } from "./Night";
-import { CycleTrial } from "./Trial";
+import { CycleNight } from "./Night";
+import { CycleDefense } from "./Trial";
 import Doctor from '../roles/doctor';
 import Escort from '../roles/escort';
 import Investigator from '../roles/investigator';
@@ -11,6 +11,7 @@ import Jailor from '../roles/jailor';
 import Lookout from '../roles/lookout';
 import SerialKiller from '../roles/serial';
 import Sheriff from '../roles/sheriff';
+import { CycleVoting, CycleDiscussion } from "./Day";
 
 const logo = new Discord.Attachment('images/tos/logo.png', "logo.png");
 const night = new Discord.Attachment('images/tos/night.png', 'night.png');
@@ -24,6 +25,15 @@ export enum RoleName {
     Lookout = "Lookout",
     SerialKiller = "Serial Killer",
     Sheriff = "Sheriff",
+}
+
+export function findRole(role: string) { //Returns a RoleName that starts with the given string
+    function enumKeys<E>(e: E): (keyof E)[] {
+        return Object.keys(e) as (keyof E)[];
+    }
+    for (const key of enumKeys(RoleName)) {
+        if (key.toLowerCase().startsWith(role)) return RoleName[key];
+    }
 }
 
 export const Roles: Discord.Collection<RoleName, typeof _Player> = new Discord.Collection([
@@ -46,12 +56,13 @@ export enum ActiveMenu {
 export enum Stage {
     Setup = "Setup",
     Night = "Night",
-    Processing = "Processing",
     Deaths = "Deaths",
     Discussion = "Discussion",
     Voting = "Voting",
-    Trial = "Trial",
+    Defense = "Defense",
+    Judgement = "Judgement",
     Ended = "Ended",
+    Lynch = "Lynch",
 }
 
 export function roleEmbed(role: _View) {
@@ -88,12 +99,12 @@ export class Game {
     infoChannel: Discord.TextChannel | null;
     infoMessage: Discord.Message | null;
     mafia: Discord.TextChannel | null;
-    jail: Discord.TextChannel | null;
     graveyard: Discord.TextChannel | null;
     origin: Discord.TextChannel | null;
     activeMenuIds: Discord.Collection<ActiveMenu, string>;
     guiltyVote: _Player[];
     innocentVote: _Player[];
+    trials: number;
     suspect: _Player | null;
     deaths: Discord.Collection<_Player, death>
     constructor() {
@@ -111,12 +122,12 @@ export class Game {
         this.infoChannel = null;
         this.infoMessage = null;
         this.mafia = null;
-        this.jail = null;
         this.graveyard = null;
         this.origin = null; //Channel where the game was started, where the endcard will go upon game finish
         this.activeMenuIds = new Discord.Collection();
         this.guiltyVote = [];
         this.innocentVote = [];
+        this.trials = 3; //The town can only have 3 trials per day
         this.suspect = null; //The person being tried in a trial
         this.deaths = new Discord.Collection(); //The deaths that had occurred recently
     }
@@ -141,7 +152,6 @@ export class Game {
         this.chat && this.chat.delete();
         this.infoChannel && this.infoChannel.delete();
         this.mafia && this.mafia.delete();
-        this.jail && this.jail.delete();
         this.graveyard && this.graveyard.delete();
 
         //Report result of the game
@@ -162,12 +172,12 @@ export class Game {
         this.infoChannel = null;
         this.infoMessage = null;
         this.mafia = null;
-        this.jail = null;
         this.graveyard = null;
         this.origin = null;
         this.activeMenuIds = new Discord.Collection();
         this.guiltyVote = [];
         this.innocentVote = [];
+        this.trials = 3;
         this.suspect = null;
         this.deaths = new Discord.Collection()
     }
@@ -220,6 +230,7 @@ export class Game {
         this.assignments.forEach(player => {
             player.votes = 0;
             player.vote = null;
+            player.abstain = true;
         })
         this.guiltyVote = [];
         this.innocentVote = [];
@@ -271,9 +282,10 @@ export class Game {
     }
 
     route() {
+        if (!this.chat) return console.error("Game.route: game.chat is null");
         switch (this.stage) {
             case Stage.Night:
-                ProcessNight(this);
+                CycleDiscussion(this);
                 break;
             case Stage.Voting:
                 const client: GameClient = require("../../../index.ts");
@@ -284,11 +296,25 @@ export class Game {
                 
                 this.resetVotes();
                 if (!this.suspect) {
+                    this.chat.send("It is too late now to continue voting.");
                     setTimeout(() => CycleNight(this), 3000);
                 } else {
-                    CycleTrial(this);
+                    CycleDefense(this);
                 }
                 break;
+            case Stage.Judgement:
+                if (this.trials === 0) {
+                    this.chat.send("It is too late now to continue voting.");
+                    setTimeout(() => CycleNight(this), 3000);
+                }
+                else CycleVoting(this);
+                break;
+            case Stage.Lynch:
+                this.chat.send("It is too late now to continue voting.")
+                setTimeout(() => CycleNight(this), 6000);
+                break;
+            default: 
+                console.error(`Game.route: received stage ${this.stage} with no case.`);
         }
     }
 }

@@ -4,8 +4,8 @@ import { isNull } from "../../../utils";
 import { isUndefined, emojis as _emojis } from "../../../utils";
 //@ts-ignore
 import { Menu } from 'reaction-core';
-import { CycleDeaths } from "./Day";
 import { _Player, Selection } from "./player";
+import { CycleDeaths } from "./Day";
 
 const night = new Discord.Attachment('images/tos/night.png')
 
@@ -81,17 +81,16 @@ export async function CycleNight(game: Game) {
         message.edit(nightEmbed())
         if (counter === 0) {
             clearInterval(countdown);
-            game.route()
+            ProcessNight(game)
         } else counter -= 5;
     }, 5000);
 }
 
-export async function ProcessNight(game: Game) {
+async function ProcessNight(game: Game) {
     const client = require('../../../index.ts')
 
     if (isNull(game.chat)) return;
 
-    game.stage = Stage.Processing;
         client.handler.removeMenu(game.activeMenuIds.get(ActiveMenu.Night));
         const message = await game.chat.send('Processing the night...') as Discord.Message;
         game.chat.startTyping();

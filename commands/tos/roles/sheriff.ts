@@ -36,8 +36,8 @@ export default class Player extends _Player {
     targetMessage(target: _Player) { return `You have decided to interrogate <@${target.user.id}> tonight.` };
 
     action() {
-        if (!this.target) return;
         if (!this.input) return console.error("Sheriff has no input channel");
+        if (!this.target) return this.input.send("You did not perform your night ability.");
         if (this.blocked.length !== 0) return this.input.send("Someone occupied your night. You were role blocked!")
         if (this.target.jailed) return this.input.send("Your target was jailed last night!");
         if (this.target.view.alignment === Alignment.Mafia || this.target.view.name === "Serial Killer") { //TODO: add exception to Godfather after role added

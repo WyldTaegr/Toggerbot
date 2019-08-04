@@ -28,6 +28,8 @@ export default class Player extends _Player {
     unique: boolean;
     view: _View;
     execute: boolean; //Whether the Jailor will execute his prisoner
+    initial: boolean; //to differentiate between the two points when the Jailor's night action is called
+    collectors: Discord.MessageCollector[]; //Collectors to establish connection between jailor and jailee
     constructor(user: Discord.User, index: number) {
         super(user, index);
         this.name = 'jailor'; //Note: used as identifier in code --> keep lowercase
@@ -39,6 +41,8 @@ export default class Player extends _Player {
         this.unique = true;
         this.view = View;
         this.execute = false;
+        this.initial = true;
+        this.collectors = [];
     }
 
     targetMessage(target: _Player) { return `You have decided to jail <@${target.user.id}> tonight.` };
@@ -77,20 +81,25 @@ export default class Player extends _Player {
             client.handler.addMenus(message);
             //@ts-ignore
             this.input.sendMenu(message).then(message => this.activeMenuId = message.id);
-        } else if (game.stage === Stage.Night) {
+        } else if (game.stage === Stage.Night && this.initial) {
             client.handler.removeMenu(this.activeMenuId);
-            if (!this.target) return;
+            this.initial = false;
+            if (!this.target) return this.input!.send("You did not perform your day ability.");
             this.target.jailed = true;
-            game.jail!.overwritePermissions(this.target.user, { "VIEW_CHANNEL": true, "READ_MESSAGES": true, "SEND_MESSAGES": true})
+
+            const jailor = this.input!.createMessageCollector((arg) => arg.author !== client.user);
+            jailor.on("collect", (message: Discord.Message) => this.target!.input!.send(`**Jailor**: ${message.content}`));
+            const jailee = this.target.input!.createMessageCollector((arg) => arg.author !== client.user);
+            jailee.on("collect", (message: Discord.Message) => this.input!.send(`${this.target!.user}: ${message.content}`));
+            this.collectors = [jailor, jailee];
             this.target.input!.send("You have been hauled off to jail!")
             const buttons = [
                 {
                     emoji: '❎',
                     run: (user: Discord.User, message: Discord.Message) => {
-                        if (!game.jail) return console.error("Jailor.action: game.jail is null [1]");
                         if (!this.input) return console.error("Jailor.action: player.input is not defined [2]");
                         if (this.execute) {
-                            game.jail.send("The jailor has changed their mind.")
+                            this.target!.input!.send("The jailor has changed their mind.")
                             this.input.send("You have changed your mind.")
                         }                    
                         this.execute = false;
@@ -99,11 +108,10 @@ export default class Player extends _Player {
                 {
                     emoji: '💀',
                     run: (user: Discord.User, message: Discord.Message) => {
-                        if (!game.jail) return console.error("Jailor.action: game.jail is null [2]");
                         if (!this.input) return console.error("Jailor.action: player.input is not defined [3]");
                         if (!this.useLimit) return this.input.send("You have no executions remaining.");
                         if (!this.execute) {
-                            game.jail.send("The jailor has decided to execute you.");
+                            this.target!.input!.send("The jailor has decided to execute you.");
                             this.input.send(`You have decided to execute your prisoner.\nYou have ${this.useLimit} execution${this.useLimit === 1 ? "" : "s"} remaining.`);
                         }
                         this.execute = true;
@@ -115,15 +123,17 @@ export default class Player extends _Player {
                 .attachFile(image)
                 .setThumbnail('attachment://jailor.png')
                 .setColor('#ff0000')
-                .addField("Are they good or evil??", "❎ - Good\n☠️ - Evil")
+                .addField("Are they good or evil??", "❎ - Good\n💀 - Evil")
                 .setFooter(this.useLimit ? `You have ${this.useLimit} executions remaining` : 'You have no executions remaining')
             const message = new Menu(embed, buttons);
             client.handler.addMenus(message);
             //@ts-ignore
             this.input.sendMenu(message).then(message => this.activeMenuId = message.id)
-        } else if (game.stage === Stage.Processing) {
+        } else {
+            this.initial = true;
             if (!this.target) return;
-            game.jail!.overwritePermissions(this.target.user, { "VIEW_CHANNEL": false})
+            this.collectors.forEach(collector => collector.stop());
+            this.collectors = [];
             if (this.execute) {
                 this.useLimit--;
                 this.target.kill(
@@ -136,6 +146,10 @@ export default class Player extends _Player {
                     }
                 );
             } else if (this.target.name === "serial") {
+                if (this.healed.length > 0) {
+
+                }
+                this.target.input!.send("You attacked your jailor!");
                 this.kill(
                     game,
                     "You were stabbed by the Serial Killer you jailed!",
@@ -146,6 +160,6 @@ export default class Player extends _Player {
                     }
                 )
             }
-        } else console.error(`Jailor.action: ${game.stage} was not accounted for`)
+        }
     }
 }
